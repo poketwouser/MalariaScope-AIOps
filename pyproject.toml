@@ -1,0 +1,10 @@
+# Tool configuration only. Dependencies live in environment.yml.
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "-ra"

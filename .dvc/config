@@ -1,0 +1,5 @@
+[core]
+    remote = loc_remote
+    autostage = true
+['remote "loc_remote"']
+    url = /home/kiran/tmp/dvc_storage

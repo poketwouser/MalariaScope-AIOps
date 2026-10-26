@@ -32,3 +32,9 @@ dependencies:
       - requests
       # monitoring (Lecture 9: prometheus_client)
       - prometheus-client
+      # testing and code style (rubric: unit tests and standard Python style; tools chosen by the project)
+      - pytest
+      - pytest-cov
+      - httpx                 # required by FastAPI's TestClient
+      - black
+      - flake8

@@ -1,0 +1,170 @@
+schema: '2.0'
+stages:
+  ingest:
+    cmd: PYTHONPATH=src python -m malariascope.data.ingest
+    deps:
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/data/ingest.py
+      hash: md5
+      md5: c17477bf5204adec3ca65dcaf0a9f306
+      size: 2968
+    params:
+      params.yaml:
+        data.dataset: malaria
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: 29b03901d6fb76dd0d00dccc635601aa.dir
+      size: 333145055
+      nfiles: 27559
+    - path: results/ingest.json
+      hash: md5
+      md5: 73381e5f4417401a2a363f09dbac67bc
+      size: 121
+  validate:
+    cmd: PYTHONPATH=src python -m malariascope.data.validate
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 29b03901d6fb76dd0d00dccc635601aa.dir
+      size: 333145055
+      nfiles: 27559
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/data/validate.py
+      hash: md5
+      md5: d80d4e9aa4afd225ac4919ce2cfad525
+      size: 4528
+    params:
+      params.yaml:
+        validate:
+          min_side: 20
+          max_side: 400
+          min_std: 5.0
+          batch_size: 512
+    outs:
+    - path: data/validated
+      hash: md5
+      md5: ec177d7c9e294e3b2fc398b5884a602b.dir
+      size: 3508870
+      nfiles: 1
+    - path: results/validate.json
+      hash: md5
+      md5: fe069153a4bae00ad9473be18bcc4712
+      size: 189
+  split:
+    cmd: PYTHONPATH=src python -m malariascope.data.split
+    deps:
+    - path: data/validated
+      hash: md5
+      md5: ec177d7c9e294e3b2fc398b5884a602b.dir
+      size: 3508870
+      nfiles: 1
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/data/split.py
+      hash: md5
+      md5: e213c5804bb6eace4650af552bf49623
+      size: 2486
+    params:
+      params.yaml:
+        data.seed: 42
+        data.split:
+          train: 0.8
+          val: 0.1
+          test: 0.1
+    outs:
+    - path: data/split
+      hash: md5
+      md5: 0e029c2e33b1c02b7c15f429350ac18a.dir
+      size: 3664586
+      nfiles: 1
+    - path: results/split.json
+      hash: md5
+      md5: 79b236b9867fafb1392c79db3b9d5add
+      size: 334
+  preprocess:
+    cmd: PYTHONPATH=src python -m malariascope.data.preprocess
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 29b03901d6fb76dd0d00dccc635601aa.dir
+      size: 333145055
+      nfiles: 27559
+    - path: data/split
+      hash: md5
+      md5: 0e029c2e33b1c02b7c15f429350ac18a.dir
+      size: 3664586
+      nfiles: 1
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/data/preprocess.py
+      hash: md5
+      md5: c71617acfc56ba44d410ab90b79b0efe
+      size: 3215
+    - path: src/malariascope/image.py
+      hash: md5
+      md5: 0208082700b3e9e015edab267091adc2
+      size: 568
+    params:
+      params.yaml:
+        preprocess:
+          image_size: 64
+          batch_size: 512
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: a8588f48a6cf05c3bfc6dd5a56ab9a95.dir
+      size: 338854638
+      nfiles: 3
+    - path: results/preprocess.json
+      hash: md5
+      md5: c6335ff8214ac7f76664962a5b8dc8b2
+      size: 143
+  eda:
+    cmd: PYTHONPATH=src python -m malariascope.eda
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 29b03901d6fb76dd0d00dccc635601aa.dir
+      size: 333145055
+      nfiles: 27559
+    - path: data/validated
+      hash: md5
+      md5: ec177d7c9e294e3b2fc398b5884a602b.dir
+      size: 3508870
+      nfiles: 1
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/eda.py
+      hash: md5
+      md5: ed1d617837bec8c39f71b411f003ad8d
+      size: 4247
+    outs:
+    - path: docs/figures/class_balance.png
+      hash: md5
+      md5: 08b29f583953a6c0a9b87119c17317bc
+      size: 41408
+    - path: docs/figures/image_sizes.png
+      hash: md5
+      md5: 3154e2fc4bc0aeaa0490bf7dae4c2fb2
+      size: 54828
+    - path: docs/figures/intensity.png
+      hash: md5
+      md5: 00b46495010991bb3ee5eb7e30739a06
+      size: 48797
+    - path: docs/figures/samples.png
+      hash: md5
+      md5: 211d0c7dd0fdcd4fc8d907402618e656
+      size: 348654

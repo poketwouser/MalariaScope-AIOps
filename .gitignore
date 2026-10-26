@@ -12,10 +12,13 @@ __pycache__/
 
 # Data and models are versioned with DVC, not Git. DVC writes its own .gitignore entries
 # for each tracked output (Lecture 2), so they are not listed here.
+# The TFDS download cache is not tracked at all: the exported data/raw is.
+/data/tfds/
 
 # MLflow local stores
 mlruns/
 mlartifacts/
+mlflow.db
 
 # Airflow runtime files
 airflow/logs/

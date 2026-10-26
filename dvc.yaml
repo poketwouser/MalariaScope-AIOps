@@ -1,0 +1,71 @@
+stages:
+  ingest:
+    cmd: PYTHONPATH=src python -m malariascope.data.ingest
+    deps:
+    - src/malariascope/common.py
+    - src/malariascope/data/ingest.py
+    params:
+    - data.dataset
+    outs:
+    - data/raw
+    metrics:
+    - results/ingest.json:
+        cache: false
+  validate:
+    cmd: PYTHONPATH=src python -m malariascope.data.validate
+    deps:
+    - data/raw
+    - src/malariascope/common.py
+    - src/malariascope/data/validate.py
+    params:
+    - validate
+    outs:
+    - data/validated
+    metrics:
+    - results/validate.json:
+        cache: false
+  split:
+    cmd: PYTHONPATH=src python -m malariascope.data.split
+    deps:
+    - data/validated
+    - src/malariascope/common.py
+    - src/malariascope/data/split.py
+    params:
+    - data.seed
+    - data.split
+    outs:
+    - data/split
+    metrics:
+    - results/split.json:
+        cache: false
+  preprocess:
+    cmd: PYTHONPATH=src python -m malariascope.data.preprocess
+    deps:
+    - data/raw
+    - data/split
+    - src/malariascope/common.py
+    - src/malariascope/data/preprocess.py
+    - src/malariascope/image.py
+    params:
+    - preprocess
+    outs:
+    - data/processed
+    metrics:
+    - results/preprocess.json:
+        cache: false
+  eda:
+    cmd: PYTHONPATH=src python -m malariascope.eda
+    deps:
+    - data/raw
+    - data/validated
+    - src/malariascope/common.py
+    - src/malariascope/eda.py
+    plots:
+    - docs/figures/class_balance.png:
+        cache: false
+    - docs/figures/image_sizes.png:
+        cache: false
+    - docs/figures/intensity.png:
+        cache: false
+    - docs/figures/samples.png:
+        cache: false

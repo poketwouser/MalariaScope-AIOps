@@ -9,5 +9,24 @@ data:
     val: 0.1
     test: 0.1
 
+validate:
+  min_side: 20              # px; smaller crops are treated as broken
+  max_side: 400             # px; NIH cell crops are well under this
+  min_std: 5.0              # pixel std below this is a blank image
+  batch_size: 512           # images per Ray Data batch
+
 preprocess:
   image_size: 64            # cells are resized to image_size x image_size RGB
+  batch_size: 512
+
+train:
+  experiment: malariascope  # MLflow experiment name
+  seed: 42
+  epochs: 25                # upper bound; early stopping usually ends sooner
+  patience: 4               # epochs without val_loss improvement before stopping
+  batch_size: 64
+  learning_rate: 0.001
+  filters: [32, 64, 128]    # conv channels per block
+  dense_units: 128
+  dropout: 0.3
+  augment: true             # random flips and rotations during training

@@ -51,4 +51,6 @@ def run_tags(data_stage, data_path):
         "git_dirty": str(bool(git("status", "--porcelain", "--untracked-files=no"))),
         "data_path": data_path,
         "data_md5": dvc_out_hash(data_stage, data_path) or "unknown",
+        # set by `dvc exp run`, links the MLflow run to the DVC experiment
+        "dvc_exp": os.getenv("DVC_EXP_NAME", ""),
     }

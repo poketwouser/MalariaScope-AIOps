@@ -32,3 +32,6 @@ train:
   dense_units: 128
   dropout: 0.3
   augment: true             # random flips and rotations during training
+
+evaluate:
+  target_recall: 0.97       # recall on parasitized the val-tuned threshold must reach

@@ -1,9 +1,13 @@
 """Evaluate stage: score the trained model on the held-out test split.
 
 Parasitized is the positive class: missing an infection is the costly error,
-so recall on it is reported alongside accuracy. Metrics, the confusion matrix,
-the ROC curve and the classification report are logged into the same MLflow
-run as training.
+so recall on it is reported alongside accuracy.
+
+The decision threshold on p(parasitized) is tuned on the validation split to
+reach evaluate.target_recall (a screening tool should rarely miss infections),
+then applied unchanged to the test split. Metrics are reported both at the
+default 0.5 threshold and at the tuned one. Metrics, plots and the
+classification report are logged into the same MLflow run as training.
 
 Output:
     results/evaluate.json              test metrics (DVC metrics)
@@ -35,7 +39,7 @@ from sklearn.metrics import (  # noqa: E402
     roc_curve,
 )
 
-from malariascope.common import get_logger, write_json  # noqa: E402
+from malariascope.common import get_logger, load_params, write_json  # noqa: E402
 from malariascope.model import CLASS_NAMES  # noqa: E402
 from malariascope.tracking import tracking_uri  # noqa: E402
 
@@ -44,9 +48,24 @@ log = get_logger("evaluate")
 POSITIVE = CLASS_NAMES.index("parasitized")
 
 
-def compute_metrics(y_true, probs):
-    """Test metrics with parasitized as the positive class."""
-    y_pred = probs.argmax(axis=1)
+def predict_labels(p_pos, threshold):
+    """Class labels: parasitized when p(parasitized) >= threshold."""
+    other = 1 - POSITIVE
+    return np.where(p_pos >= threshold, POSITIVE, other)
+
+
+def pick_threshold(y_true, p_pos, target_recall):
+    """Highest threshold whose recall on parasitized reaches target_recall."""
+    _, tpr, thresholds = roc_curve(y_true == POSITIVE, p_pos)
+    # thresholds fall as tpr rises, so the first one reaching the target is the
+    # highest, i.e. the one that costs the fewest false positives
+    reached = np.flatnonzero(tpr >= target_recall)
+    return float(min(thresholds[reached[0]], 1.0))
+
+
+def compute_metrics(y_true, p_pos, threshold=0.5):
+    """Metrics with parasitized as the positive class, at the given threshold."""
+    y_pred = predict_labels(p_pos, threshold)
     is_pos = y_true == POSITIVE
     pred_pos = y_pred == POSITIVE
     tn, fp, fn, tp = confusion_matrix(is_pos, pred_pos, labels=[False, True]).ravel()
@@ -56,14 +75,14 @@ def compute_metrics(y_true, probs):
         "precision_parasitized": float(precision_score(is_pos, pred_pos)),
         "f1_parasitized": float(f1_score(is_pos, pred_pos)),
         "specificity": float(tn / (tn + fp)) if tn + fp else 0.0,
-        "roc_auc": float(roc_auc_score(is_pos, probs[:, POSITIVE])),
+        "roc_auc": float(roc_auc_score(is_pos, p_pos)),
         "false_negatives": int(fn),
         "false_positives": int(fp),
-        "n_test": int(len(y_true)),
+        "n": int(len(y_true)),
     }
 
 
-def plot_confusion(y_true, y_pred, out):
+def plot_confusion(y_true, y_pred, threshold, out):
     cm = confusion_matrix(y_true, y_pred, labels=range(len(CLASS_NAMES)))
     fig, ax = plt.subplots(figsize=(5, 4.5))
     ax.imshow(cm, cmap="Blues")
@@ -76,7 +95,7 @@ def plot_confusion(y_true, y_pred, out):
     ax.set_xlabel("Predicted class")
     ax.set_ylabel("True class")
     ax.set_title(
-        "Confusion matrix (test split, counts)\n"
+        f"Confusion matrix (test split, counts, threshold {threshold:.3f})\n"
         "Top-right cell = infections the model missed.",
         fontsize=10,
         loc="left",
@@ -86,8 +105,8 @@ def plot_confusion(y_true, y_pred, out):
     plt.close(fig)
 
 
-def plot_roc(y_true, probs, auc, out):
-    fpr, tpr, _ = roc_curve(y_true == POSITIVE, probs[:, POSITIVE])
+def plot_roc(y_true, p_pos, auc, out):
+    fpr, tpr, _ = roc_curve(y_true == POSITIVE, p_pos)
     fig, ax = plt.subplots(figsize=(5, 4.5))
     ax.plot(fpr, tpr, color="#D55E00", label=f"model (AUC {auc:.3f})")
     ax.plot([0, 1], [0, 1], linestyle="--", color="#999999", label="chance")
@@ -114,31 +133,46 @@ def main():
     parser.add_argument("--plots-dir", default="results/plots")
     args = parser.parse_args()
 
-    with np.load(Path(args.data_dir) / "test.npz") as f:
-        x_test, y_test = f["x"], f["y"]
+    params = load_params("evaluate")
     model = keras.models.load_model(args.model)
-    probs = model.predict(x_test, batch_size=256, verbose=0)
-    metrics = compute_metrics(y_test, probs)
-    log.info("test metrics: %s", metrics)
+
+    def positive_probs(split):
+        with np.load(Path(args.data_dir) / f"{split}.npz") as f:
+            x, y = f["x"], f["y"]
+        return y, model.predict(x, batch_size=256, verbose=0)[:, POSITIVE]
+
+    y_val, p_val = positive_probs("val")
+    y_test, p_test = positive_probs("test")
+
+    threshold = pick_threshold(y_val, p_val, params["target_recall"])
+    default = compute_metrics(y_test, p_test, 0.5)
+    tuned = compute_metrics(y_test, p_test, threshold)
+    log.info("test metrics at 0.5: %s", default)
+    log.info("val-tuned threshold %.4f, test metrics: %s", threshold, tuned)
 
     plots = Path(args.plots_dir)
     plots.mkdir(parents=True, exist_ok=True)
-    plot_confusion(y_test, probs.argmax(axis=1), plots / "confusion_matrix.png")
-    plot_roc(y_test, probs, metrics["roc_auc"], plots / "roc_curve.png")
-    report = classification_report(
-        y_test, probs.argmax(axis=1), target_names=CLASS_NAMES, digits=4
-    )
-    log.info("classification report:\n%s", report)
+    y_pred = predict_labels(p_test, threshold)
+    plot_confusion(y_test, y_pred, threshold, plots / "confusion_matrix.png")
+    plot_roc(y_test, p_test, tuned["roc_auc"], plots / "roc_curve.png")
+    report = classification_report(y_test, y_pred, target_names=CLASS_NAMES, digits=4)
+    log.info("classification report (tuned threshold):\n%s", report)
 
     run_id = json.loads(Path(args.train_metrics).read_text())["run_id"]
     mlflow.set_tracking_uri(tracking_uri())
     with mlflow.start_run(run_id=run_id):
-        mlflow.log_metrics({f"test_{k}": v for k, v in metrics.items()})
+        mlflow.log_param("decision_threshold", round(threshold, 6))
+        mlflow.log_param("target_recall", params["target_recall"])
+        mlflow.log_metrics({f"test_{k}": v for k, v in default.items()})
+        mlflow.log_metrics({f"test_tuned_{k}": v for k, v in tuned.items()})
         mlflow.log_artifact(str(plots / "confusion_matrix.png"))
         mlflow.log_artifact(str(plots / "roc_curve.png"))
         mlflow.log_text(report, "classification_report.txt")
 
-    write_json({"run_id": run_id, **metrics}, args.metrics)
+    write_json(
+        {"run_id": run_id, "threshold": threshold, "default": default, "tuned": tuned},
+        args.metrics,
+    )
 
 
 if __name__ == "__main__":

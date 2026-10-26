@@ -90,6 +90,8 @@ stages:
         cache: false
   evaluate:
     cmd: PYTHONPATH=src python -m malariascope.evaluate
+    params:
+    - evaluate
     deps:
     - data/processed
     - models/model.keras

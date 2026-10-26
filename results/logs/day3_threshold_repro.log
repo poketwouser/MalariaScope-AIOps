@@ -1,0 +1,30 @@
+Stage 'ingest' didn't change, skipping
+Stage 'validate' didn't change, skipping
+Stage 'split' didn't change, skipping
+Stage 'preprocess' didn't change, skipping
+Stage 'eda' didn't change, skipping
+Stage 'train' didn't change, skipping
+Running stage 'evaluate':
+> PYTHONPATH=src python -m malariascope.evaluate
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793044638.884693   59169 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793044638.885013   59169 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793044640.124657   59169 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793044640.125137   59169 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+2026-10-27 01:27:24,136 INFO evaluate: test metrics at 0.5: {'accuracy': 0.966255442670537, 'recall_parasitized': 0.9571843251088534, 'precision_parasitized': 0.974870657797487, 'f1_parasitized': 0.965946539729037, 'specificity': 0.9753265602322206, 'roc_auc': 0.99347142848115, 'false_negatives': 59, 'false_positives': 34, 'n': 2756}
+2026-10-27 01:27:24,136 INFO evaluate: val-tuned threshold 0.2929, test metrics: {'accuracy': 0.9629898403483309, 'recall_parasitized': 0.9666182873730044, 'precision_parasitized': 0.9596541786743515, 'f1_parasitized': 0.9631236442516269, 'specificity': 0.9593613933236574, 'roc_auc': 0.99347142848115, 'false_negatives': 46, 'false_positives': 56, 'n': 2756}
+2026-10-27 01:27:24,306 INFO evaluate: classification report (tuned threshold):
+              precision    recall  f1-score   support
+
+ parasitized     0.9597    0.9666    0.9631      1378
+  uninfected     0.9664    0.9594    0.9629      1378
+
+    accuracy                         0.9630      2756
+   macro avg     0.9630    0.9630    0.9630      2756
+weighted avg     0.9630    0.9630    0.9630      2756
+
+🏃 View run train at: http://127.0.0.1:5000/#/experiments/1/runs/51a6c0b57afb49ab91ac8ebb9154668a
+🧪 View experiment at: http://127.0.0.1:5000/#/experiments/1
+Updating lock file 'dvc.lock'
+Use `dvc push` to send your updates to remote storage.

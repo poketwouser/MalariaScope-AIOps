@@ -246,8 +246,8 @@ stages:
       size: 1397
     - path: src/malariascope/evaluate.py
       hash: md5
-      md5: 311b2ad99fa1ea664984a820a8cb0108
-      size: 5197
+      md5: 9dd9cb2a0cc8f6f5bda4e621569c8fe1
+      size: 6847
     - path: src/malariascope/model.py
       hash: md5
       md5: b31fbf1556a7f64eb4bffe2311ac5c46
@@ -256,15 +256,19 @@ stages:
       hash: md5
       md5: 80fd2ce0607c0bc8bf69f9d43c4ec49e
       size: 1902
+    params:
+      params.yaml:
+        evaluate:
+          target_recall: 0.97
     outs:
     - path: results/evaluate.json
       hash: md5
-      md5: 6ba700fb7db7045a2159dc03b8007f41
-      size: 349
+      md5: d5a94ef4e1b906451f207147e0d35fd8
+      size: 747
     - path: results/plots/confusion_matrix.png
       hash: md5
-      md5: a25db9db066669239c6bf57a11af723f
-      size: 35857
+      md5: a3678550e9fc90213971e716464a9e27
+      size: 39101
     - path: results/plots/roc_curve.png
       hash: md5
       md5: 4787d888328260e662deaf38c46e6c2d

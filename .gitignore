@@ -35,3 +35,4 @@ airflow/webserver_config.py
 .idea/
 .DS_Store
 .env
+results/logs/mlflow_server.log

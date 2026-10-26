@@ -1,0 +1,13 @@
+# Pipeline parameters read by the DVC stages (Lecture 11: params.yaml).
+# Changing a value here makes `dvc repro` re-run only the stages that depend on it.
+
+data:
+  dataset: malaria          # TensorFlow Datasets name
+  seed: 42
+  split:                    # fixed train/val/test fractions
+    train: 0.8
+    val: 0.1
+    test: 0.1
+
+preprocess:
+  image_size: 64            # cells are resized to image_size x image_size RGB

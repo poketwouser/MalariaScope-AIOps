@@ -1,0 +1,94 @@
+Registry store URI not provided. Using backend store URI.
+2026/10/27 01:15:13 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/27 01:15:13 INFO mlflow.store.db.utils: Updating database tables
+[MLflow] Security middleware enabled with default settings (localhost-only). To allow connections from other hosts, use --host 0.0.0.0 and configure --allowed-hosts and --cors-allowed-origins.
+2026/10/27 01:15:18 INFO mlflow.server.jobs.executor_registry: Available backends after discovery: local
+2026/10/27 01:15:18 INFO mlflow.server.jobs.executor_registry: Job executor backend 'local' passed requirements check
+2026/10/27 01:15:18 INFO:     Uvicorn running on http://127.0.0.1:5000 (Press CTRL+C to quit)
+2026/10/27 01:15:18 INFO:     Started parent process [43399]
+/home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/mlflow/server/fastapi_app.py:23: StarletteDeprecationWarning: starlette.middleware.wsgi is deprecated and will be removed in a future release. Please refer to https://github.com/abersheeran/a2wsgi as a replacement.
+  from starlette.middleware.wsgi import WSGIResponder, build_environ
+/home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/mlflow/server/fastapi_app.py:23: StarletteDeprecationWarning: starlette.middleware.wsgi is deprecated and will be removed in a future release. Please refer to https://github.com/abersheeran/a2wsgi as a replacement.
+  from starlette.middleware.wsgi import WSGIResponder, build_environ
+/home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/mlflow/server/fastapi_app.py:23: StarletteDeprecationWarning: starlette.middleware.wsgi is deprecated and will be removed in a future release. Please refer to https://github.com/abersheeran/a2wsgi as a replacement.
+  from starlette.middleware.wsgi import WSGIResponder, build_environ
+/home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/mlflow/server/fastapi_app.py:23: StarletteDeprecationWarning: starlette.middleware.wsgi is deprecated and will be removed in a future release. Please refer to https://github.com/abersheeran/a2wsgi as a replacement.
+  from starlette.middleware.wsgi import WSGIResponder, build_environ
+2026/10/27 01:15:20 INFO:     Started server process [43405]
+2026/10/27 01:15:20 INFO:     Waiting for application startup.
+2026/10/27 01:15:20 INFO:     Started server process [43403]
+2026/10/27 01:15:20 INFO:     Waiting for application startup.
+2026/10/27 01:15:20 INFO:     Application startup complete.
+2026/10/27 01:15:20 INFO:     Application startup complete.
+2026/10/27 01:15:20 INFO:     Started server process [43404]
+2026/10/27 01:15:20 INFO:     Waiting for application startup.
+2026/10/27 01:15:20 INFO:     Application startup complete.
+2026/10/27 01:15:20 INFO:     Started server process [43402]
+2026/10/27 01:15:20 INFO:     Waiting for application startup.
+2026/10/27 01:15:20 INFO:     Application startup complete.
+2026/10/27 01:15:20 INFO:     127.0.0.1:52380 - "GET /health HTTP/1.1" 200 OK
+2026/10/27 01:15:21 INFO mlflow.server.jobs.utils: Registered online_scoring_scheduler periodic task (runs every 1 minute)
+2026/10/27 01:15:21 INFO mlflow.server.jobs.utils: Registered trace_archival_scheduler periodic task (polls every 1 minute and no-ops when trace archival is disabled or unconfigured)
+2026/10/27 01:15:21 INFO mlflow.server.jobs.utils: SQL trace rollup scheduler was not registered because rollups are disabled
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "GET /api/2.0/mlflow/experiments/get-by-name?experiment_name=malariascope HTTP/1.1" 404 Not Found
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "POST /api/2.0/mlflow/experiments/create HTTP/1.1" 200 OK
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "GET /api/2.0/mlflow/experiments/get?experiment_id=1 HTTP/1.1" 200 OK
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "POST /api/2.0/mlflow/runs/create HTTP/1.1" 200 OK
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:16:33 INFO:     127.0.0.1:47542 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:16:44 INFO:     127.0.0.1:39928 - "GET /api/3.0/mlflow/server-info HTTP/1.1" 200 OK
+2026/10/27 01:17:10 INFO:     127.0.0.1:38994 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:17:45 INFO:     127.0.0.1:45696 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:18:21 INFO:     127.0.0.1:37158 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:18:57 INFO:     127.0.0.1:55890 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:19:33 INFO:     127.0.0.1:39014 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:20:09 INFO:     127.0.0.1:47360 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:20:44 INFO:     127.0.0.1:33130 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:21:20 INFO:     127.0.0.1:57894 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:21:56 INFO:     127.0.0.1:51100 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:22:32 INFO:     127.0.0.1:60528 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:23:09 INFO:     127.0.0.1:55120 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/51a6c0b57afb49ab91ac8ebb9154668a/artifacts/training_curves.png HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/51a6c0b57afb49ab91ac8ebb9154668a/artifacts/model_summary.txt HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "POST /api/2.0/mlflow/logged-models HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "POST /api/2.0/mlflow/runs/outputs HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=accuracy&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=loss&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=val_accuracy&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=val_loss&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=best_best_epoch&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=best_epochs_run&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=best_val_loss&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=best_val_accuracy&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/metrics/get-history?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&metric_key=best_train_seconds&run_id=51a6c0b57afb49ab91ac8ebb9154668a&max_results=25000 HTTP/1.1" 200 OK
+2026/10/27 01:23:45 INFO:     127.0.0.1:54132 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/logged-models/m-2a5ea90bc6da4d70af99c0c363eb2d25 HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/python_env.yaml HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/requirements.txt HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/conda.yaml HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/MLmodel HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/serving_input_example.json HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/input_example.json HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/data/model.keras HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/data/save_format.txt HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/models/m-2a5ea90bc6da4d70af99c0c363eb2d25/artifacts/data/keras_module.txt HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "PATCH /api/2.0/mlflow/logged-models/m-2a5ea90bc6da4d70af99c0c363eb2d25 HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:50 INFO:     127.0.0.1:54132 - "POST /api/2.0/mlflow/runs/update HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "POST /api/2.0/mlflow/runs/update HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "POST /api/2.0/mlflow/runs/log-batch HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/51a6c0b57afb49ab91ac8ebb9154668a/artifacts/confusion_matrix.png HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/51a6c0b57afb49ab91ac8ebb9154668a/artifacts/roc_curve.png HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "PUT /api/2.0/mlflow-artifacts/artifacts/1/51a6c0b57afb49ab91ac8ebb9154668a/artifacts/classification_report.txt HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "GET /api/2.0/mlflow/runs/get?run_uuid=51a6c0b57afb49ab91ac8ebb9154668a&run_id=51a6c0b57afb49ab91ac8ebb9154668a HTTP/1.1" 200 OK
+2026/10/27 01:23:55 INFO:     127.0.0.1:59696 - "POST /api/2.0/mlflow/runs/update HTTP/1.1" 200 OK

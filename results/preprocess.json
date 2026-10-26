@@ -1,7 +1,7 @@
 {
   "image_size": 64,
-  "images_per_sec": 1955.7,
-  "seconds": 14.09,
+  "images_per_sec": 5088.9,
+  "seconds": 5.42,
   "sizes": {
     "test": 2756,
     "train": 22046,

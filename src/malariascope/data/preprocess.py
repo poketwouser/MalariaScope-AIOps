@@ -36,9 +36,10 @@ def resize_batch(batch, root, size):
     }
 
 
-def preprocess(manifest, root, size, batch_size):
+def preprocess(manifest, root, size, batch_size, num_blocks):
     """Resize all images with Ray and return {split: (x, y)}."""
-    ds = ray.data.from_pandas(manifest).map_batches(
+    # several blocks, or Ray runs everything as a single task on one CPU
+    ds = ray.data.from_pandas(manifest, override_num_blocks=num_blocks).map_batches(
         resize_batch,
         batch_format="pandas",
         batch_size=batch_size,
@@ -68,10 +69,19 @@ def main():
     log.info("preprocessing %d images to %dpx", len(manifest), params["image_size"])
 
     ray.init()
+    # progress bars flood the DVC/Airflow logs; throughput is logged instead
+    ctx = ray.data.DataContext.get_current()
+    ctx.enable_progress_bars = False
+    # keep manifest order so the .npz files are identical from run to run
+    ctx.execution_options.preserve_order = True
     try:
         with Timer() as t:
             data = preprocess(
-                manifest, args.raw_dir, params["image_size"], params["batch_size"]
+                manifest,
+                args.raw_dir,
+                params["image_size"],
+                params["batch_size"],
+                params["num_blocks"],
             )
     finally:
         ray.shutdown()

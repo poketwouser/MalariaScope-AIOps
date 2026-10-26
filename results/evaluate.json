@@ -1,0 +1,12 @@
+{
+  "accuracy": 0.966255442670537,
+  "f1_parasitized": 0.965946539729037,
+  "false_negatives": 59,
+  "false_positives": 34,
+  "n_test": 2756,
+  "precision_parasitized": 0.974870657797487,
+  "recall_parasitized": 0.9571843251088534,
+  "roc_auc": 0.99347142848115,
+  "run_id": "51a6c0b57afb49ab91ac8ebb9154668a",
+  "specificity": 0.9753265602322206
+}

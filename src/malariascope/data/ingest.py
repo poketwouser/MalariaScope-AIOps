@@ -23,6 +23,8 @@ def export_dataset(name, tfds_dir, out_dir):
     # imported here so the other stages don't pay TensorFlow's import time
     import tensorflow_datasets as tfds
 
+    # progress bars redraw thousands of times and flood the DVC/Airflow logs
+    tfds.disable_progress_bar()
     ds, info = tfds.load(
         name,
         split="train",  # the malaria dataset ships as a single split

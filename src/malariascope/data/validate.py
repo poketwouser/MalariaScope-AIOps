@@ -67,7 +67,10 @@ def check_batch(batch, root, min_side, max_side, min_std):
 
 def validate(manifest, root, params):
     """Run the checks on all rows with Ray and return the checked DataFrame."""
-    ds = ray.data.from_pandas(manifest).map_batches(
+    # several blocks, or Ray runs everything as a single task on one CPU
+    ds = ray.data.from_pandas(
+        manifest, override_num_blocks=params["num_blocks"]
+    ).map_batches(
         check_batch,
         batch_format="pandas",
         batch_size=params["batch_size"],
@@ -97,6 +100,8 @@ def main():
     log.info("validating %d images", len(manifest))
 
     ray.init()
+    # progress bars flood the DVC/Airflow logs; throughput is logged instead
+    ray.data.DataContext.get_current().enable_progress_bars = False
     try:
         with Timer() as t:
             checked = validate(manifest, args.raw_dir, params)

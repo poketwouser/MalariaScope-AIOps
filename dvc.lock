@@ -9,8 +9,8 @@ stages:
       size: 1397
     - path: src/malariascope/data/ingest.py
       hash: md5
-      md5: c17477bf5204adec3ca65dcaf0a9f306
-      size: 2968
+      md5: 7033892136e558a0107a689eb6c48edf
+      size: 3077
     params:
       params.yaml:
         data.dataset: malaria
@@ -22,8 +22,8 @@ stages:
       nfiles: 27559
     - path: results/ingest.json
       hash: md5
-      md5: 73381e5f4417401a2a363f09dbac67bc
-      size: 121
+      md5: 1b446bc59b80aa6249bf97140639df8f
+      size: 120
   validate:
     cmd: PYTHONPATH=src python -m malariascope.data.validate
     deps:
@@ -38,15 +38,16 @@ stages:
       size: 1397
     - path: src/malariascope/data/validate.py
       hash: md5
-      md5: d80d4e9aa4afd225ac4919ce2cfad525
-      size: 4528
+      md5: 433a021cb27fd2195420ed486646d57d
+      size: 4802
     params:
       params.yaml:
         validate:
           min_side: 20
           max_side: 400
           min_std: 5.0
-          batch_size: 512
+          batch_size: 256
+          num_blocks: 32
     outs:
     - path: data/validated
       hash: md5
@@ -55,8 +56,8 @@ stages:
       nfiles: 1
     - path: results/validate.json
       hash: md5
-      md5: fe069153a4bae00ad9473be18bcc4712
-      size: 189
+      md5: a29d2c2b0f2e199ed7541060dc9dc9b5
+      size: 187
   split:
     cmd: PYTHONPATH=src python -m malariascope.data.split
     deps:
@@ -109,8 +110,8 @@ stages:
       size: 1397
     - path: src/malariascope/data/preprocess.py
       hash: md5
-      md5: c71617acfc56ba44d410ab90b79b0efe
-      size: 3215
+      md5: 9f5036080d14a9f6a71fda0d9d78978f
+      size: 3700
     - path: src/malariascope/image.py
       hash: md5
       md5: 0208082700b3e9e015edab267091adc2
@@ -119,7 +120,8 @@ stages:
       params.yaml:
         preprocess:
           image_size: 64
-          batch_size: 512
+          batch_size: 256
+          num_blocks: 32
     outs:
     - path: data/processed
       hash: md5
@@ -128,8 +130,8 @@ stages:
       nfiles: 3
     - path: results/preprocess.json
       hash: md5
-      md5: c6335ff8214ac7f76664962a5b8dc8b2
-      size: 143
+      md5: 1d6d893c8406db09f7c3ebf3f807be7b
+      size: 142
   eda:
     cmd: PYTHONPATH=src python -m malariascope.eda
     deps:
@@ -168,3 +170,102 @@ stages:
       hash: md5
       md5: 211d0c7dd0fdcd4fc8d907402618e656
       size: 348654
+  train:
+    cmd: PYTHONPATH=src python -m malariascope.train
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: a8588f48a6cf05c3bfc6dd5a56ab9a95.dir
+      size: 338854638
+      nfiles: 3
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/model.py
+      hash: md5
+      md5: b31fbf1556a7f64eb4bffe2311ac5c46
+      size: 1494
+    - path: src/malariascope/tracking.py
+      hash: md5
+      md5: 80fd2ce0607c0bc8bf69f9d43c4ec49e
+      size: 1902
+    - path: src/malariascope/train.py
+      hash: md5
+      md5: bab9a9e5c40b5724b62f2ec4048ad30d
+      size: 5578
+    params:
+      params.yaml:
+        preprocess.image_size: 64
+        train:
+          experiment: malariascope
+          seed: 42
+          epochs: 25
+          patience: 4
+          batch_size: 64
+          learning_rate: 0.001
+          filters:
+          - 32
+          - 64
+          - 128
+          dense_units: 128
+          dropout: 0.3
+          augment: true
+    outs:
+    - path: models/model.keras
+      hash: md5
+      md5: 629649ce04be7dc301c6e2fe9515a81a
+      size: 1404439
+    - path: results/plots/training_curves.png
+      hash: md5
+      md5: 1498cd878b2617508372a2fe2a271a14
+      size: 70517
+    - path: results/train.json
+      hash: md5
+      md5: 62042e7c358b31efeade65f655a60544
+      size: 189
+  evaluate:
+    cmd: PYTHONPATH=src python -m malariascope.evaluate
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: a8588f48a6cf05c3bfc6dd5a56ab9a95.dir
+      size: 338854638
+      nfiles: 3
+    - path: models/model.keras
+      hash: md5
+      md5: 629649ce04be7dc301c6e2fe9515a81a
+      size: 1404439
+    - path: results/train.json
+      hash: md5
+      md5: 62042e7c358b31efeade65f655a60544
+      size: 189
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/evaluate.py
+      hash: md5
+      md5: 311b2ad99fa1ea664984a820a8cb0108
+      size: 5197
+    - path: src/malariascope/model.py
+      hash: md5
+      md5: b31fbf1556a7f64eb4bffe2311ac5c46
+      size: 1494
+    - path: src/malariascope/tracking.py
+      hash: md5
+      md5: 80fd2ce0607c0bc8bf69f9d43c4ec49e
+      size: 1902
+    outs:
+    - path: results/evaluate.json
+      hash: md5
+      md5: 6ba700fb7db7045a2159dc03b8007f41
+      size: 349
+    - path: results/plots/confusion_matrix.png
+      hash: md5
+      md5: a25db9db066669239c6bf57a11af723f
+      size: 35857
+    - path: results/plots/roc_curve.png
+      hash: md5
+      md5: 4787d888328260e662deaf38c46e6c2d
+      size: 53707

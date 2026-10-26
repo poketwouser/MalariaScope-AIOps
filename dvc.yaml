@@ -69,3 +69,40 @@ stages:
         cache: false
     - docs/figures/samples.png:
         cache: false
+  train:
+    cmd: PYTHONPATH=src python -m malariascope.train
+    deps:
+    - data/processed
+    - src/malariascope/common.py
+    - src/malariascope/model.py
+    - src/malariascope/tracking.py
+    - src/malariascope/train.py
+    params:
+    - preprocess.image_size
+    - train
+    outs:
+    - models/model.keras
+    metrics:
+    - results/train.json:
+        cache: false
+    plots:
+    - results/plots/training_curves.png:
+        cache: false
+  evaluate:
+    cmd: PYTHONPATH=src python -m malariascope.evaluate
+    deps:
+    - data/processed
+    - models/model.keras
+    - results/train.json
+    - src/malariascope/common.py
+    - src/malariascope/evaluate.py
+    - src/malariascope/model.py
+    - src/malariascope/tracking.py
+    metrics:
+    - results/evaluate.json:
+        cache: false
+    plots:
+    - results/plots/confusion_matrix.png:
+        cache: false
+    - results/plots/roc_curve.png:
+        cache: false

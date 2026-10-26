@@ -13,11 +13,13 @@ validate:
   min_side: 20              # px; smaller crops are treated as broken
   max_side: 400             # px; NIH cell crops are well under this
   min_std: 5.0              # pixel std below this is a blank image
-  batch_size: 512           # images per Ray Data batch
+  batch_size: 256           # images per Ray Data batch
+  num_blocks: 32            # Ray Data blocks, about 2 per CPU core so all 16 cores stay busy
 
 preprocess:
   image_size: 64            # cells are resized to image_size x image_size RGB
-  batch_size: 512
+  batch_size: 256
+  num_blocks: 32
 
 train:
   experiment: malariascope  # MLflow experiment name

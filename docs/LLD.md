@@ -40,6 +40,8 @@ monitoring/          Prometheus and Grafana configuration (section 7)
 
 ## 3. Backend REST API (FastAPI, port 8000)
 
+Run: `PYTHONPATH=src:backend uvicorn app.main:create_app --factory --port 8000`. Every response carries `X-Request-ID` and `X-Process-Time-ms` headers.
+
 All JSON responses use UTF-8. Every error response has the same shape:
 
 ```json
@@ -65,7 +67,7 @@ PredictResponse {
   "label": "parasitized | uninfected",
   "is_parasitized": "bool",
   "p_parasitized": "float 0-1",
-  "confidence": "float 0.5-1, probability of the returned label",
+  "confidence": "float 0-1, probability of the returned label (can be < 0.5 when the tuned threshold is below 0.5; the UI flags these for a manual re-check)",
   "threshold": "float, decision threshold of the serving model version",
   "model_version": "string",
   "latency_ms": "float"
@@ -101,11 +103,11 @@ Returns 200 with the following body, or 503 `model_unavailable`:
 
 ```json
 {"name": "malariascope", "alias": "champion", "version": "string",
- "threshold": float, "test_accuracy": float, "test_recall_parasitized": float,
+ "threshold": float, "image_size": int, "test_accuracy": float, "test_recall_parasitized": float,
  "git_commit": "string", "data_md5": "string", "class_names": ["parasitized", "uninfected"]}
 ```
 
-Read from the MLflow registry (the tags on the version behind `@champion`) and cached for `MODEL_INFO_TTL` seconds.
+Read from the MLflow registry (the tags on the version behind `@champion`; `image_size` comes from the model signature) and cached for `MODEL_INFO_TTL` seconds. If the registry is down, the last known info is served.
 
 ### 3.5 `GET /health` and `GET /ready`
 

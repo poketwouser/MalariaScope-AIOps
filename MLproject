@@ -1,0 +1,41 @@
+# MLflow Project (Lecture 3): one entry point per pipeline stage, all run in the
+# same Conda environment, so dev and test use identical dependencies.
+#   mlflow run . -e train
+#   mlflow run . -e main            # whole pipeline through DVC
+# Parameters come from params.yaml (shared with DVC); entry points take only paths.
+name: malariascope
+
+conda_env: environment.yml
+
+entry_points:
+  main:
+    command: "dvc repro"
+
+  ingest:
+    command: "PYTHONPATH=src python -m malariascope.data.ingest"
+
+  validate:
+    command: "PYTHONPATH=src python -m malariascope.data.validate"
+
+  split:
+    command: "PYTHONPATH=src python -m malariascope.data.split"
+
+  preprocess:
+    command: "PYTHONPATH=src python -m malariascope.data.preprocess"
+
+  train:
+    parameters:
+      data_dir: {type: str, default: data/processed}
+      model: {type: str, default: models/model.keras}
+    command: "PYTHONPATH=src python -m malariascope.train --data-dir {data_dir} --model {model}"
+
+  evaluate:
+    parameters:
+      model: {type: str, default: models/model.keras}
+    command: "PYTHONPATH=src python -m malariascope.evaluate --model {model}"
+
+  promote:
+    command: "PYTHONPATH=src python -m malariascope.promote"
+
+  rollback:
+    command: "PYTHONPATH=src python -m malariascope.rollback"

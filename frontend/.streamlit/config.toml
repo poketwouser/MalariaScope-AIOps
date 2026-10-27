@@ -1,0 +1,13 @@
+[theme]
+# calm clinical palette; result colours come from st.error / st.success
+base = "light"
+primaryColor = "#0072B2"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F2F6FA"
+textColor = "#1A1A1A"
+
+[server]
+maxUploadSize = 5
+
+[browser]
+gatherUsageStats = false

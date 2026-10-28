@@ -1,35 +1,0 @@
-INFO:     Started server process [15091]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:59410 - "GET /health HTTP/1.1" 200 OK
-Downloading artifacts:   0%|          | 0/1 [00:00<?, ?it/s]Downloading artifacts: 100%|██████████| 1/1 [00:00<00:00, 64.73it/s]Downloading artifacts: 100%|██████████| 1/1 [00:00<00:00, 63.63it/s]
-INFO:     127.0.0.1:59424 - "GET /model/info HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59434 - "GET /ready HTTP/1.1" 200 OK
-2026-10-28 18:46:15,941 INFO backend: predict 50cfe583-4f2b-476a-a7eb-6af89b5cf5c6: parasitized p=0.9887 v1
-INFO:     127.0.0.1:59448 - "POST /predict HTTP/1.1" 200 OK
-2026-10-28 18:46:16,087 INFO backend: predict 318ba475-13a7-42d5-ae0c-5ca9a9e27935: parasitized p=1.0000 v1
-INFO:     127.0.0.1:59458 - "POST /predict HTTP/1.1" 200 OK
-2026-10-28 18:46:16,229 INFO backend: predict af058ea2-74a0-4ffe-a3dc-12cb60cf94b6: uninfected p=0.0422 v1
-INFO:     127.0.0.1:59462 - "POST /predict HTTP/1.1" 200 OK
-2026-10-28 18:46:16,370 INFO backend: predict 1bc2073a-7ef1-47bd-b19d-3dff47c986c6: uninfected p=0.0207 v1
-INFO:     127.0.0.1:59466 - "POST /predict HTTP/1.1" 200 OK
-2026-10-28 18:46:16,476 WARNING backend: /predict invalid_image: the file is not a readable image
-INFO:     127.0.0.1:59476 - "POST /predict HTTP/1.1" 400 Bad Request
-INFO:     127.0.0.1:59492 - "GET /metrics HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50230 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50242 - "GET /model/info HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50256 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50268 - "GET /model/info HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50280 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50296 - "GET /model/info HTTP/1.1" 200 OK
-2026-10-28 18:46:26,565 INFO backend: predict abd6374b-b674-4e53-8b6c-850b08da7d67: parasitized p=0.9887 v1
-INFO:     127.0.0.1:50300 - "POST /predict HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50306 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50314 - "GET /model/info HTTP/1.1" 200 OK
-2026-10-28 18:46:26,741 INFO backend: feedback 1 for abd6374b-b674-4e53-8b6c-850b08da7d67: parasitized -> parasitized
-INFO:     127.0.0.1:50330 - "POST /feedback HTTP/1.1" 201 Created
-INFO:     127.0.0.1:50346 - "GET /ready HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50354 - "GET /model/info HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50368 - "GET /feedback/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50380 - "GET /feedback/stats HTTP/1.1" 200 OK

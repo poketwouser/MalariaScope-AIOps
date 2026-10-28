@@ -39,3 +39,5 @@ results/logs/mlflow_server.log
 
 # local backend feedback store (snapshotted into DVC by the retraining DAG)
 /feedback/
+results/logs/backend.log
+results/logs/mlflow_serve.log

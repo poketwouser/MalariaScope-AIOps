@@ -1,0 +1,6 @@
+MLflow model server http://127.0.0.1:5001
+  parasitized_1.png    p(parasitized)=0.9887   194.8 ms
+  parasitized_2.png    p(parasitized)=1.0000    79.9 ms
+  uninfected_1.png     p(parasitized)=0.0422    75.2 ms
+  uninfected_2.png     p(parasitized)=0.0207    80.1 ms
+OK

@@ -1,0 +1,19 @@
+{
+  "challenger": {
+    "accuracy": 0.9626269956458636,
+    "f1_parasitized": 0.9628024557602023,
+    "false_negatives": 45,
+    "false_positives": 58,
+    "n": 2756,
+    "precision_parasitized": 0.9583033788641265,
+    "recall_parasitized": 0.967343976777939,
+    "roc_auc": 0.9934150795941196,
+    "specificity": 0.9579100145137881,
+    "threshold": 0.24167083203792572,
+    "version": 1
+  },
+  "champion_before": null,
+  "champion_now": 1,
+  "promoted": true,
+  "reason": "no champion yet"
+}

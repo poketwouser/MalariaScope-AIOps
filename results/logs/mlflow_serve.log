@@ -1,0 +1,50 @@
+Downloading artifacts:   0%|          | 0/9 [00:00<?, ?it/s]Downloading artifacts:  11%|█         | 1/9 [00:00<00:00, 11366.68it/s]Downloading artifacts:  22%|██▏       | 2/9 [00:00<00:00, 8297.34it/s] Downloading artifacts:  33%|███▎      | 3/9 [00:00<00:00, 350.05it/s] Downloading artifacts:  44%|████▍     | 4/9 [00:00<00:00, 245.71it/s]Downloading artifacts:  56%|█████▌    | 5/9 [00:00<00:00, 262.57it/s]Downloading artifacts:  67%|██████▋   | 6/9 [00:00<00:00, 267.84it/s]Downloading artifacts:  78%|███████▊  | 7/9 [00:00<00:00, 288.36it/s]Downloading artifacts:  89%|████████▉ | 8/9 [00:00<00:00, 324.01it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 338.88it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 337.15it/s]
+2026/10/28 18:45:56 INFO mlflow.models.flavor_backend_registry: Selected backend for flavor 'python_function'
+Downloading artifacts:   0%|          | 0/9 [00:00<?, ?it/s]Downloading artifacts:  11%|█         | 1/9 [00:00<00:00, 16448.25it/s]Downloading artifacts:  22%|██▏       | 2/9 [00:00<00:00, 9310.33it/s] Downloading artifacts:  33%|███▎      | 3/9 [00:00<00:00, 176.33it/s] Downloading artifacts:  44%|████▍     | 4/9 [00:00<00:00, 225.33it/s]Downloading artifacts:  56%|█████▌    | 5/9 [00:00<00:00, 258.50it/s]Downloading artifacts:  67%|██████▋   | 6/9 [00:00<00:00, 305.20it/s]Downloading artifacts:  78%|███████▊  | 7/9 [00:00<00:00, 354.56it/s]Downloading artifacts:  89%|████████▉ | 8/9 [00:00<00:00, 373.29it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 366.35it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 362.72it/s]
+2026/10/28 18:45:57 INFO mlflow.pyfunc.backend: === Running command 'exec uvicorn --host 127.0.0.1 --port 5001 --workers 1 mlflow.pyfunc.scoring_server.app:app'
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793193359.504726   14738 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793193359.505470   14738 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793193360.734267   14738 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793193360.734739   14738 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+E0000 00:00:1793193361.507096   14738 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+INFO:     Started server process [14738]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:5001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:39804 - "GET /ping HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39814 - "GET /ping HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 113ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 127ms/step
+INFO:     127.0.0.1:39824 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 18ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 33ms/step
+INFO:     127.0.0.1:39830 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 19ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 32ms/step
+INFO:     127.0.0.1:39844 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 19ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 32ms/step
+INFO:     127.0.0.1:39848 - "POST /invocations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57186 - "GET /ping HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 32ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 58ms/step
+INFO:     127.0.0.1:57202 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 33ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 58ms/step
+INFO:     127.0.0.1:57204 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 32ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 57ms/step
+INFO:     127.0.0.1:57212 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 31ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 55ms/step
+INFO:     127.0.0.1:57220 - "POST /invocations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57234 - "GET /ping HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 33ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 57ms/step
+INFO:     127.0.0.1:57234 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 32ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 58ms/step
+INFO:     127.0.0.1:57234 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 32ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 56ms/step
+INFO:     127.0.0.1:57234 - "POST /invocations HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 30ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 54ms/step
+INFO:     127.0.0.1:57234 - "POST /invocations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56026 - "GET /ping HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56026 - "GET /ping HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56026 - "GET /ping HTTP/1.1" 200 OK
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 31ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 55ms/step
+INFO:     127.0.0.1:56026 - "POST /invocations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56026 - "GET /ping HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56026 - "GET /ping HTTP/1.1" 200 OK

@@ -182,14 +182,18 @@ stages:
       hash: md5
       md5: 1fc833e0fcba3da38f44f0207e4fb79c
       size: 1397
+    - path: src/malariascope/labels.py
+      hash: md5
+      md5: c47a9af2bec024dddcd9304c3030b985
+      size: 191
     - path: src/malariascope/model.py
       hash: md5
-      md5: b31fbf1556a7f64eb4bffe2311ac5c46
-      size: 1494
+      md5: 02e4eff395705b997064760432dcd788
+      size: 1468
     - path: src/malariascope/tracking.py
       hash: md5
-      md5: 80fd2ce0607c0bc8bf69f9d43c4ec49e
-      size: 1902
+      md5: affb1449130cddcdf0d442d74629b016
+      size: 2027
     - path: src/malariascope/train.py
       hash: md5
       md5: bab9a9e5c40b5724b62f2ec4048ad30d
@@ -214,15 +218,15 @@ stages:
     outs:
     - path: models/model.keras
       hash: md5
-      md5: 629649ce04be7dc301c6e2fe9515a81a
+      md5: 907082d0cae28de7a40b55486a421c23
       size: 1404439
     - path: results/plots/training_curves.png
       hash: md5
-      md5: 1498cd878b2617508372a2fe2a271a14
-      size: 70517
+      md5: 3f604a0364d4dad7dc53676caa4df2aa
+      size: 73870
     - path: results/train.json
       hash: md5
-      md5: 62042e7c358b31efeade65f655a60544
+      md5: 08cc4ff3954ad338af785b9ef353b5d2
       size: 189
   evaluate:
     cmd: PYTHONPATH=src python -m malariascope.evaluate
@@ -234,11 +238,11 @@ stages:
       nfiles: 3
     - path: models/model.keras
       hash: md5
-      md5: 629649ce04be7dc301c6e2fe9515a81a
+      md5: 907082d0cae28de7a40b55486a421c23
       size: 1404439
     - path: results/train.json
       hash: md5
-      md5: 62042e7c358b31efeade65f655a60544
+      md5: 08cc4ff3954ad338af785b9ef353b5d2
       size: 189
     - path: src/malariascope/common.py
       hash: md5
@@ -246,16 +250,20 @@ stages:
       size: 1397
     - path: src/malariascope/evaluate.py
       hash: md5
-      md5: 9dd9cb2a0cc8f6f5bda4e621569c8fe1
-      size: 6847
+      md5: 00f8a051388ad686bd242bb6cab20f5a
+      size: 6813
+    - path: src/malariascope/labels.py
+      hash: md5
+      md5: c47a9af2bec024dddcd9304c3030b985
+      size: 191
     - path: src/malariascope/model.py
       hash: md5
-      md5: b31fbf1556a7f64eb4bffe2311ac5c46
-      size: 1494
+      md5: 02e4eff395705b997064760432dcd788
+      size: 1468
     - path: src/malariascope/tracking.py
       hash: md5
-      md5: 80fd2ce0607c0bc8bf69f9d43c4ec49e
-      size: 1902
+      md5: affb1449130cddcdf0d442d74629b016
+      size: 2027
     params:
       params.yaml:
         evaluate:
@@ -263,13 +271,55 @@ stages:
     outs:
     - path: results/evaluate.json
       hash: md5
-      md5: d5a94ef4e1b906451f207147e0d35fd8
-      size: 747
+      md5: 203f3ddf1e6dd15d5534f7cdd9165495
+      size: 754
     - path: results/plots/confusion_matrix.png
       hash: md5
-      md5: a3678550e9fc90213971e716464a9e27
-      size: 39101
+      md5: a523e6d22e92bf27ec39c39e0e719364
+      size: 39010
     - path: results/plots/roc_curve.png
       hash: md5
-      md5: 4787d888328260e662deaf38c46e6c2d
-      size: 53707
+      md5: b15516db173b0fe0dd9ac9fa02634b0a
+      size: 53766
+  promote:
+    cmd: PYTHONPATH=src python -m malariascope.promote
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: a8588f48a6cf05c3bfc6dd5a56ab9a95.dir
+      size: 338854638
+      nfiles: 3
+    - path: results/evaluate.json
+      hash: md5
+      md5: 203f3ddf1e6dd15d5534f7cdd9165495
+      size: 754
+    - path: src/malariascope/common.py
+      hash: md5
+      md5: 1fc833e0fcba3da38f44f0207e4fb79c
+      size: 1397
+    - path: src/malariascope/evaluate.py
+      hash: md5
+      md5: 00f8a051388ad686bd242bb6cab20f5a
+      size: 6813
+    - path: src/malariascope/labels.py
+      hash: md5
+      md5: c47a9af2bec024dddcd9304c3030b985
+      size: 191
+    - path: src/malariascope/promote.py
+      hash: md5
+      md5: b8bc7ddb48ee66d62d2b2c7b24c326d5
+      size: 5299
+    - path: src/malariascope/tracking.py
+      hash: md5
+      md5: affb1449130cddcdf0d442d74629b016
+      size: 2027
+    params:
+      params.yaml:
+        promote:
+          min_gain: 0.005
+          min_recall: 0.95
+    outs:
+    - path: results/promote.json
+      hash: md5
+      md5: cb2a25902442b224293479fcb58ccf61
+      size: 495

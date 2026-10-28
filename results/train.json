@@ -1,8 +1,8 @@
 {
-  "best_epoch": 8,
-  "epochs_run": 12,
-  "run_id": "51a6c0b57afb49ab91ac8ebb9154668a",
-  "train_seconds": 431.5,
-  "val_accuracy": 0.9640783667564392,
-  "val_loss": 0.10129199177026749
+  "best_epoch": 7,
+  "epochs_run": 11,
+  "run_id": "e7c15723587042baaa4b5b73e9488422",
+  "train_seconds": 399.4,
+  "val_accuracy": 0.9619013071060181,
+  "val_loss": 0.10514500737190247
 }

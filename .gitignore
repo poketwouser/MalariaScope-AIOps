@@ -36,3 +36,6 @@ airflow/webserver_config.py
 .DS_Store
 .env
 results/logs/mlflow_server.log
+
+# local backend feedback store (snapshotted into DVC by the retraining DAG)
+/feedback/

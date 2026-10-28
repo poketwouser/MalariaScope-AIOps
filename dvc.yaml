@@ -72,6 +72,7 @@ stages:
   train:
     cmd: PYTHONPATH=src python -m malariascope.train
     deps:
+    - src/malariascope/labels.py
     - data/processed
     - src/malariascope/common.py
     - src/malariascope/model.py
@@ -93,6 +94,7 @@ stages:
     params:
     - evaluate
     deps:
+    - src/malariascope/labels.py
     - data/processed
     - models/model.keras
     - results/train.json
@@ -107,4 +109,19 @@ stages:
     - results/plots/confusion_matrix.png:
         cache: false
     - results/plots/roc_curve.png:
+        cache: false
+  promote:
+    cmd: PYTHONPATH=src python -m malariascope.promote
+    deps:
+    - data/processed
+    - results/evaluate.json
+    - src/malariascope/common.py
+    - src/malariascope/evaluate.py
+    - src/malariascope/labels.py
+    - src/malariascope/promote.py
+    - src/malariascope/tracking.py
+    params:
+    - promote
+    metrics:
+    - results/promote.json:
         cache: false

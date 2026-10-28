@@ -8,7 +8,7 @@ the same preprocessing as training (Rescaling is part of the saved model).
 import keras
 from keras import layers
 
-CLASS_NAMES = ("parasitized", "uninfected")  # TFDS label order: 0, 1
+from malariascope.labels import CLASS_NAMES
 
 
 def build_model(image_size, filters, dense_units, dropout, augment, learning_rate):

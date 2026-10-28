@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from malariascope.evaluate import compute_metrics, pick_threshold, predict_labels
-from malariascope.model import CLASS_NAMES, build_model
+from malariascope.labels import CLASS_NAMES
+from malariascope.model import build_model
 
 PARASITIZED = CLASS_NAMES.index("parasitized")
 UNINFECTED = CLASS_NAMES.index("uninfected")

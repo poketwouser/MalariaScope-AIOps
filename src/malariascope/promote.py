@@ -27,7 +27,8 @@ from mlflow import MlflowClient
 from mlflow.exceptions import MlflowException
 
 from malariascope.common import get_logger, load_params, write_json
-from malariascope.evaluate import POSITIVE, compute_metrics
+from malariascope.evaluate import compute_metrics
+from malariascope.labels import POSITIVE
 from malariascope.tracking import MODEL_NAME, tracking_uri
 
 log = get_logger("promote")

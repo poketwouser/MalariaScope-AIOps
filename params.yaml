@@ -35,3 +35,7 @@ train:
 
 evaluate:
   target_recall: 0.97       # recall on parasitized the val-tuned threshold must reach
+
+promote:
+  min_gain: 0.005           # challenger must beat champion accuracy by this (about 14 test images)
+  min_recall: 0.95          # never promote a model that misses more infections than this allows

@@ -40,12 +40,10 @@ from sklearn.metrics import (  # noqa: E402
 )
 
 from malariascope.common import get_logger, load_params, write_json  # noqa: E402
-from malariascope.model import CLASS_NAMES  # noqa: E402
+from malariascope.labels import CLASS_NAMES, POSITIVE  # noqa: E402
 from malariascope.tracking import tracking_uri  # noqa: E402
 
 log = get_logger("evaluate")
-
-POSITIVE = CLASS_NAMES.index("parasitized")
 
 
 def predict_labels(p_pos, threshold):

@@ -1,0 +1,2 @@
+# MLflow tracking server and registry (Lecture 3: tracking server). Pinned to the training env.
+mlflow==3.17.2

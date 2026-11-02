@@ -1,0 +1,20 @@
+# Keep the build context small (Mod3 Lecture 1: .dockerignore). Images get code only;
+# data, models and MLflow stores reach containers through volumes, never COPY.
+.git
+.dvc
+**/__pycache__
+**/*.py[cod]
+.venv
+.pytest_cache
+data/
+models/
+mlartifacts/
+mlruns/
+mlflow.db
+feedback/
+results/
+screenshots/
+docs/
+tests/
+Rubric/
+*.ipynb_checkpoints

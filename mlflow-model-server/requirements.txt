@@ -1,0 +1,7 @@
+# Runtime for `mlflow models serve` (Lecture 10). Versions match the model's logged
+# requirements.txt; tensorflow-cpu as in the reference repo (no GPU on the target machine).
+mlflow==3.17.2
+tensorflow-cpu==2.21.0
+keras==3.12.4
+numpy==2.2.6
+cloudpickle==3.1.2

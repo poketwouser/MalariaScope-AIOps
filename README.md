@@ -15,6 +15,29 @@ mamba env create -f environment.yml
 mamba activate malariascope
 ```
 
+## Run the stack (Docker Compose)
+
+Needs Docker with Compose v2, the data and model pulled with `dvc pull`, and a registered
+`malariascope@champion` model in `mlflow.db` (created by `dvc repro`).
+
+```bash
+docker compose up -d --build     # first build takes about 9 minutes
+docker compose ps                # wait until every service shows (healthy)
+```
+
+| Service | URL | What it is |
+|---|---|---|
+| frontend | http://localhost:8501 | Streamlit UI (Predict and Pipeline pages) |
+| backend | http://localhost:8000/docs | FastAPI inference API (Swagger) |
+| mlflow | http://localhost:5000 | MLflow tracking server and model registry |
+| model-server | http://localhost:5001/ping | `mlflow models serve` for `malariascope@champion` |
+| prometheus | http://localhost:9090/targets | metrics scraping |
+| grafana | http://localhost:3000 | dashboards (admin / admin, or anonymous view) |
+
+Ports are bound to 127.0.0.1 only. After a promotion or rollback, run
+`docker compose restart model-server` so the alias is resolved again. Rebuild one service with
+`docker compose up -d --build --no-deps <service>`. Stop everything with `docker compose down`.
+
 ## Repository layout
 
 ```
@@ -23,6 +46,8 @@ backend/            FastAPI inference service
 frontend/           Streamlit UI
 airflow/dags/       Airflow DAGs
 monitoring/         Prometheus and Grafana configuration
+mlflow-server/      MLflow tracking server image
+mlflow-model-server/ MLflow model server image
 tests/              unit, integration and end-to-end tests
 docs/               architecture, HLD, LLD, test plan, user manual
 screenshots/        evidence, one folder per rubric section

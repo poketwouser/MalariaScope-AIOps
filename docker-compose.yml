@@ -1,0 +1,166 @@
+# MalariaScope stack: tracking + registry, model server, backend, UI and monitoring.
+# Start:  docker compose up -d --build      Status: docker compose ps
+# Blocks talk only over REST using service names on the compose network (loose coupling).
+# Host ports are bound to 127.0.0.1: this is a single-machine, on-prem deployment.
+# Airflow joins this file on Day 8.
+
+x-py-health: &py-health
+  interval: 10s
+  timeout: 5s
+  retries: 5
+
+services:
+  mlflow:
+    build: ./mlflow-server
+    image: malariascope/mlflow:3.17.2
+    # Serves the same store as local runs (mlflow.db + mlartifacts/ in the repo root).
+    # Artifact URIs are proxied (mlflow-artifacts:/), so the store is path independent.
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    command: >
+      mlflow server --backend-store-uri sqlite:///mlflow.db
+      --artifacts-destination ./mlartifacts --host 0.0.0.0 --port 5000
+      --allowed-hosts mlflow,mlflow:5000,localhost,localhost:5000,127.0.0.1,127.0.0.1:5000
+    volumes:
+      - ./:/project
+    ports:
+      - "127.0.0.1:5000:5000"
+    healthcheck:
+      <<: *py-health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      start_period: 20s
+    restart: unless-stopped
+
+  model-server:
+    build: ./mlflow-model-server
+    image: malariascope/model-server:1.0
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODEL_URI: models:/malariascope@champion
+    ports:
+      - "127.0.0.1:5001:5001"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      <<: *py-health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/ping')"]
+      start_period: 90s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: malariascope/backend:1.0
+    # Runs as the host user so the bind-mounted feedback store stays owned by them
+    # (the retraining DAG snapshots it into DVC).
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      MODEL_SERVER_URL: http://model-server:5001
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      FEEDBACK_DIR: /data/feedback
+      MAX_UPLOAD_MB: "5"
+      LOG_LEVEL: INFO
+    volumes:
+      - ./feedback:/data/feedback
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      model-server:
+        condition: service_healthy
+    healthcheck:
+      <<: *py-health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      start_period: 10s
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    image: malariascope/frontend:1.0
+    environment:
+      BACKEND_URL: http://backend:8000
+      MLFLOW_URL: http://mlflow:5000
+      # Links opened by the user's browser, so they use the host ports.
+      MLFLOW_PUBLIC_URL: http://localhost:5000
+      AIRFLOW_URL: http://localhost:8080
+      GRAFANA_URL: http://localhost:3000
+      PROMETHEUS_URL: http://localhost:9090
+    ports:
+      - "127.0.0.1:8501:8501"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      <<: *py-health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      start_period: 15s
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    # Host metrics from the host's /proc and /sys. hwmon and powersupplyclass are off:
+    # their ACPI reads were slow enough to miss scrapes in Assignment 4.
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/rootfs
+      - --no-collector.hwmon
+      - --no-collector.powersupplyclass
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro,rslave
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9100/metrics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.4.14
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:

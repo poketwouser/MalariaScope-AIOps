@@ -1,0 +1,13 @@
+# FastAPI inference backend. mlflow-skinny gives MlflowClient for the registry
+# without the tracking-server stack; TensorFlow is not needed (the model server runs it).
+# pandas: mlflow.models.get_model_info parses the model signature with it (skinny omits it).
+fastapi==0.162.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+pydantic==2.14.1
+requests==2.34.2
+prometheus_client==0.26.0
+pillow==12.3.0
+numpy==2.2.6
+mlflow-skinny==3.17.2
+pandas==2.3.3

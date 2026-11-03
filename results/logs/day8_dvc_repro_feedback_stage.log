@@ -1,0 +1,36 @@
+Stage 'ingest' didn't change, skipping
+Stage 'validate' didn't change, skipping
+'data/feedback.dvc' didn't change, skipping
+Running stage 'split':
+> PYTHONPATH=src python -m malariascope.data.split
+2026-11-03 16:20:40,255 INFO split: feedback: {'received': 0, 'leaked_dropped': 0, 'duplicates_dropped': 0, 'added': 0}
+2026-11-03 16:20:40,340 INFO split: split sizes:
+label_name  parasitized  uninfected
+split                              
+test               1378        1378
+train             11023       11023
+val                1378        1378
+Updating lock file 'dvc.lock'
+
+Running stage 'preprocess':
+> PYTHONPATH=src python -m malariascope.data.preprocess
+2026-11-03 16:20:45,018 INFO preprocess: preprocessing 27558 images to 64px
+2026-11-03 16:20:45,043	WARNING authentication_token_setup.py:85 -- Token authentication is enabled for this Ray cluster. Set RAY_AUTH_MODE=disabled to opt out. For more information, see https://docs.ray.io/en/latest/ray-security/token-auth.html
+2026-11-03 16:20:47,735	INFO worker.py:2024 -- Started a local Ray instance. View the dashboard at [1m[32m127.0.0.1:8265 [39m[22m
+/home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/numpy/_core/fromnumeric.py:57: FutureWarning: 'DataFrame.swapaxes' is deprecated and will be removed in a future version. Please use 'DataFrame.transpose' instead.
+  return bound(*args, **kwds)
+2026-11-03 16:20:49,332	INFO streaming_executor.py:214 -- Starting execution of Dataset dataset_034r8Jj9c8dpTK3VFVncLO_0. Full logs are in /tmp/ray/session_2026-11-03_16-20-45_047861_11042/logs/ray-data
+2026-11-03 16:20:49,332	INFO streaming_executor.py:215 -- Execution plan of Dataset dataset_034r8Jj9c8dpTK3VFVncLO_0: InputDataBuffer[Input] -> TaskPoolMapOperator[MapBatches(resize_batch)]
+2026-11-03 16:20:49,335	WARNING __init__.py:28 -- Progress bars disabled. To enable, set `ray.data.DataContext.get_current().enable_progress_bars = True`.
+2026-11-03 16:20:52,373	INFO streaming_executor.py:365 -- ✔️  Dataset dataset_034r8Jj9c8dpTK3VFVncLO_0 execution finished in 3.04 seconds
+2026-11-03 16:20:53,822 INFO preprocess: train: x (22046, 64, 64, 3), y [11023, 11023]
+2026-11-03 16:20:53,841 INFO preprocess: val: x (2756, 64, 64, 3), y [1378, 1378]
+2026-11-03 16:20:53,863 INFO preprocess: test: x (2756, 64, 64, 3), y [1378, 1378]
+2026-11-03 16:20:53,863 INFO preprocess: resized 27558 images in 3.9s (7007 images/s)
+Updating lock file 'dvc.lock'
+
+Stage 'eda' didn't change, skipping
+Stage 'train' didn't change, skipping
+Stage 'evaluate' didn't change, skipping
+Stage 'promote' didn't change, skipping
+Use `dvc push` to send your updates to remote storage.

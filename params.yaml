@@ -39,3 +39,6 @@ evaluate:
 promote:
   min_gain: 0.005           # challenger must beat champion accuracy by this (about 14 test images)
   min_recall: 0.95          # never promote a model that misses more infections than this allows
+
+retrain:
+  min_feedback: 50          # new feedback items needed before the feedback_retrain DAG retrains

@@ -28,8 +28,10 @@ stages:
     cmd: PYTHONPATH=src python -m malariascope.data.split
     deps:
     - data/validated
+    - data/feedback
     - src/malariascope/common.py
     - src/malariascope/data/split.py
+    - src/malariascope/image.py
     params:
     - data.seed
     - data.split
@@ -42,6 +44,7 @@ stages:
     cmd: PYTHONPATH=src python -m malariascope.data.preprocess
     deps:
     - data/raw
+    - data/feedback
     - data/split
     - src/malariascope/common.py
     - src/malariascope/data/preprocess.py

@@ -23,11 +23,14 @@ log = get_logger("preprocess")
 SPLITS = ("train", "val", "test")
 
 
-def resize_batch(batch, root, size):
-    """Ray Data batch function: load and resize each image in the batch."""
+def resize_batch(batch, roots, size):
+    """Ray Data batch function: load and resize each image in the batch.
+
+    roots maps the manifest's "source" column (raw or feedback) to its folder.
+    """
     images = []
-    for rel_path in batch["path"]:
-        with Image.open(Path(root) / rel_path) as img:
+    for rel_path, source in zip(batch["path"], batch["source"]):
+        with Image.open(Path(roots[source]) / rel_path) as img:
             images.append(to_model_input(img, size))
     return {
         "x": np.stack(images),
@@ -36,14 +39,17 @@ def resize_batch(batch, root, size):
     }
 
 
-def preprocess(manifest, root, size, batch_size, num_blocks):
+def preprocess(manifest, roots, size, batch_size, num_blocks):
     """Resize all images with Ray and return {split: (x, y)}."""
     # several blocks, or Ray runs everything as a single task on one CPU
     ds = ray.data.from_pandas(manifest, override_num_blocks=num_blocks).map_batches(
         resize_batch,
         batch_format="pandas",
         batch_size=batch_size,
-        fn_kwargs={"root": str(Path(root).resolve()), "size": size},
+        fn_kwargs={
+            "roots": {k: str(Path(v).resolve()) for k, v in roots.items()},
+            "size": size,
+        },
     )
     parts = {s: ([], []) for s in SPLITS}
     for batch in ds.iter_batches(batch_size=batch_size, batch_format="numpy"):
@@ -60,12 +66,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--manifest", default="data/split/manifest.csv")
     parser.add_argument("--raw-dir", default="data/raw")
+    parser.add_argument("--feedback-dir", default="data/feedback")
     parser.add_argument("--out-dir", default="data/processed")
     parser.add_argument("--metrics", default="results/preprocess.json")
     args = parser.parse_args()
 
     params = load_params("preprocess")
     manifest = pd.read_csv(args.manifest)
+    if "source" not in manifest:
+        manifest["source"] = "raw"
+    roots = {"raw": args.raw_dir, "feedback": args.feedback_dir}
     log.info("preprocessing %d images to %dpx", len(manifest), params["image_size"])
 
     ray.init()
@@ -78,7 +88,7 @@ def main():
         with Timer() as t:
             data = preprocess(
                 manifest,
-                args.raw_dir,
+                roots,
                 params["image_size"],
                 params["batch_size"],
                 params["num_blocks"],
@@ -100,6 +110,7 @@ def main():
         {
             "sizes": {s: int(len(y)) for s, (_, y) in data.items()},
             "image_size": params["image_size"],
+            "feedback_in_train": int((manifest["source"] == "feedback").sum()),
             "seconds": round(t.seconds, 2),
             "images_per_sec": round(rate, 1),
         },

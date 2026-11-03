@@ -61,6 +61,11 @@ stages:
   split:
     cmd: PYTHONPATH=src python -m malariascope.data.split
     deps:
+    - path: data/feedback
+      hash: md5
+      md5: f591ac514de7448ed23b5348337e54b2.dir
+      size: 78
+      nfiles: 1
     - path: data/validated
       hash: md5
       md5: ec177d7c9e294e3b2fc398b5884a602b.dir
@@ -72,8 +77,12 @@ stages:
       size: 1397
     - path: src/malariascope/data/split.py
       hash: md5
-      md5: e213c5804bb6eace4650af552bf49623
-      size: 2486
+      md5: 6f657f024a83991028e660039c5fa0f5
+      size: 4641
+    - path: src/malariascope/image.py
+      hash: md5
+      md5: 626cd618e8061c577f98441ff6b2e954
+      size: 949
     params:
       params.yaml:
         data.seed: 42
@@ -84,16 +93,21 @@ stages:
     outs:
     - path: data/split
       hash: md5
-      md5: 0e029c2e33b1c02b7c15f429350ac18a.dir
-      size: 3664586
+      md5: e45199347941a59ba4a0fe976d41cb90.dir
+      size: 3774825
       nfiles: 1
     - path: results/split.json
       hash: md5
-      md5: 79b236b9867fafb1392c79db3b9d5add
-      size: 334
+      md5: 3b16123885f4303a3e571d38b872ac49
+      size: 443
   preprocess:
     cmd: PYTHONPATH=src python -m malariascope.data.preprocess
     deps:
+    - path: data/feedback
+      hash: md5
+      md5: f591ac514de7448ed23b5348337e54b2.dir
+      size: 78
+      nfiles: 1
     - path: data/raw
       hash: md5
       md5: 29b03901d6fb76dd0d00dccc635601aa.dir
@@ -101,8 +115,8 @@ stages:
       nfiles: 27559
     - path: data/split
       hash: md5
-      md5: 0e029c2e33b1c02b7c15f429350ac18a.dir
-      size: 3664586
+      md5: e45199347941a59ba4a0fe976d41cb90.dir
+      size: 3774825
       nfiles: 1
     - path: src/malariascope/common.py
       hash: md5
@@ -110,12 +124,12 @@ stages:
       size: 1397
     - path: src/malariascope/data/preprocess.py
       hash: md5
-      md5: 9f5036080d14a9f6a71fda0d9d78978f
-      size: 3700
+      md5: 3e9a718eb0d5c8846be5798dbf6c7568
+      size: 4163
     - path: src/malariascope/image.py
       hash: md5
-      md5: 0208082700b3e9e015edab267091adc2
-      size: 568
+      md5: 626cd618e8061c577f98441ff6b2e954
+      size: 949
     params:
       params.yaml:
         preprocess:
@@ -130,8 +144,8 @@ stages:
       nfiles: 3
     - path: results/preprocess.json
       hash: md5
-      md5: 1d6d893c8406db09f7c3ebf3f807be7b
-      size: 142
+      md5: f0f147e74327f7998617484e7301420e
+      size: 168
   eda:
     cmd: PYTHONPATH=src python -m malariascope.eda
     deps:

@@ -4,6 +4,8 @@ Both sides call to_model_input, so a cell image is prepared the same way at
 training and at serving time.
 """
 
+import hashlib
+
 import numpy as np
 from PIL import Image
 
@@ -16,3 +18,13 @@ def to_model_input(img, size):
     """
     img = img.convert("RGB").resize((size, size), Image.Resampling.BILINEAR)
     return np.asarray(img, dtype=np.uint8)
+
+
+def pixel_hash(img):
+    """SHA-1 of the decoded RGB pixels.
+
+    Unlike a file hash, this still matches after an image is re-encoded (the
+    feedback store saves uploads as new PNG files), so it can spot the same cell.
+    """
+    arr = np.asarray(img.convert("RGB"), dtype=np.uint8)
+    return hashlib.sha1(str(arr.shape).encode() + arr.tobytes()).hexdigest()

@@ -1,0 +1,4 @@
+2026-11-03 16:25:15,495 INFO serving malariascope-watchtest version 1 (@champion) on port 5011
+2026-11-03 16:25:24,534 INFO @champion moved from v1 to v2, restarting
+2026-11-03 16:25:24,549 INFO serving malariascope-watchtest version 2 (@champion) on port 5011
+alias set to v2 at 16:25:21.8; /ping answered again by 16:25:29.8; invocation after restart: p(parasitized)=0.9887 for parasitized_1.png; SIGTERM left no orphan processes. Scratch model malariascope-watchtest deleted afterwards.

@@ -63,9 +63,9 @@ stages:
     deps:
     - path: data/feedback
       hash: md5
-      md5: f591ac514de7448ed23b5348337e54b2.dir
-      size: 78
-      nfiles: 1
+      md5: 1658f27db5a565b4b8b95a7b3ef6bf55.dir
+      size: 27781
+      nfiles: 3
     - path: data/validated
       hash: md5
       md5: ec177d7c9e294e3b2fc398b5884a602b.dir
@@ -93,21 +93,21 @@ stages:
     outs:
     - path: data/split
       hash: md5
-      md5: e45199347941a59ba4a0fe976d41cb90.dir
-      size: 3774825
+      md5: ece7d88319d98878a0eed102bd22935d.dir
+      size: 3885057
       nfiles: 1
     - path: results/split.json
       hash: md5
-      md5: 3b16123885f4303a3e571d38b872ac49
+      md5: dc8711cf250ea0fa62cd3f0ca02d6ffd
       size: 443
   preprocess:
     cmd: PYTHONPATH=src python -m malariascope.data.preprocess
     deps:
     - path: data/feedback
       hash: md5
-      md5: f591ac514de7448ed23b5348337e54b2.dir
-      size: 78
-      nfiles: 1
+      md5: 1658f27db5a565b4b8b95a7b3ef6bf55.dir
+      size: 27781
+      nfiles: 3
     - path: data/raw
       hash: md5
       md5: 29b03901d6fb76dd0d00dccc635601aa.dir
@@ -115,8 +115,8 @@ stages:
       nfiles: 27559
     - path: data/split
       hash: md5
-      md5: e45199347941a59ba4a0fe976d41cb90.dir
-      size: 3774825
+      md5: ece7d88319d98878a0eed102bd22935d.dir
+      size: 3885057
       nfiles: 1
     - path: src/malariascope/common.py
       hash: md5
@@ -144,7 +144,7 @@ stages:
       nfiles: 3
     - path: results/preprocess.json
       hash: md5
-      md5: f0f147e74327f7998617484e7301420e
+      md5: c2a1db90442879e1ee52be2266c67e80
       size: 168
   eda:
     cmd: PYTHONPATH=src python -m malariascope.eda

@@ -2,12 +2,37 @@
 # Start:  docker compose up -d --build      Status: docker compose ps
 # Blocks talk only over REST using service names on the compose network (loose coupling).
 # Host ports are bound to 127.0.0.1: this is a single-machine, on-prem deployment.
-# Airflow joins this file on Day 8.
 
 x-py-health: &py-health
   interval: 10s
   timeout: 5s
   retries: 5
+
+# Airflow (reference repo layout: init + webserver + scheduler, SequentialExecutor on
+# SQLite). Tasks run inside the scheduler, on the repo mounted at /opt/project, so DVC,
+# the data and the feedback store are the same files as outside Docker.
+x-airflow: &airflow
+  build: ./airflow
+  image: malariascope/airflow:2.10.5
+  user: "${HOST_UID:-1000}:0"
+  environment: &airflow-env
+    AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/db/airflow.db
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+    AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
+    AIRFLOW__WEBSERVER__WORKERS: "2"
+    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-malariascope-local-only}
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+    BACKEND_URL: http://backend:8000
+    PROJECT_DIR: /opt/project
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags:ro
+    - ./airflow/logs:/opt/airflow/logs
+    - ./airflow/db:/opt/airflow/db
+    - ./:/opt/project
+    # the DVC remote, at the same absolute path as in .dvc/config
+    - ${HOME}/tmp/dvc_storage:${HOME}/tmp/dvc_storage
 
 services:
   mlflow:
@@ -35,7 +60,9 @@ services:
     image: malariascope/model-server:1.0
     environment:
       MLFLOW_TRACKING_URI: http://mlflow:5000
-      MODEL_URI: models:/malariascope@champion
+      MODEL_NAME: malariascope
+      MODEL_ALIAS: champion
+      POLL_SECONDS: "15"
     ports:
       - "127.0.0.1:5001:5001"
     depends_on:
@@ -80,6 +107,9 @@ services:
     environment:
       BACKEND_URL: http://backend:8000
       MLFLOW_URL: http://mlflow:5000
+      AIRFLOW_API_URL: http://airflow-webserver:8080
+      AIRFLOW_USER: ${AIRFLOW_ADMIN_USER:-admin}
+      AIRFLOW_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-admin}
       # Links opened by the user's browser, so they use the host ports.
       MLFLOW_PUBLIC_URL: http://localhost:5000
       AIRFLOW_URL: http://localhost:8080
@@ -94,6 +124,56 @@ services:
       <<: *py-health
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
       start_period: 15s
+    restart: unless-stopped
+
+  airflow-init:
+    <<: *airflow
+    # runs as root to create the bind-mounted folders, then hands them to the host user
+    user: "0:0"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -e
+        mkdir -p /opt/airflow/logs /opt/airflow/db
+        airflow db migrate
+        airflow users create --role Admin \
+          --username "${AIRFLOW_ADMIN_USER:-admin}" --password "${AIRFLOW_ADMIN_PASSWORD:-admin}" \
+          --firstname Admin --lastname User --email admin@example.org || true
+        chown -R "${HOST_UID:-1000}:0" /opt/airflow/logs /opt/airflow/db
+    restart: "no"
+
+  airflow-webserver:
+    <<: *airflow
+    command: webserver
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  airflow-scheduler:
+    <<: *airflow
+    command: scheduler
+    shm_size: 2gb  # Ray's object store lives in /dev/shm (Docker's default is 64 MB)
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname \"$${HOSTNAME}\""]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+      start_period: 60s
     restart: unless-stopped
 
   prometheus:

@@ -1,0 +1,244 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.09kB done
+#1 DONE 0.0s
+
+#2 [frontend internal] load build definition from Dockerfile
+#2 transferring dockerfile: 698B done
+#2 DONE 0.0s
+
+#3 [mlflow internal] load build definition from Dockerfile
+#3 transferring dockerfile: 976B done
+#3 DONE 0.0s
+
+#4 [model-server internal] load build definition from Dockerfile
+#4 transferring dockerfile: 1.06kB done
+#4 DONE 0.0s
+
+#5 [backend internal] load build definition from Dockerfile
+#5 transferring dockerfile: 1.08kB done
+#5 DONE 0.0s
+
+#6 [backend internal] load metadata for docker.io/library/python:3.10
+#6 ...
+
+#7 [auth] library/python:pull token for registry-1.docker.io
+#7 DONE 0.0s
+
+#8 [backend internal] load metadata for docker.io/library/python:3.10-slim
+#8 DONE 4.0s
+
+#6 [backend internal] load metadata for docker.io/library/python:3.10
+#6 DONE 4.2s
+
+#9 [backend internal] load .dockerignore
+#9 transferring context: 383B done
+#9 DONE 0.0s
+
+#10 [mlflow internal] load .dockerignore
+#10 transferring context: 2B done
+#10 DONE 0.0s
+
+#11 [frontend internal] load .dockerignore
+#11 transferring context: 73B done
+#11 DONE 0.0s
+
+#12 [model-server internal] load .dockerignore
+#12 transferring context: 2B done
+#12 DONE 0.0s
+
+#13 [model-server internal] load build context
+#13 transferring context: 2.88kB done
+#13 DONE 0.0s
+
+#14 [frontend internal] load build context
+#14 transferring context: 12.31kB done
+#14 DONE 0.0s
+
+#15 [backend runtime 1/6] FROM docker.io/library/python:3.10-slim@sha256:6ff506466f8b1e981719b468cc0023b8ef000b983cdec0eafe119d01f379e31d
+#15 resolve docker.io/library/python:3.10-slim@sha256:6ff506466f8b1e981719b468cc0023b8ef000b983cdec0eafe119d01f379e31d 0.0s done
+#15 DONE 0.0s
+
+#16 [model-server builder 1/3] FROM docker.io/library/python:3.10@sha256:c10791e6f69086d5216f7b5d3b839929c454e24305867ed9bc5152f0355b5423
+#16 resolve docker.io/library/python:3.10@sha256:c10791e6f69086d5216f7b5d3b839929c454e24305867ed9bc5152f0355b5423 0.0s done
+#16 DONE 0.0s
+
+#17 [model-server builder 2/3] COPY requirements.txt /tmp/requirements.txt
+#17 CACHED
+
+#18 [frontend builder 3/3] RUN python -m venv /opt/venv &&     /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
+#18 CACHED
+
+#19 [frontend builder 2/3] COPY requirements.txt /tmp/requirements.txt
+#19 CACHED
+
+#20 [frontend runtime 2/5] COPY --from=builder /opt/venv /opt/venv
+#20 CACHED
+
+#21 [frontend runtime 3/5] RUN useradd --create-home --uid 10001 appuser
+#21 CACHED
+
+#22 [model-server builder 3/3] RUN python -m venv /opt/venv &&     /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
+#22 CACHED
+
+#23 [frontend runtime 4/5] WORKDIR /app
+#23 CACHED
+
+#24 [mlflow internal] load build context
+#24 transferring context: 37B done
+#24 DONE 0.0s
+
+#25 [backend internal] load build context
+#25 transferring context: 1.56kB done
+#25 DONE 0.0s
+
+#26 [frontend runtime 5/5] COPY --chown=appuser:appuser . .
+#26 DONE 0.1s
+
+#27 [mlflow builder 2/3] COPY requirements.txt /tmp/requirements.txt
+#27 CACHED
+
+#28 [mlflow builder 3/3] RUN python -m venv /opt/venv &&     /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
+#28 CACHED
+
+#29 [mlflow runtime 2/3] COPY --from=builder /opt/venv /opt/venv
+#29 CACHED
+
+#30 [mlflow runtime 3/3] WORKDIR /project
+#30 CACHED
+
+#31 [backend builder 3/3] RUN python -m venv /opt/venv &&     /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
+#31 CACHED
+
+#32 [backend builder 2/3] COPY backend/requirements.txt /tmp/requirements.txt
+#32 CACHED
+
+#33 [backend runtime 2/6] COPY --from=builder /opt/venv /opt/venv
+#33 CACHED
+
+#34 [backend runtime 3/6] WORKDIR /app
+#34 CACHED
+
+#35 [backend runtime 4/6] COPY src/malariascope/__init__.py src/malariascope/image.py src/malariascope/labels.py      ./src/malariascope/
+#35 DONE 0.1s
+
+#36 [mlflow] exporting to image
+#36 exporting layers done
+#36 exporting manifest sha256:07349ec881e90a005c90e91be5d8ac10c3d36626e3ce48a1b6795ac1e23cb551 done
+#36 exporting config sha256:1cf74d1603548e6aadc740cd38c6648bf5eca5b838e10ce27115ae20860951e4 done
+#36 exporting attestation manifest sha256:076267a6e2a0b6ebbb1a07ff064c0d7a2f8746e86abe4bb073c20feed5916bc1 0.0s done
+#36 exporting manifest list sha256:3628c16bfcb12d2ec4775a30097508fc7941146fda0d941b20f83d5927f037d5 0.0s done
+#36 naming to docker.io/malariascope/mlflow:3.17.2 done
+#36 unpacking to docker.io/malariascope/mlflow:3.17.2 done
+#36 DONE 0.2s
+
+#37 [backend runtime 5/6] COPY backend/app ./backend/app
+#37 DONE 0.1s
+
+#38 [model-server runtime 2/5] COPY --from=builder /opt/venv /opt/venv
+#38 CACHED
+
+#39 [backend runtime 6/6] RUN useradd --create-home --uid 10001 appuser &&     mkdir -p /data/feedback && chown -R appuser:appuser /data
+#39 ...
+
+#40 [mlflow] resolving provenance for metadata file
+#40 DONE 0.0s
+
+#41 [frontend] exporting to image
+#41 exporting layers 0.2s done
+#41 exporting manifest sha256:b2f48d772115338ce9b2f48ad083d705b728c1a7db6d220eb565ad1f1db70eec 0.0s done
+#41 exporting config sha256:f01956a7e47a3b3deef5a6e149a84616917570875cabf1e8ae903531bdd38745 0.0s done
+#41 exporting attestation manifest sha256:52d2a9c02885c84ed464c264c3f4a3d5cd925394d9486b42e4e11b7c53454903 0.0s done
+#41 exporting manifest list sha256:4bda6960e3313917726078340a8511db8a286c6fd899cda2f15e53af6a1f4b66 0.0s done
+#41 naming to docker.io/malariascope/frontend:1.0 done
+#41 unpacking to docker.io/malariascope/frontend:1.0 0.0s done
+#41 DONE 0.4s
+
+#42 [frontend] resolving provenance for metadata file
+#42 DONE 0.0s
+
+#43 [model-server runtime 3/5] RUN useradd --create-home --uid 10001 appuser
+#43 DONE 0.3s
+
+#39 [backend runtime 6/6] RUN useradd --create-home --uid 10001 appuser &&     mkdir -p /data/feedback && chown -R appuser:appuser /data
+#39 DONE 0.4s
+
+#44 [model-server runtime 4/5] WORKDIR /home/appuser
+#44 DONE 0.1s
+
+#45 [backend] exporting to image
+#45 ...
+
+#46 [model-server runtime 5/5] COPY serve.py .
+#46 DONE 0.1s
+
+#45 [backend] exporting to image
+#45 exporting layers 0.2s done
+#45 exporting manifest sha256:e3c8d0de8849f43424b770c00f9da1d98dfa856a29fcf8935da9cea0d8051d8a 0.0s done
+#45 exporting config sha256:951fa74a46426beb3fb7ddc8c7159b98135772f66a6dfc8a72076d498902360e
+#45 exporting config sha256:951fa74a46426beb3fb7ddc8c7159b98135772f66a6dfc8a72076d498902360e 0.0s done
+#45 exporting attestation manifest sha256:c2586f5d005f09f33e469743818180672b65817cfcb94d7419380200f0208ae1 0.1s done
+#45 exporting manifest list sha256:7c49f772dd192be3aea64a6931dd0a50c61eec7141971ccfa46244da05da9fe7
+#45 exporting manifest list sha256:7c49f772dd192be3aea64a6931dd0a50c61eec7141971ccfa46244da05da9fe7 0.0s done
+#45 naming to docker.io/malariascope/backend:1.0 done
+#45 unpacking to docker.io/malariascope/backend:1.0
+#45 unpacking to docker.io/malariascope/backend:1.0 0.1s done
+#45 DONE 0.5s
+
+#47 [model-server] exporting to image
+#47 exporting layers 0.2s done
+#47 exporting manifest sha256:0d7d29e416513c86f9c8664948b4539958056e43bdeac3c8415eb3b8efb4ab66 0.0s done
+#47 exporting config sha256:fc24b31e9aa82d61a8e2d1a87f2ca855276d371487cf1b046e4006ac763b746a 0.0s done
+#47 exporting attestation manifest sha256:7afcce84b22c9699ceefa7590062c5834632dfea4d376375e98cb66e03795a25 0.0s done
+#47 exporting manifest list sha256:5e73ab9d8da5fea9e44761d33d125968a159cf0da43fb4efd8bef3df1d94b42c 0.0s done
+#47 naming to docker.io/malariascope/model-server:1.0 done
+#47 unpacking to docker.io/malariascope/model-server:1.0
+#47 unpacking to docker.io/malariascope/model-server:1.0 0.1s done
+#47 DONE 0.4s
+
+#48 [backend] resolving provenance for metadata file
+#48 DONE 0.0s
+
+#49 [model-server] resolving provenance for metadata file
+#49 DONE 0.0s
+ malariascope/backend:1.0  Built
+ malariascope/frontend:1.0  Built
+ malariascope/mlflow:3.17.2  Built
+ malariascope/model-server:1.0  Built
+ Network project_default  Creating
+ Network project_default  Created
+ Container project-prometheus-1  Creating
+ Container project-mlflow-1  Creating
+ Container project-node-exporter-1  Creating
+ Container project-node-exporter-1  Created
+ Container project-mlflow-1  Created
+ Container project-model-server-1  Creating
+ Container project-prometheus-1  Created
+ Container project-grafana-1  Creating
+ Container project-model-server-1  Created
+ Container project-backend-1  Creating
+ Container project-grafana-1  Created
+ Container project-backend-1  Created
+ Container project-frontend-1  Creating
+ Container project-frontend-1  Created
+ Container project-node-exporter-1  Starting
+ Container project-mlflow-1  Starting
+ Container project-prometheus-1  Starting
+ Container project-mlflow-1  Started
+ Container project-mlflow-1  Waiting
+ Container project-node-exporter-1  Started
+ Container project-prometheus-1  Started
+ Container project-prometheus-1  Waiting
+ Container project-mlflow-1  Healthy
+ Container project-model-server-1  Starting
+ Container project-model-server-1  Started
+ Container project-model-server-1  Waiting
+ Container project-prometheus-1  Healthy
+ Container project-grafana-1  Starting
+ Container project-grafana-1  Started
+ Container project-model-server-1  Healthy
+ Container project-backend-1  Starting
+ Container project-backend-1  Started
+ Container project-backend-1  Waiting
+ Container project-backend-1  Healthy
+ Container project-frontend-1  Starting
+ Container project-frontend-1  Started

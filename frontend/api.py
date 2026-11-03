@@ -10,6 +10,11 @@ import requests
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000").rstrip("/")
 MLFLOW_URL = os.getenv("MLFLOW_URL", "http://localhost:5000").rstrip("/")
+AIRFLOW_API_URL = os.getenv("AIRFLOW_API_URL", "http://localhost:8080").rstrip("/")
+AIRFLOW_AUTH = (
+    os.getenv("AIRFLOW_USER", "admin"),
+    os.getenv("AIRFLOW_PASSWORD", "admin"),
+)
 TIMEOUT = float(os.getenv("BACKEND_TIMEOUT", "30"))
 
 
@@ -80,3 +85,33 @@ def mlflow_post(path, body):
         return r.json() if r.ok else {}
     except requests.RequestException:
         return {}
+
+
+def airflow_get(path, **params):
+    """GET on the Airflow REST API (v1); returns None if Airflow is unreachable."""
+    try:
+        r = requests.get(
+            f"{AIRFLOW_API_URL}/api/v1/{path}",
+            params=params,
+            auth=AIRFLOW_AUTH,
+            timeout=5,
+        )
+        return r.json() if r.ok else None
+    except requests.RequestException:
+        return None
+
+
+def airflow_trigger(dag_id, conf=None):
+    """Start a DAG run; returns the run id, or raises BackendError."""
+    try:
+        r = requests.post(
+            f"{AIRFLOW_API_URL}/api/v1/dags/{dag_id}/dagRuns",
+            json={"conf": conf or {}},
+            auth=AIRFLOW_AUTH,
+            timeout=10,
+        )
+    except requests.RequestException:
+        raise BackendError("Airflow can't be reached. Is it running?")
+    if not r.ok:
+        raise BackendError(f"Airflow refused the run (error {r.status_code})")
+    return r.json()["dag_run_id"]

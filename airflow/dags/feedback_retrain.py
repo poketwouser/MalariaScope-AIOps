@@ -1,0 +1,78 @@
+"""Feedback retraining DAG (LLD section 6).
+
+Every 30 minutes, asks the backend how much feedback arrived since the last
+export. With at least retrain.min_feedback items (params.yaml) it copies them
+into the DVC-tracked snapshot data/feedback, versions it with `dvc add`, and
+starts training_pipeline, which retrains on the train split plus the feedback
+and lets the promotion gate decide. With too little feedback the run stops at
+the first task and the rest show as skipped.
+
+Trigger with config {"min_feedback": N} to override the threshold for one run.
+"""
+
+import logging
+import os
+from datetime import datetime, timedelta
+
+import requests
+import yaml
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import ShortCircuitOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+
+PROJECT = os.getenv("PROJECT_DIR", "/opt/project")
+PIPELINE_BIN = os.getenv("PIPELINE_BIN", "/opt/pipeline/bin")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8000").rstrip("/")
+ENV = {"PATH": f"{PIPELINE_BIN}:{os.environ.get('PATH', '/usr/bin:/bin')}"}
+
+log = logging.getLogger(__name__)
+
+
+def enough_feedback(dag_run=None):
+    min_needed = (dag_run.conf or {}).get("min_feedback")
+    if min_needed is None:
+        with open(f"{PROJECT}/params.yaml") as f:
+            min_needed = yaml.safe_load(f)["retrain"]["min_feedback"]
+    # ask the backend over REST (loose coupling), as the LLD specifies
+    r = requests.get(f"{BACKEND_URL}/feedback/stats", timeout=10)
+    r.raise_for_status()
+    pending = r.json()["since_last_export"]
+    log.info("feedback since last export: %d (need %d)", pending, min_needed)
+    return pending >= int(min_needed)
+
+
+with DAG(
+    dag_id="feedback_retrain",
+    description="Export new user feedback into DVC and retrain when there is enough",
+    start_date=datetime(2026, 11, 1),
+    schedule=timedelta(minutes=30),
+    catchup=False,
+    max_active_runs=1,
+    default_args={"owner": "malariascope", "retries": 0},
+    tags=["malariascope", "feedback"],
+) as dag:
+    check = ShortCircuitOperator(
+        task_id="enough_feedback", python_callable=enough_feedback
+    )
+    export = BashOperator(
+        task_id="export_feedback",
+        bash_command=(
+            f"cd {PROJECT} && PYTHONPATH=src python -m malariascope.data.feedback"
+            " && dvc add data/feedback"
+            " && python -c 'import json; print(json.dumps("
+            'json.load(open("results/feedback_export.json"))))\''
+        ),
+        env=ENV,
+        append_env=True,
+    )
+    # does not wait: with the SequentialExecutor a waiting task would hold the only
+    # slot and the training run could never start
+    retrain = TriggerDagRunOperator(
+        task_id="start_training",
+        trigger_dag_id="training_pipeline",
+        conf={"reason": "feedback"},
+        wait_for_completion=False,
+    )
+
+    check >> export >> retrain

@@ -122,7 +122,7 @@ Prometheus text exposition format (section 7).
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `MODEL_SERVER_URL` | `http://mlflow-serve:5001` | MLflow model server |
+| `MODEL_SERVER_URL` | `http://model-server:5001` | MLflow model server |
 | `MLFLOW_TRACKING_URI` | `http://mlflow:5000` | registry lookup for `/model/info` |
 | `FEEDBACK_DIR` | `/app/feedback` | feedback images and DB |
 | `MAX_UPLOAD_MB` | `5` | upload limit |
@@ -160,9 +160,57 @@ CREATE TABLE feedback (
 
 ## 6. Airflow DAGs
 
-To be detailed on Day 8:
-- `training_pipeline`: runs `dvc repro` stage by stage, then restarts the model server if a version was promoted.
-- `feedback_retrain`: a sensor on `/feedback/stats.since_last_export ≥ FEEDBACK_MIN` exports the feedback into `data/feedback`, runs `dvc add`, then runs `training_pipeline`.
+Airflow 2.10.5 (`apache/airflow:2.10.5-python3.10`, as in the reference repo) runs as three
+compose services: `airflow-init` (DB migration and admin user), `airflow-webserver` (UI and
+REST API on :8080) and `airflow-scheduler`. The executor is `SequentialExecutor` on SQLite.
+Tasks run inside the scheduler container on the repo bind-mounted at `/opt/project`. They use
+a separate venv (`/opt/pipeline`, from `airflow/requirements-pipeline.txt`), so the pipeline's
+TensorFlow, Ray, DVC and MLflow can't clash with Airflow's own pinned packages.
+
+### 6.1 `training_pipeline` (manual, REST API, or started by `feedback_retrain`)
+
+```
+ingest → validate → split → preprocess → train → evaluate → promote → dvc_push
+              └──→ eda ─────────────────────────────────────────────────┘
+```
+
+- **Tasks:** each task is `dvc repro <stage>` and then prints the stage's metrics JSON. The
+  printed line becomes the task's XCom, which the Pipeline page reads (for example Ray
+  throughput).
+- **Skipping:** DVC skips stages whose inputs are unchanged, so a run with no new data takes
+  under a minute.
+- **One run at a time:** `max_active_runs=1` keeps DVC runs on the shared repo from
+  overlapping. `retries=0` keeps failures visible.
+- **Promotion:** `promote` only moves the `@champion` alias. The model server watches the
+  alias (`mlflow-model-server/serve.py`, polling every 15 s) and restarts itself on the new
+  version, so Airflow needs no access to other containers. Rollback works the same way.
+
+### 6.2 `feedback_retrain` (every 30 minutes)
+
+```
+enough_feedback → export_feedback → start_training (triggers training_pipeline)
+```
+
+- **`enough_feedback`** (ShortCircuitOperator): `GET {BACKEND_URL}/feedback/stats`. It
+  continues only if `since_last_export ≥ retrain.min_feedback` (params.yaml, 50). A trigger
+  config `{"min_feedback": N}` overrides the threshold for one run. Otherwise the downstream
+  tasks show as skipped.
+- **`export_feedback`**: `python -m malariascope.data.feedback`, then `dvc add data/feedback`.
+  - It copies unexported items into `data/feedback/images/<label>/fb_<id>.png` and appends them
+    to the cumulative `data/feedback/manifest.csv` (with the pixel SHA-1).
+  - It sets `exported=1` in `feedback.db`, and only after the snapshot is written.
+- **`start_training`**: TriggerDagRunOperator. It doesn't wait for the training run, because
+  under the SequentialExecutor a waiting task would hold the only slot.
+
+### 6.3 How feedback enters training (split stage)
+
+- **Train only:** feedback rows join the **train** split only (`source=feedback`). Val and test
+  never change, so challenger and champion are compared on the same images.
+- **Leakage guard:** feedback whose decoded pixels match a val or test image is dropped. The
+  UI's sample images come from the test set.
+- **Duplicates:** repeated feedback on the same cell keeps the latest label.
+- **Order:** feedback rows are appended after the raw rows. With an empty snapshot,
+  `train.npz` is byte-identical to before (verified on Day 8), and training is skipped.
 
 ## 7. Prometheus metrics (backend)
 

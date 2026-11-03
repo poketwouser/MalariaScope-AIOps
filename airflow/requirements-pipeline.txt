@@ -1,0 +1,16 @@
+# The pipeline's own dependencies, installed in a separate venv (/opt/pipeline) inside the
+# Airflow image so they can't clash with Airflow's pinned packages. Same versions as
+# environment.lock.yml; tensorflow-cpu as in the reference repo (no GPU).
+tensorflow-cpu==2.21.0
+keras==3.12.4
+tensorflow-datasets==4.9.10
+numpy==2.2.6
+pandas==2.3.3
+pillow==12.3.0
+scikit-learn==1.7.2
+matplotlib==3.10.9
+PyYAML==6.0.3
+ray[data,default]==2.59.0
+dvc==3.67.1
+mlflow==3.17.2
+requests==2.34.2

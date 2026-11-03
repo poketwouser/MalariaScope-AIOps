@@ -33,9 +33,14 @@ docker compose ps                # wait until every service shows (healthy)
 | model-server | http://localhost:5001/ping | `mlflow models serve` for `malariascope@champion` |
 | prometheus | http://localhost:9090/targets | metrics scraping |
 | grafana | http://localhost:3000 | dashboards (admin / admin, or anonymous view) |
+| airflow-webserver | http://localhost:8080 | Airflow UI and REST API (admin / admin) |
 
-Ports are bound to 127.0.0.1 only. After a promotion or rollback, run
-`docker compose restart model-server` so the alias is resolved again. Rebuild one service with
+Ports are bound to 127.0.0.1 only. The model server follows the `@champion` alias by itself,
+so a promotion or a rollback takes effect within about 15 seconds, with no restart.
+
+Airflow runs two DAGs: `training_pipeline` (the DVC stages; start it from the Airflow UI or the
+Pipeline page) and `feedback_retrain` (every 30 minutes; retrains once 50 new feedback items have
+arrived). The first build of the Airflow image downloads about 1.5 GB. Rebuild one service with
 `docker compose up -d --build --no-deps <service>`. Stop everything with `docker compose down`.
 
 ## Repository layout

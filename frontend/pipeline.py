@@ -1,7 +1,9 @@
 """Pipeline page: one place to see the ML pipeline and jump to each tool's UI."""
 
+import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
+from urllib.parse import quote
 
 import pandas as pd
 import streamlit as st
@@ -20,8 +22,126 @@ LINKS = {
 }
 
 
+DAGS = {
+    "training_pipeline": "Training pipeline (DVC stages)",
+    "feedback_retrain": "Feedback retraining (checks every 30 min)",
+}
+STATE_ICON = {
+    "success": "✅ success",
+    "failed": "❌ failed",
+    "running": "⏳ running",
+    "queued": "🕓 queued",
+    "skipped": "⏭️ skipped",
+    "upstream_failed": "⛔ upstream failed",
+}
+
+
 def when(ms):
     return datetime.fromtimestamp(int(ms) / 1000).strftime("%Y-%m-%d %H:%M")
+
+
+def parse_iso(ts):
+    return datetime.fromisoformat(ts) if ts else None
+
+
+def seconds(start, end):
+    start, end = parse_iso(start), parse_iso(end)
+    if start is None:
+        return None
+    return round(((end or datetime.now(timezone.utc)) - start).total_seconds(), 1)
+
+
+def local_time(ts):
+    t = parse_iso(ts)
+    return t.astimezone().strftime("%Y-%m-%d %H:%M") if t else ""
+
+
+def xcom_json(dag_id, run_id, task_id):
+    """The metrics JSON a training task printed last, or {}."""
+    path = (
+        f"dags/{dag_id}/dagRuns/{quote(run_id, safe='')}/taskInstances/"
+        f"{task_id}/xcomEntries/return_value"
+    )
+    entry = api.airflow_get(path) or {}
+    try:
+        return json.loads(entry.get("value") or "{}")
+    except ValueError:
+        return {}
+
+
+def dag_runs(dag_id):
+    st.markdown(f"**{DAGS[dag_id]}**")
+    found = api.airflow_get(
+        f"dags/{dag_id}/dagRuns", order_by="-execution_date", limit=5
+    )
+    failed = api.airflow_get(f"dags/{dag_id}/dagRuns", state="failed", limit=1)
+    runs = (found or {}).get("dag_runs", [])
+    left, right = st.columns([3, 1])
+    left.caption(
+        f"{(found or {}).get('total_entries', 0)} runs in total, "
+        f"{(failed or {}).get('total_entries', 0)} failed"
+    )
+    if right.button("Run now", key=f"run_{dag_id}", width="stretch"):
+        try:
+            run_id = api.airflow_trigger(dag_id)
+            st.success(f"Started {run_id}")
+        except api.BackendError as e:
+            st.error(str(e))
+    if runs:
+        rows = [
+            {
+                "started": local_time(r["start_date"]),
+                "state": STATE_ICON.get(r["state"], r["state"]),
+                "trigger": r["run_type"],
+                "duration (s)": seconds(r["start_date"], r["end_date"]),
+            }
+            for r in runs
+        ]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+    return runs
+
+
+def airflow_section():
+    st.subheader("Pipeline runs (Airflow)")
+    if api.airflow_get("health") is None:
+        st.warning("Airflow can't be reached, so pipeline runs are not shown.")
+        return
+    training_runs = dag_runs("training_pipeline")
+    dag_runs("feedback_retrain")
+    if not training_runs:
+        return
+
+    run = training_runs[0]
+    st.markdown(
+        f"**Stages of the latest training run** ({local_time(run['start_date'])})"
+    )
+    tasks = api.airflow_get(
+        f"dags/training_pipeline/dagRuns/{quote(run['dag_run_id'], safe='')}"
+        "/taskInstances"
+    )
+    rows = [
+        {
+            "stage": t["task_id"],
+            "state": STATE_ICON.get(t["state"], t["state"] or "not started"),
+            "duration (s)": round(t["duration"], 1) if t["duration"] else None,
+        }
+        for t in sorted(
+            (tasks or {}).get("task_instances", []),
+            key=lambda t: t["start_date"] or "9999",
+        )
+    ]
+    if rows:
+        st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+
+    cols = st.columns(2)
+    for col, stage, label in (
+        (cols[0], "validate", "Ray validation"),
+        (cols[1], "preprocess", "Ray preprocessing"),
+    ):
+        rate = xcom_json("training_pipeline", run["dag_run_id"], stage).get(
+            "images_per_sec"
+        )
+        col.metric(f"{label} throughput", f"{rate:,.0f} images/s" if rate else "–")
 
 
 def champion_section():
@@ -125,6 +245,7 @@ st.markdown(
     "evaluation → promotion, versioned with DVC and tracked in MLflow."
 )
 st.markdown(" · ".join(f"[{name}]({url})" for name, url in LINKS.items()))
+airflow_section()
 champion_section()
 runs_section()
 feedback_section()

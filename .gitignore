@@ -41,3 +41,4 @@ results/logs/mlflow_server.log
 /feedback/
 results/logs/backend.log
 results/logs/mlflow_serve.log
+airflow/db/

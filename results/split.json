@@ -16,8 +16,8 @@
   "feedback": {
     "added": 0,
     "duplicates_dropped": 0,
-    "leaked_dropped": 0,
-    "received": 0
+    "leaked_dropped": 2,
+    "received": 2
   },
   "seed": 42,
   "sizes": {

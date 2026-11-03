@@ -1,8 +1,8 @@
 {
   "feedback_in_train": 0,
   "image_size": 64,
-  "images_per_sec": 7006.8,
-  "seconds": 3.93,
+  "images_per_sec": 5502.4,
+  "seconds": 5.01,
   "sizes": {
     "test": 2756,
     "train": 22046,

@@ -1,0 +1,82 @@
+== docker compose ps
+SERVICE             IMAGE                           STATUS
+airflow-scheduler   malariascope/airflow:2.10.5     Up 4 minutes (healthy)
+airflow-webserver   malariascope/airflow:2.10.5     Up 4 minutes (healthy)
+backend             malariascope/backend:1.0        Up 26 minutes (healthy)
+frontend            malariascope/frontend:1.0       Up 26 minutes (healthy)
+grafana             grafana/grafana:12.4.14         Up 26 minutes (healthy)
+mlflow              malariascope/mlflow:3.17.2      Up 26 minutes (healthy)
+model-server        malariascope/model-server:1.0   Up 26 minutes (healthy)
+node-exporter       prom/node-exporter:v1.12.1      Up 26 minutes (healthy)
+prometheus          prom/prometheus:v3.15.0         Up 26 minutes (healthy)
+
+== DAGs (import errors: 0)
+   feedback_retrain active
+   training_pipeline active
+
+== Run 1: training_pipeline via REST, no data change: every stage skipped by DVC
+    ingest           success       5.7s
+    validate         success       2.3s
+    split            success       2.2s
+    eda              success       2.7s
+    preprocess       success       3.2s
+    train            success       2.7s
+    evaluate         success       2.7s
+    promote          success       2.7s
+    dvc_push         success       2.9s
+
+== Run 2: feedback_retrain with conf {"min_feedback": 1} (2 pending items, both the UI sample parasitized_1.png)
+    enough_feedback  success       0.1s
+    export_feedback  success       1.2s
+    start_training   success       0.1s
+   -> triggered training_pipeline manual__2026-11-03T11:17:44.133167+00:00
+    ingest           success       1.7s
+    validate         success       2.3s
+    split            success       5.5s
+    eda              success       2.8s
+    preprocess       success      21.0s
+    train            success       2.8s
+    evaluate         success       2.8s
+    promote          success       2.9s
+    dvc_push         success       3.5s
+   split log:
+     2026-11-03 11:17:59,634 INFO split: feedback: {'received': 2, 'leaked_dropped': 2, 'duplicates_dropped': 0, 'added': 0}
+   preprocess log (Ray inside the scheduler container):
+     2026-11-03 11:18:23,465 INFO preprocess: resized 27558 images in 5.0s (5502 images/s)
+   train log:
+     Stage 'train' didn't change, skipping
+   npz check against the pre-Day-8 md5s:
+     data/processed/test.npz: OK
+     data/processed/train.npz: OK
+     data/processed/val.npz: OK
+   backend /feedback/stats after export: {"total":2,"agreed":2,"disagreed":0,"since_last_export":0}
+
+== Runs 3 and 4: started from the Streamlit Pipeline page 'Run now' buttons (AppTest, live stack)
+   exceptions: none
+   warnings: []
+   captions: ['2 runs in total, 0 failed', '2 runs in total, 0 failed', 'Registered 2026-10-28 18:45 · code f284dab1 · data a8588f48']
+   metrics: [('Ray validation throughput', '5,402 images/s'), ('Ray preprocessing throughput', '5,502 images/s'), ('Version', '1'), ('Test accuracy', '96.3%'), ('Infected cells caught', '96.7%'), ('Decision threshold', '0.242'), ('Feedback received', '2'), ('Model was wrong', '0'), ('Waiting for retraining', '0')]
+   run_training_pipeline -> ['Started manual__2026-11-03T11:19:17.769392+00:00'] []
+   run_feedback_retrain -> ['Started manual__2026-11-03T11:19:18.580401+00:00'] []
+   training_pipeline manual__2026-11-03T11:19:17.769392+00:00: success
+    ingest           success       1.7s
+    validate         success       2.3s
+    split            success       2.2s
+    eda              success       2.8s
+    preprocess       success       2.8s
+    train            success       2.8s
+    evaluate         success       2.8s
+    promote          success       2.8s
+    dvc_push         success       3.1s
+   feedback_retrain manual__2026-11-03T11:19:18.580401+00:00: success
+    enough_feedback  success       0.2s
+    export_feedback  skipped       0.0s
+    start_training   skipped       0.0s
+
+== All runs
+   training_pipeline  manual     success  manual__2026-11-03T11:19:17.769392+00:00
+   training_pipeline  manual     success  manual__2026-11-03T11:17:44.133167+00:00
+   training_pipeline  manual     success  manual__2026-11-03T11:16:17.023798+00:00
+   feedback_retrain   manual     success  manual__2026-11-03T11:19:18.580401+00:00
+   feedback_retrain   manual     success  manual__2026-11-03T11:17:36.669912+00:00
+   feedback_retrain   scheduled  success  scheduled__2026-11-03T10:30:00+00:00

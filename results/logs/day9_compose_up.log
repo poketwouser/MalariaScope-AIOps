@@ -1,0 +1,37 @@
+ Container project-mlflow-1  Healthy
+ Container project-model-server-1  Waiting
+ Container project-mlflow-1  Healthy
+ Container project-model-server-1  Healthy
+ Container project-backend-1  Starting
+ Container project-backend-1  Started
+ Container project-backend-1  Waiting
+ Container project-airflow-init-1  Exited
+ Container project-airflow-webserver-1  Starting
+ Container project-airflow-init-1  Exited
+ Container project-airflow-scheduler-1  Starting
+ Container project-airflow-scheduler-1  Started
+ Container project-airflow-webserver-1  Started
+ Container project-alert-receiver-1  Healthy
+ Container project-alertmanager-1  Starting
+ Container project-alertmanager-1  Started
+ Container project-pushgateway-1  Waiting
+ Container project-alertmanager-1  Waiting
+ Container project-pushgateway-1  Healthy
+ Container project-backend-1  Healthy
+ Container project-frontend-1  Starting
+ Container project-frontend-1  Started
+ Container project-alertmanager-1  Healthy
+ Container project-prometheus-1  Waiting
+ Container project-prometheus-1  Healthy
+airflow-scheduler	Up 12 seconds (health: starting)
+airflow-webserver	Up 12 seconds (health: starting)
+alert-receiver	Up 21 seconds (healthy)
+alertmanager	Up 11 seconds (healthy)
+backend	Up 15 seconds (healthy)
+frontend	Up 9 seconds (healthy)
+grafana	Up 23 minutes (healthy)
+mlflow	Up 21 seconds (healthy)
+model-server	Up 23 minutes (healthy)
+node-exporter	Up 23 minutes (healthy)
+prometheus	Up 23 minutes (healthy)
+pushgateway	Up 21 seconds (healthy)

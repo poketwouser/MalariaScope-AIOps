@@ -17,8 +17,10 @@ LINKS = {
     "MLflow (experiments and models)": os.getenv(
         "MLFLOW_PUBLIC_URL", "http://localhost:5000"
     ),
-    "Grafana (live monitoring)": os.getenv("GRAFANA_URL", "http://localhost:3000"),
+    "Grafana (live monitoring)": os.getenv("GRAFANA_URL", "http://localhost:3000")
+    + "/d/malariascope-service",
     "Prometheus (raw metrics)": os.getenv("PROMETHEUS_URL", "http://localhost:9090"),
+    "Alertmanager (alerts)": os.getenv("ALERTMANAGER_URL", "http://localhost:9093"),
 }
 
 

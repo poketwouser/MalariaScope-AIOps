@@ -2,7 +2,8 @@
 
 Output:
     data/processed/{train,val,test}.npz   x: (N, size, size, 3) uint8, y: (N,) int
-    results/preprocess.json               rows per split, timing, throughput
+    results/preprocess.json               rows per split, timing, throughput, and the
+                                          train intensity baseline for drift monitoring
 
 Run: PYTHONPATH=src python -m malariascope.data.preprocess
 """
@@ -62,6 +63,23 @@ def preprocess(manifest, roots, size, batch_size, num_blocks):
     }
 
 
+def intensity_stats(x):
+    """Distribution of per-image mean pixel intensity (0-255).
+
+    The backend observes the same value for every upload (on the resized model
+    input), so these numbers are the training baseline for the drift panel and
+    alert.
+    """
+    means = x.mean(axis=(1, 2, 3))
+    p05, p95 = np.percentile(means, [5, 95])
+    return {
+        "mean": round(float(means.mean()), 3),
+        "std": round(float(means.std()), 3),
+        "p05": round(float(p05), 3),
+        "p95": round(float(p95), 3),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--manifest", default="data/split/manifest.csv")
@@ -113,6 +131,7 @@ def main():
             "feedback_in_train": int((manifest["source"] == "feedback").sum()),
             "seconds": round(t.seconds, 2),
             "images_per_sec": round(rate, 1),
+            "train_intensity": intensity_stats(data["train"][0]),
         },
         args.metrics,
     )

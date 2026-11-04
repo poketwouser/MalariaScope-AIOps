@@ -20,6 +20,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import ShortCircuitOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from run_metrics import push_run_result
 
 PROJECT = os.getenv("PROJECT_DIR", "/opt/project")
 PIPELINE_BIN = os.getenv("PIPELINE_BIN", "/opt/pipeline/bin")
@@ -50,6 +51,8 @@ with DAG(
     catchup=False,
     max_active_runs=1,
     default_args={"owner": "malariascope", "retries": 0},
+    on_success_callback=push_run_result,
+    on_failure_callback=push_run_result,
     tags=["malariascope", "feedback"],
 ) as dag:
     check = ShortCircuitOperator(
@@ -60,6 +63,8 @@ with DAG(
         bash_command=(
             f"cd {PROJECT} && PYTHONPATH=src python -m malariascope.data.feedback"
             " && dvc add data/feedback"
+            " && PYTHONPATH=src python -m malariascope.pushmetrics feedback_export"
+            " results/feedback_export.json"
             " && python -c 'import json; print(json.dumps("
             'json.load(open("results/feedback_export.json"))))\''
         ),

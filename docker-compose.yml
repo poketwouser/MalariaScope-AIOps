@@ -1,4 +1,4 @@
-# MalariaScope stack: tracking + registry, model server, backend, UI and monitoring.
+# MalariaScope stack: tracking + registry, model server, backend, UI, Airflow and monitoring.
 # Start:  docker compose up -d --build      Status: docker compose ps
 # Blocks talk only over REST using service names on the compose network (loose coupling).
 # Host ports are bound to 127.0.0.1: this is a single-machine, on-prem deployment.
@@ -25,6 +25,7 @@ x-airflow: &airflow
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-malariascope-local-only}
     MLFLOW_TRACKING_URI: http://mlflow:5000
     BACKEND_URL: http://backend:8000
+    PUSHGATEWAY_URL: pushgateway:9091
     PROJECT_DIR: /opt/project
   volumes:
     - ./airflow/dags:/opt/airflow/dags:ro
@@ -45,6 +46,7 @@ services:
       mlflow server --backend-store-uri sqlite:///mlflow.db
       --artifacts-destination ./mlartifacts --host 0.0.0.0 --port 5000
       --allowed-hosts mlflow,mlflow:5000,localhost,localhost:5000,127.0.0.1,127.0.0.1:5000
+      --workers 2
     volumes:
       - ./:/project
     ports:
@@ -115,6 +117,7 @@ services:
       AIRFLOW_URL: http://localhost:8080
       GRAFANA_URL: http://localhost:3000
       PROMETHEUS_URL: http://localhost:9090
+      ALERTMANAGER_URL: http://localhost:9093
     ports:
       - "127.0.0.1:8501:8501"
     depends_on:
@@ -187,11 +190,70 @@ services:
       - prometheus-data:/prometheus
     ports:
       - "127.0.0.1:9090:9090"
+    depends_on:
+      pushgateway:
+        condition: service_healthy
+      alertmanager:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  # Batch jobs (pipeline stages, DAG runs) push here; Prometheus scrapes it.
+  pushgateway:
+    image: prom/pushgateway:v1.11.4
+    command:
+      - --persistence.file=/pushgateway/metrics.db
+      - --persistence.interval=30s
+    volumes:
+      - pushgateway-data:/pushgateway
+    ports:
+      - "127.0.0.1:9091:9091"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9091/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.34.1
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./monitoring/alertmanager:/etc/alertmanager:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "127.0.0.1:9093:9093"
+    depends_on:
+      alert-receiver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Alertmanager's webhook target (Assignment 4 pattern): appends each alert to
+  # results/logs/alerts.log. Standard library only, so it runs on the plain base image.
+  alert-receiver:
+    image: python:3.10-slim
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    command: ["python", "/app/alert_receiver.py"]
+    environment:
+      ALERT_LOG: /logs/alerts.log
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./monitoring/alert-receiver:/app:ro
+      - ./results/logs:/logs
+    healthcheck:
+      <<: *py-health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9095/health')"]
     restart: unless-stopped
 
   node-exporter:
@@ -244,3 +306,5 @@ services:
 volumes:
   prometheus-data:
   grafana-data:
+  pushgateway-data:
+  alertmanager-data:

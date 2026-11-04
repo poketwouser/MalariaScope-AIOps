@@ -143,6 +143,19 @@ def create_app(settings=None, model_client=None, store=None):
 
     @app.get("/metrics", include_in_schema=False)
     def prometheus_metrics():
+        metrics.MODEL_SERVER_UP.set(1 if app.state.model.ready() else 0)
+        try:
+            info = app.state.model.info()  # cached, so cheap on every scrape
+            metrics.MODEL_VERSION.labels(alias=info["alias"]).set(
+                float(info["version"])
+            )
+            metrics.MODEL_THRESHOLD.set(info["threshold"])
+        except ModelUnavailable:
+            pass  # model_server_up and the error counters show the outage
+        try:
+            metrics.FEEDBACK_PENDING.set(app.state.store.stats()["since_last_export"])
+        except Exception:
+            log.exception("could not read feedback stats for /metrics")
         return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     @app.get("/health", response_model=Health)

@@ -1,0 +1,142 @@
+# Recording and alerting rules. Format follows DA3408/Monitoring/sample_rules.yml and
+# Assignment 4's rules.yml. Thresholds come from measured numbers (see the comments).
+groups:
+  - name: recording
+    rules:
+      # Same rule as the course sample: CPU cores busy in user and system mode.
+      - record: cpu_util
+        expr: sum by (mode) (rate(node_cpu_seconds_total{mode=~"system|user"}[1m]))
+
+      - record: node:cpu_busy:percent
+        expr: 100 * (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[1m])))
+
+      - record: node:memory_used:percent
+        expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+
+      - record: malariascope:predict_p95_seconds:5m
+        expr: histogram_quantile(0.95, sum by (le) (rate(malariascope_http_request_seconds_bucket{path="/predict"}[5m])))
+
+      # share of requests answered with a 5xx (4xx are client mistakes, not outages)
+      - record: malariascope:error_ratio:2m
+        expr: |
+          sum(rate(malariascope_http_requests_total{status=~"5.."}[2m]))
+            / sum(rate(malariascope_http_requests_total[2m]))
+
+      # live accuracy implied by feedback: share of feedback that agreed with the model
+      - record: malariascope:feedback_accuracy:1h
+        expr: |
+          sum(increase(malariascope_feedback_total{agreed="true"}[1h]))
+            / sum(increase(malariascope_feedback_total[1h]))
+
+      - record: malariascope:feedback_count:1h
+        expr: sum(increase(malariascope_feedback_total[1h]))
+
+      # drift signal: mean per-image intensity of recent uploads, compared with the
+      # training baseline the preprocess stage pushes (malariascope_pipeline_train_intensity_*)
+      - record: malariascope:input_intensity_mean:15m
+        expr: |
+          sum(increase(malariascope_input_mean_intensity_sum[15m]))
+            / sum(increase(malariascope_input_mean_intensity_count[15m]))
+
+      - record: malariascope:input_count:15m
+        expr: sum(increase(malariascope_input_mean_intensity_count[15m]))
+
+  - name: serving
+    rules:
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "FastAPI backend is not answering /metrics"
+
+      - alert: ModelServerDown
+        expr: malariascope_model_server_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: serving
+        annotations:
+          summary: "MLflow model server does not answer /ping; predictions fail"
+
+      # measured: about 50 ms per prediction (Day 7), so 0.5 s is 10x normal
+      - alert: PredictLatencyHigh
+        expr: malariascope:predict_p95_seconds:5m > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          component: serving
+        annotations:
+          summary: "p95 /predict latency above 0.5 s ({{ $value | printf \"%.2f\" }} s)"
+
+      - alert: HighErrorRate
+        expr: malariascope:error_ratio:2m > 0.05
+        for: 1m
+        labels:
+          severity: warning
+          component: serving
+        annotations:
+          summary: "More than 5% of requests fail with 5xx ({{ $value | humanizePercentage }})"
+
+  - name: model-quality
+    rules:
+      # Training per-image mean is 119.5 with std 11.9 (results/preprocess.json); the
+      # mean of 20 random test images varies by only about 2.7, so a shift of a whole
+      # training std over at least 20 uploads is very unlikely to be chance.
+      - alert: InputDrift
+        expr: |
+          abs(malariascope:input_intensity_mean:15m
+              - scalar(malariascope_pipeline_train_intensity_mean{stage="preprocess"}))
+            > scalar(malariascope_pipeline_train_intensity_std{stage="preprocess"})
+          and malariascope:input_count:15m >= 20
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Uploads look different from the training data (mean intensity {{ $value | printf \"%.1f\" }} away from training)"
+
+      # champion test accuracy is 96%; below 80% agreement on 10+ items is worth a look
+      - alert: FeedbackAccuracyLow
+        expr: malariascope:feedback_accuracy:1h < 0.8 and malariascope:feedback_count:1h >= 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Only {{ $value | humanizePercentage }} of last hour's feedback agreed with the model"
+
+  - name: pipeline
+    rules:
+      - alert: PipelineRunFailed
+        expr: malariascope_dag_run_success == 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latest run of Airflow DAG {{ $labels.dag_id }} failed"
+
+  - name: host
+    rules:
+      - alert: NodeExporterDown
+        expr: up{job="node"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "node-exporter is down, no host metrics"
+
+      # training saturates the CPU for several minutes, so this fires during retraining
+      - alert: HostCPUHigh
+        expr: node:cpu_busy:percent > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host CPU above 90% for 2 min ({{ $value | printf \"%.0f\" }}%)"
+
+      - alert: HostMemoryHigh
+        expr: node:memory_used:percent > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host memory above 90% ({{ $value | printf \"%.0f\" }}%)"

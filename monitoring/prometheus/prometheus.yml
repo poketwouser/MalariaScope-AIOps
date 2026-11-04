@@ -1,8 +1,17 @@
-# Prometheus scrape config (Lecture 9; structure follows DA3408 Monitoring/sample_prometheus.yml).
-# Targets are compose service names on the internal network. Alert rules arrive on Day 9.
+# Prometheus config (Lecture 9; structure follows DA3408 Monitoring/sample_prometheus.yml,
+# with rules and Alertmanager as in the course samples and Assignment 4).
+# Targets are compose service names on the internal network.
 global:
   scrape_interval: 5s
   evaluation_interval: 5s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+rule_files:
+  - rules.yml
 
 scrape_configs:
   - job_name: "backend"
@@ -10,9 +19,20 @@ scrape_configs:
     static_configs:
       - targets: ["backend:8000"]
 
+  # Pipeline stages and DAG runs are batch jobs, so they push here and Prometheus
+  # scrapes the gateway. honor_labels keeps the pushed job/stage/dag_id labels.
+  - job_name: "pushgateway"
+    honor_labels: true
+    static_configs:
+      - targets: ["pushgateway:9091"]
+
   - job_name: "node"
     static_configs:
       - targets: ["node-exporter:9100"]
+
+  - job_name: "alertmanager"
+    static_configs:
+      - targets: ["alertmanager:9093"]
 
   - job_name: "prometheus"
     static_configs:

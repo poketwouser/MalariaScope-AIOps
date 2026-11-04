@@ -6,8 +6,10 @@ with no new data finishes in under a minute, while a run after a feedback export
 retrains, evaluates and goes through the promotion gate. Promotion only moves
 the @champion alias; the model server follows the alias by itself.
 
-Each task prints the stage's metrics JSON as its last line, which Airflow keeps
-as the task's XCom. The Streamlit Pipeline page reads throughput from there.
+Each task pushes the stage's metrics to the Pushgateway (for Grafana), then
+prints the metrics JSON as its last line, which Airflow keeps as the task's XCom.
+The Streamlit Pipeline page reads throughput from there. The run's result is
+pushed too (run_metrics.py), so Prometheus can alert on a failed run.
 """
 
 import os
@@ -15,6 +17,7 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from run_metrics import push_run_result
 
 PROJECT = os.getenv("PROJECT_DIR", "/opt/project")
 PIPELINE_BIN = os.getenv("PIPELINE_BIN", "/opt/pipeline/bin")
@@ -39,6 +42,10 @@ STAGES = {
 
 def repro(stage, metrics):
     cmd = f"cd {PROJECT} && dvc repro {stage}"
+    # push before printing: the last stdout line must stay the JSON (the XCom)
+    cmd += (
+        f" && PYTHONPATH=src python -m malariascope.pushmetrics {stage} {metrics or ''}"
+    )
     if metrics:
         cmd += f" && {PRINT_JSON} {metrics}"
     return BashOperator(task_id=stage, bash_command=cmd, env=ENV, append_env=True)
@@ -53,6 +60,8 @@ with DAG(
     catchup=False,
     max_active_runs=1,  # one DVC run at a time on the shared repo
     default_args={"owner": "malariascope", "retries": 0},
+    on_success_callback=push_run_result,
+    on_failure_callback=push_run_result,
     tags=["malariascope", "dvc"],
 ) as dag:
     t = {stage: repro(stage, metrics) for stage, metrics in STAGES.items()}

@@ -116,7 +116,7 @@ Read from the MLflow registry (the tags on the version behind `@champion`; `imag
 
 ### 3.6 `GET /metrics`
 
-Prometheus text exposition format (section 7).
+Prometheus text exposition format (section 7.1).
 
 ### 3.7 Configuration (environment variables)
 
@@ -174,9 +174,9 @@ ingest → validate → split → preprocess → train → evaluate → promote 
               └──→ eda ─────────────────────────────────────────────────┘
 ```
 
-- **Tasks:** each task is `dvc repro <stage>` and then prints the stage's metrics JSON. The
-  printed line becomes the task's XCom, which the Pipeline page reads (for example Ray
-  throughput).
+- **Tasks:** each task is `dvc repro <stage>`, then pushes the stage's metrics to the
+  Pushgateway (section 7.2), then prints the metrics JSON. The printed line becomes the task's
+  XCom, which the Pipeline page reads (for example Ray throughput).
 - **Skipping:** DVC skips stages whose inputs are unchanged, so a run with no new data takes
   under a minute.
 - **One run at a time:** `max_active_runs=1` keeps DVC runs on the shared repo from
@@ -212,13 +212,105 @@ enough_feedback → export_feedback → start_training (triggers training_pipeli
 - **Order:** feedback rows are appended after the raw rows. With an empty snapshot,
   `train.npz` is byte-identical to before (verified on Day 8), and training is skipped.
 
-## 7. Prometheus metrics (backend)
+## 7. Monitoring (Prometheus, Pushgateway, Alertmanager, Grafana)
 
-To be detailed on Day 9:
-- `malariascope_predictions_total{label}`
-- `malariascope_prediction_confidence` (histogram)
-- `malariascope_inference_latency_seconds` (histogram)
-- `malariascope_feedback_total{agreed}`
-- `malariascope_input_mean_intensity` (histogram, drift signal)
-- `malariascope_model_info{version}`
-- `malariascope_errors_total{error}`
+```
+backend /metrics ─────────────┐ (pull, every 5 s)
+node-exporter ────────────────┤
+Airflow tasks ─push─▶ pushgateway ─┤──▶ prometheus ──▶ grafana (2 dashboards)
+                               │        │ rules.yml
+                               │        ▼
+                               │   alertmanager ──webhook──▶ alert-receiver
+                               │                             (results/logs/alerts.log)
+```
+
+| Service | Port | Image | Role |
+|---|---|---|---|
+| prometheus | 9090 | `prom/prometheus:v3.15.0` | scrapes every 5 s, evaluates `rules.yml` every 5 s |
+| pushgateway | 9091 | `prom/pushgateway:v1.11.4` | holds metrics pushed by batch jobs (persisted to a volume) |
+| alertmanager | 9093 | `prom/alertmanager:v0.34.1` | groups alerts, applies inhibit rules, posts to the webhook |
+| alert-receiver | (internal 9095) | `python:3.10-slim` | appends each notification to `results/logs/alerts.log` |
+| node-exporter | (internal 9100) | `prom/node-exporter:v1.12.1` | host CPU, memory, disk |
+| grafana | 3000 | `grafana/grafana:12.4.14` | provisioned datasource and dashboards |
+
+### 7.1 Backend metrics (`GET /metrics`)
+
+| Metric | Type | Labels | Meaning |
+|---|---|---|---|
+| `malariascope_http_requests_total` | counter | method, path, status | requests by route template (not raw URL) |
+| `malariascope_http_request_seconds` | histogram | method, path | end-to-end request latency |
+| `malariascope_requests_in_flight` | gauge | | requests being handled |
+| `malariascope_predictions_total` | counter | label | class distribution of predictions |
+| `malariascope_prediction_confidence` | histogram | label | probability of the returned label |
+| `malariascope_inference_seconds` | histogram | | model-server round trip |
+| `malariascope_input_mean_intensity` | histogram | | mean pixel (0–255) of the resized model input; drift signal |
+| `malariascope_upload_bytes` | summary | | upload size |
+| `malariascope_feedback_total` | counter | agreed, correct_label | feedback; live accuracy = agreed share |
+| `malariascope_errors_total` | counter | error | handled errors by error code (section 3) |
+| `malariascope_model_version` | gauge | alias | registry version behind `@champion` |
+| `malariascope_model_threshold` | gauge | | decision threshold in use |
+| `malariascope_model_server_up` | gauge | | 1 if the model server answers `/ping` |
+| `malariascope_feedback_pending` | gauge | | feedback not yet exported for retraining |
+
+The last four are refreshed on every scrape, so they stay current without traffic, and
+`/metrics` still answers while the model server is down.
+
+### 7.2 Pipeline metrics (Pushgateway)
+
+- **Stage metrics:** after `dvc repro <stage>`, the Airflow task runs
+  `python -m malariascope.pushmetrics <stage> results/<stage>.json`. Every number or bool in
+  the JSON becomes a gauge `malariascope_pipeline_<field>{job="malariascope_pipeline",stage}`,
+  with nested keys joined by `_` (e.g. `tuned_accuracy`, `sizes_train`, `promoted`), plus
+  `malariascope_pipeline_last_success_timestamp_seconds`. A PUT replaces the stage's whole
+  group. Without `PUSHGATEWAY_URL` (local `dvc repro`) it does nothing, and a failed push is
+  only logged, so monitoring can't fail the pipeline.
+- **Run metrics:** both DAGs' `on_success_callback` / `on_failure_callback`
+  (`airflow/dags/run_metrics.py`) push `malariascope_dag_run_success`,
+  `malariascope_dag_run_duration_seconds` and `malariascope_dag_run_finished_timestamp_seconds`
+  with `{job="malariascope_airflow", dag_id}`.
+- **Drift baseline:** the preprocess stage writes `train_intensity` {mean, std, p05, p95} of the
+  per-image mean intensity of the train split. Pushed as
+  `malariascope_pipeline_train_intensity_mean` / `_std`, it is the reference the drift panel and
+  alert compare live uploads with. On the current data it is mean 119.5, std 11.9.
+
+### 7.3 Alert rules (`monitoring/prometheus/rules.yml`)
+
+| Alert | Condition | For | Severity |
+|---|---|---|---|
+| BackendDown | `up{job="backend"} == 0` | 30 s | critical |
+| ModelServerDown | `malariascope_model_server_up == 0` | 30 s | critical |
+| PredictLatencyHigh | p95 `/predict` over 5 min > 0.5 s (normal: about 50 ms) | 2 min | warning |
+| HighErrorRate | 5xx share over 2 min > 5% | 1 min | warning |
+| InputDrift | \|15-min mean upload intensity − training mean\| > training std, with ≥ 20 uploads | 1 min | warning |
+| FeedbackAccuracyLow | agreed share of last hour's feedback < 0.8, with ≥ 10 items | 1 min | warning |
+| PipelineRunFailed | `malariascope_dag_run_success == 0` | – | warning |
+| NodeExporterDown | `up{job="node"} == 0` | 30 s | critical |
+| HostCPUHigh / HostMemoryHigh | > 90% | 2 min | warning |
+
+- **Why the drift threshold:** the mean of 20 random test images varies by only about 2.7, so
+  moving a whole training std (11.9) is very unlikely to be chance.
+- **Inhibition (`alertmanager.yml`):** while `ModelServerDown` or `BackendDown` fires, the
+  serving latency and error alerts are suppressed.
+- **Tests:** `monitoring/prometheus/rules_test.yml` (6 `promtool test rules` cases: drift fires,
+  normal uploads and too few uploads don't, model server down, failed DAG, low feedback
+  agreement).
+
+### 7.4 Grafana dashboards (`monitoring/grafana/dashboards/`, provisioned)
+
+- **MalariaScope - Service** (`/d/malariascope-service`, refresh 10 s):
+  - status row: champion version, model server up, requests/s, 5xx ratio, p95 latency,
+    feedback waiting for retrain
+  - traffic and latency: requests by route and status, p50/p95 `/predict`, model-server round trip
+  - predictions and feedback: predictions per minute by label, confidence distribution, live
+    accuracy implied by feedback
+  - data drift: 15-min mean upload intensity against the training mean and the ±1 std alert
+    band, plus the upload intensity distribution
+  - firing alerts table (`ALERTS`) and host CPU and memory
+- **MalariaScope - Pipeline** (`/d/malariascope-pipeline`, refresh 30 s, last 24 h):
+  - last run, finish time and duration of both DAGs
+  - promotion gate: decision, champion now, challenger version, test accuracy of challenger
+    and previous champion, recall against the 0.95 floor
+  - training and evaluation: val accuracy, best epoch, training time, test accuracy, ROC AUC,
+    false negatives
+  - data and Ray: Ray throughput by stage, split sizes, feedback received / dropped / added,
+    last success time per stage

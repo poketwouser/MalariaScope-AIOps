@@ -27,6 +27,7 @@ flowchart LR
         graf["Grafana<br/>:3000"]
         ne["node-exporter"]
         pg["Pushgateway<br/>pipeline metrics"]
+        am["Alertmanager<br/>:9093 → alert log"]
     end
 
     user --> fe
@@ -42,7 +43,8 @@ flowchart LR
     prom -- scrape --> be
     prom -- scrape --> ne
     prom -- scrape --> pg
-    pre -- push --> pg
+    af -- "push (stage + run metrics)" --> pg
+    prom -- alerts --> am
     graf --> prom
 ```
 
@@ -59,7 +61,8 @@ flowchart LR
 | Ray Data preprocessing | Parallel validation and resizing, with throughput logged | Lecture 8 Ray |
 | MLflow tracking and registry | Runs, metrics, artifacts, model versions and aliases | Lecture 3, Lecture 10 |
 | Prometheus, node-exporter, Pushgateway | Collect app, host and pipeline metrics | Lecture 9; reference `monitoring/` |
-| Grafana | Near-real-time dashboards and alerts | Lecture 9; Assignment 4 |
+| Alertmanager + alert receiver | Routes alerts from the Prometheus rules to a local log | Lecture 9 (`sample_rules.yml`, `sample_alertmanager.yml`); Assignment 4 |
+| Grafana | Near-real-time dashboards (Service, Pipeline) | Lecture 9; Assignment 4 |
 
 ## Open design decisions (yours to make and justify in the HLD)
 

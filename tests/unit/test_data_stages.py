@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 from PIL import Image
 
+from malariascope.data.preprocess import intensity_stats
 from malariascope.data.split import make_split
 from malariascope.data.validate import check_image
 from malariascope.image import to_model_input
@@ -110,3 +111,11 @@ def test_to_model_input_shape_and_dtype():
 def test_to_model_input_converts_rgba_to_rgb():
     img = Image.fromarray(noisy(50, 50, channels=4).astype(np.uint8), mode="RGBA")
     assert to_model_input(img, 32).shape == (32, 32, 3)
+
+
+def test_intensity_stats_match_backend_per_image_mean():
+    # two flat images at 100 and 140: the backend would observe exactly these means
+    x = np.stack([np.full((4, 4, 3), 100, np.uint8), np.full((4, 4, 3), 140, np.uint8)])
+    stats = intensity_stats(x)
+    assert stats["mean"] == 120 and stats["std"] == 20
+    assert 100 <= stats["p05"] < stats["p95"] <= 140

@@ -214,3 +214,14 @@ def test_metrics_count_predictions(make_client):
     assert 'malariascope_predictions_total{label="parasitized"}' in text
     assert "malariascope_inference_seconds_bucket" in text
     assert 'path="/predict"' in text
+
+
+def test_metrics_report_serving_state_without_traffic(make_client):
+    text = make_client().get("/metrics").text
+    assert "malariascope_model_server_up 1.0" in text
+    assert 'malariascope_model_version{alias="champion"} 7.0' in text
+    assert "malariascope_feedback_pending 0.0" in text
+    # a model outage still returns metrics, with the server marked down
+    down = make_client(FakeModel(up=False)).get("/metrics")
+    assert down.status_code == 200
+    assert "malariascope_model_server_up 0.0" in down.text

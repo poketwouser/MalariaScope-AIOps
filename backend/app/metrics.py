@@ -46,3 +46,11 @@ MODEL_VERSION = Gauge(
     PREFIX + "model_version", "Champion model version currently used", ["alias"]
 )
 MODEL_THRESHOLD = Gauge(PREFIX + "model_threshold", "Decision threshold in use")
+
+# refreshed on every scrape, so they stay current without traffic
+MODEL_SERVER_UP = Gauge(
+    PREFIX + "model_server_up", "1 if the MLflow model server answers /ping"
+)
+FEEDBACK_PENDING = Gauge(
+    PREFIX + "feedback_pending", "Feedback items not yet exported for retraining"
+)

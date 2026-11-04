@@ -31,8 +31,10 @@ docker compose ps                # wait until every service shows (healthy)
 | backend | http://localhost:8000/docs | FastAPI inference API (Swagger) |
 | mlflow | http://localhost:5000 | MLflow tracking server and model registry |
 | model-server | http://localhost:5001/ping | `mlflow models serve` for `malariascope@champion` |
-| prometheus | http://localhost:9090/targets | metrics scraping |
-| grafana | http://localhost:3000 | dashboards (admin / admin, or anonymous view) |
+| prometheus | http://localhost:9090/targets | metrics scraping and alert rules |
+| pushgateway | http://localhost:9091 | metrics pushed by pipeline stages and DAG runs |
+| alertmanager | http://localhost:9093 | alert routing; notifications go to `results/logs/alerts.log` |
+| grafana | http://localhost:3000 | Service and Pipeline dashboards (admin / admin, or anonymous view) |
 | airflow-webserver | http://localhost:8080 | Airflow UI and REST API (admin / admin) |
 
 Ports are bound to 127.0.0.1 only. The model server follows the `@champion` alias by itself,
@@ -40,7 +42,9 @@ so a promotion or a rollback takes effect within about 15 seconds, with no resta
 
 Airflow runs two DAGs: `training_pipeline` (the DVC stages; start it from the Airflow UI or the
 Pipeline page) and `feedback_retrain` (every 30 minutes; retrains once 50 new feedback items have
-arrived). The first build of the Airflow image downloads about 1.5 GB. Rebuild one service with
+arrived). Each task pushes its stage metrics to the Pushgateway for the Grafana Pipeline
+dashboard. `scripts/simulate_traffic.py` sends train-split cells through the API (optionally
+with feedback, or brightened to trigger the drift alert). The first build of the Airflow image downloads about 1.5 GB. Rebuild one service with
 `docker compose up -d --build --no-deps <service>`. Stop everything with `docker compose down`.
 
 ## Repository layout

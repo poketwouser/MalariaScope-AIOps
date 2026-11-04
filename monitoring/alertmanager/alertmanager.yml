@@ -1,0 +1,23 @@
+# Based on DA3408/Monitoring/sample_alertmanager.yml and Assignment 4's alertmanager.yml.
+# The course sample posts to webhook.site; here the webhook is the alert-receiver
+# service on the compose network, which appends every notification to
+# results/logs/alerts.log (no data leaves the machine).
+route:
+  group_by: ['alertname']
+  group_wait: 5s
+  group_interval: 5s
+  repeat_interval: 1h
+  receiver: 'local.webhook'
+
+receivers:
+  - name: 'local.webhook'
+    webhook_configs:
+      - url: 'http://alert-receiver:9095/alert'
+        send_resolved: true
+
+inhibit_rules:
+  # while the model server is down, its latency and error alerts add nothing
+  - source_matchers: [alertname="ModelServerDown"]
+    target_matchers: [component="serving", alertname!="ModelServerDown"]
+  - source_matchers: [alertname="BackendDown"]
+    target_matchers: [component="serving"]

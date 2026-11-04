@@ -1,0 +1,2 @@
+2026-11-04 09:48:14  FIRING   InputDrift  severity=warning  Uploads look different from the training data (mean intensity 19.1 away from training)
+2026-11-04 10:02:04  RESOLVED InputDrift  severity=warning  Uploads look different from the training data (mean intensity 35.4 away from training)

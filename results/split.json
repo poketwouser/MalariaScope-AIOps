@@ -5,8 +5,8 @@
       "uninfected": 1378
     },
     "train": {
-      "parasitized": 11023,
-      "uninfected": 11023
+      "parasitized": 11053,
+      "uninfected": 11053
     },
     "val": {
       "parasitized": 1378,
@@ -14,15 +14,15 @@
     }
   },
   "feedback": {
-    "added": 0,
+    "added": 60,
     "duplicates_dropped": 0,
     "leaked_dropped": 2,
-    "received": 2
+    "received": 62
   },
   "seed": 42,
   "sizes": {
     "test": 2756,
-    "train": 22046,
+    "train": 22106,
     "val": 2756
   }
 }

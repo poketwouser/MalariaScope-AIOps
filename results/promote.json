@@ -1,5 +1,18 @@
 {
   "challenger": {
+    "accuracy": 0.9560957910014514,
+    "f1_parasitized": 0.9566774078052274,
+    "false_negatives": 42,
+    "false_positives": 79,
+    "n": 2756,
+    "precision_parasitized": 0.9441696113074205,
+    "recall_parasitized": 0.969521044992743,
+    "roc_auc": 0.9916419328405527,
+    "specificity": 0.9426705370101597,
+    "threshold": 0.29834648966789246,
+    "version": 2
+  },
+  "champion_before": {
     "accuracy": 0.9626269956458636,
     "f1_parasitized": 0.9628024557602023,
     "false_negatives": 45,
@@ -12,8 +25,7 @@
     "threshold": 0.24167083203792572,
     "version": 1
   },
-  "champion_before": null,
   "champion_now": 1,
-  "promoted": true,
-  "reason": "no champion yet"
+  "promoted": false,
+  "reason": "accuracy gain -0.0065 < 0.005"
 }

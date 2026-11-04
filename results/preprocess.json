@@ -1,17 +1,17 @@
 {
-  "feedback_in_train": 0,
+  "feedback_in_train": 60,
   "image_size": 64,
-  "images_per_sec": 4201.5,
-  "seconds": 6.56,
+  "images_per_sec": 4430.0,
+  "seconds": 6.23,
   "sizes": {
     "test": 2756,
-    "train": 22046,
+    "train": 22106,
     "val": 2756
   },
   "train_intensity": {
-    "mean": 119.505,
+    "mean": 119.504,
     "p05": 97.326,
-    "p95": 136.51,
-    "std": 11.941
+    "p95": 136.502,
+    "std": 11.943
   }
 }

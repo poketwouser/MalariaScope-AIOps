@@ -1,0 +1,61 @@
+# Day 9 feedback loop end to end (2026-11-04 10:06:13 UTC)
+
+## 1. feedback sent (scripts/simulate_traffic.py -n 60 --feedback --seed 9, train split only)
+58/60 predictions matched the true label
+
+## 2. scheduled feedback_retrain run (scheduler, not manual)
+feedback_retrain scheduled__2026-11-04T09:30:00+00:00: success
+  enough_feedback  success         0.1s
+  export_feedback  success         1.4s
+  start_training   success         0.2s
+
+## 3. training run it triggered
+training_pipeline manual__2026-11-04T10:00:08.336707+00:00: success
+  ingest           success         1.8s
+  validate         success         2.4s
+  split            success         6.3s
+  eda              success         2.8s
+  preprocess       success        21.6s
+  train            success       258.8s
+  evaluate         success         9.5s
+  promote          success        11.2s
+  dvc_push         success         3.7s
+
+## 4. stage outputs
+feedback_export: {"exported":60,"snapshot_size":62}
+split feedback: {'added': 60, 'duplicates_dropped': 0, 'leaked_dropped': 2, 'received': 62}
+preprocess: {'feedback_in_train': 60, 'sizes': {'test': 2756, 'train': 22106, 'val': 2756}, 'images_per_sec': 4430.0}
+train: {"best_epoch":3,"epochs_run":7,"run_id":"db3b92bf10444bac8365f6c51e4b7e04","train_seconds":243.7,"val_accuracy":0.9564586281776428,"val_loss":0.1271880716085434}
+promote: promoted=False, reason=accuracy gain -0.0065 < 0.005, champion_now=v1
+  challenger       v2 acc 0.9561 recall 0.9695 FN 42 FP 79
+  champion_before  v1 acc 0.9626 recall 0.9673 FN 45 FP 58
+
+## 5. registry aliases and serving
+  @champion -> v1
+  @challenger -> v2
+  @previous_champion -> (not set)
+  backend /model/info: version 1 threshold 0.2417
+  model-server log: 0 alias moves seen (champion unchanged, so no restart)
+
+## 6. Prometheus view (pushgateway)
+  malariascope_pipeline_promoted promote 0
+  malariascope_pipeline_challenger_accuracy promote 0.9560957910014514
+  malariascope_pipeline_champion_before_accuracy promote 0.9626269956458636
+  malariascope_pipeline_feedback_added split 60
+  malariascope_dag_run_success training_pipeline 1
+  malariascope_dag_run_success feedback_retrain 1
+  malariascope_feedback_pending  0
+
+## 7. alerts.log (Alertmanager -> alert-receiver)
+2026-11-04 09:48:14  FIRING   InputDrift  severity=warning  Uploads look different from the training data (mean intensity 19.1 away from training)
+2026-11-04 10:02:04  RESOLVED InputDrift  severity=warning  Uploads look different from the training data (mean intensity 35.4 away from training)
+training_pipeline manual__2026-11-04T10:07:11.102550+00:00: success
+  ingest           success         4.2s
+  validate         success         2.4s
+  split            success         2.6s
+  eda              success         2.8s
+  preprocess       success         3.2s
+  train            success         2.9s
+  evaluate         success         2.9s
+  promote          success         2.9s
+  dvc_push         success         3.3s

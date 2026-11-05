@@ -8,3 +8,4 @@ target-version = ["py310"]
 pythonpath = ["src", "backend", "."]
 testpaths = ["tests"]
 addopts = "-ra"
+markers = ["e2e: needs the Docker Compose stack running (tests/e2e)"]

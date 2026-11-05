@@ -47,6 +47,17 @@ dashboard. `scripts/simulate_traffic.py` sends train-split cells through the API
 with feedback, or brightened to trigger the drift alert). The first build of the Airflow image downloads about 1.5 GB. Rebuild one service with
 `docker compose up -d --build --no-deps <service>`. Stop everything with `docker compose down`.
 
+## Tests
+
+```bash
+pytest --cov=src/malariascope --cov=backend/app   # unit, integration and e2e
+pytest -m "not e2e"                               # without the stack running
+```
+
+The e2e tests in `tests/e2e/` run against the compose stack and skip themselves when it is down.
+Test plan, test cases and acceptance criteria: `docs/test_plan.md`. Latest results:
+`docs/test_report.md`.
+
 ## Repository layout
 
 ```

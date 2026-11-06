@@ -56,7 +56,7 @@ Pipeline stages are **functional**: each is a script that reads declared inputs 
 6. The UI shows the label, the confidence and a low-confidence warning below 70%.
 7. The user can confirm or correct the result. The image and the label go to the feedback store.
 
-Measured over 50 calls through the containers: p50 59.2 ms, p95 247.0 ms.
+Measured over 50 calls through the containers: p50 65.6 ms, p95 196.0 ms.
 
 ### 4.2 Training pipeline
 

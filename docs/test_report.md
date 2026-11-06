@@ -42,7 +42,7 @@ All cases in test plan sections 6.1–6.5 passed. Notable measurements:
 | E2E-02 | Backend serves version 1, threshold 0.2417, same git commit as the registry tag |
 | E2E-04 | All 4 sample cells labelled correctly through the containers |
 | E2E-05 | 400 / 400 / 413 / 422 with the LLD error codes |
-| E2E-10 | 50 `/predict` calls: **p50 104.6 ms, p95 298.0 ms** |
+| E2E-10 | 50 `/predict` calls on an idle machine: **p50 65.6 ms, p95 196.0 ms** (`07_testing/06_latency_p95.png`) |
 
 System tests (section 6.6):
 
@@ -77,7 +77,7 @@ The full run-through on 7 Nov found problems the automated tests had missed. Eac
 |---|---|---|---|
 | AC-1 | Test accuracy ≥ 95% | 96.26% | ✅ Yes |
 | AC-2 | Parasitized recall ≥ 97% | 96.73% (45 of 1,378 infected cells missed) | ❌ **No**, short by 0.27 points (4 cells) |
-| AC-3 | p95 `/predict` < 500 ms | 298.0 ms | ✅ Yes |
+| AC-3 | p95 `/predict` < 500 ms | 196.0 ms | ✅ Yes |
 | AC-4 | All automated tests pass | 89/89 pytest, 6/6 promtool | ✅ Yes |
 | AC-5 | UI handles every error case | UI-02, UI-06, UI-08, UI-09, UT-18, E2E-05, ST-09 pass | ✅ Yes, after the fix in section 4 |
 | AC-6 | Lint clean | black and flake8 clean | ✅ Yes |

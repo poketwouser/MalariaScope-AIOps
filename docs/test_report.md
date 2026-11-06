@@ -55,7 +55,7 @@ System tests (section 6.6):
 | ST-05 | Retrain in Airflow. v2 and v3 accuracy 0.9561 vs champion 0.9626, so the gate rejected both and v1 kept serving |
 | ST-06 | `InputDrift` fired during brightened traffic and resolved when it stopped |
 | ST-07 | `ingest` failed with `PermissionError`, 8 tasks `upstream_failed`, `PipelineRunFailed` fired, and resolved after the next good run |
-| ST-08 | Fresh clone: 12 healthy services and all tests passing. Images were built from Docker's layer cache, so this doesn't time a build from nothing |
+| ST-08 | Fresh clone of the final repo: 12 healthy services and 89/89 tests. `docker compose up -d --build` took 10 min 45 s: the Airflow image was rebuilt and the others came from Docker's layer cache, so this isn't the time for a build from nothing |
 | ST-09 | Fake PNG, oversize file and stopped backend each gave a plain message |
 
 ## 4. Defects found and fixed in the final run

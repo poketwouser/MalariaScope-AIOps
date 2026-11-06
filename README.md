@@ -17,12 +17,13 @@ mamba activate malariascope
 
 ## Run the stack (Docker Compose)
 
-Needs Docker with Compose v2, the data and model pulled with `dvc pull`, and a registered
-`malariascope@champion` model in `mlflow.db` (created by `dvc repro`).
+Needs Docker with Compose v2 and the Conda environment above (for `dvc`). From a fresh clone:
 
 ```bash
-docker compose up -d --build     # first build takes about 9 minutes
-docker compose ps                # wait until every service shows (healthy)
+dvc pull                               # data, model and the MLflow store snapshot
+python scripts/mlflow_store.py restore # registry with the malariascope@champion model
+docker compose up -d --build           # first build takes about 35 minutes
+docker compose ps                      # wait until every service shows (healthy)
 ```
 
 | Service | URL | What it is |

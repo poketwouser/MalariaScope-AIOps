@@ -43,12 +43,32 @@ def dvc_out_hash(stage, path, lock_file="dvc.lock"):
     return ""
 
 
+def source_is_dirty():
+    """True if tracked files other than pipeline outputs have uncommitted changes.
+
+    dvc.lock and results/ are left out: DVC deletes a stage's outputs before it
+    runs and rewrites dvc.lock between stages, so under `dvc repro` they always
+    differ from the commit and say nothing about the code.
+    """
+    return bool(
+        git(
+            "status",
+            "--porcelain",
+            "--untracked-files=no",
+            "--",
+            ".",
+            ":(exclude)dvc.lock",
+            ":(exclude)results",
+        )
+    )
+
+
 def run_tags(data_stage, data_path):
     """Tags that tie a run to its code and data versions."""
     return {
         "git_commit": git("rev-parse", "HEAD") or "unknown",
         # uncommitted changes mean the commit alone can't reproduce the run
-        "git_dirty": str(bool(git("status", "--porcelain", "--untracked-files=no"))),
+        "git_dirty": str(source_is_dirty()),
         "data_path": data_path,
         "data_md5": dvc_out_hash(data_stage, data_path) or "unknown",
         # set by `dvc exp run`, links the MLflow run to the DVC experiment

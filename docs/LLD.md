@@ -1,6 +1,6 @@
 # Low-Level Design: MalariaScope
 
-> Draft (written ahead of the Day 5 backend build). The backend must match this spec exactly. If the code needs to differ, change this document first.
+This is the implementation spec. The backend's live OpenAPI schema (`/docs`) was checked against section 3: every endpoint and response field matches.
 
 ## 1. Source tree
 
@@ -8,21 +8,25 @@
 src/malariascope/
   common.py          params, logging, Timer, write_json
   image.py           to_model_input(): resize shared by pipeline and backend
-  model.py           build_model(), CLASS_NAMES
+  labels.py          CLASS_NAMES, POSITIVE: shared by pipeline and backend
+  model.py           build_model()
   tracking.py        MLflow URI, run tags (git commit, DVC data hash)
   data/ingest.py     TFDS -> PNG + manifest
   data/validate.py   Ray Data image checks + dedup
-  data/split.py      stratified seeded split
+  data/split.py      stratified seeded split; adds feedback to train only
+  data/feedback.py   exports the feedback store into the DVC snapshot
   data/preprocess.py Ray Data resize -> .npz
   eda.py             dataset figures
   train.py           CNN training, MLflow logging
   evaluate.py        test metrics, val-tuned threshold
   promote.py         registry: challenger vs champion gate
   rollback.py        champion <- previous_champion
+  pushmetrics.py     pushes stage metrics to the Pushgateway
 backend/             FastAPI service (section 3)
 frontend/            Streamlit UI (section 5)
 airflow/dags/        training and feedback-retrain DAGs (section 6)
-monitoring/          Prometheus and Grafana configuration (section 7)
+monitoring/          Prometheus, Alertmanager and Grafana configuration (section 7)
+scripts/             experiments, traffic simulator, serving smoke test, MLflow store snapshot
 ```
 
 ## 2. Pipeline stages (dvc.yaml)
@@ -112,7 +116,7 @@ Read from the MLflow registry (the tags on the version behind `@champion`; `imag
 ### 3.5 `GET /health` and `GET /ready`
 
 - `/health`: always 200 `{"status": "ok"}` while the process is up (liveness).
-- `/ready`: 200 `{"status": "ready", "model_server": "up"}`, or 503 `{"status": "not_ready", "model_server": "down"}` (readiness, used by the Docker healthcheck and the UI banner).
+- `/ready`: 200 `{"status": "ready", "model_server": "up"}`, or 503 `{"status": "not_ready", "model_server": "down"}` (readiness, used by the UI's service status; the Docker healthcheck uses `/health`, so a model-server outage shows in the UI without restarting the backend).
 
 ### 3.6 `GET /metrics`
 
@@ -120,13 +124,17 @@ Prometheus text exposition format (section 7.1).
 
 ### 3.7 Configuration (environment variables)
 
+Defaults suit running outside Docker. `docker-compose.yml` sets the service addresses and `FEEDBACK_DIR=/data/feedback`.
+
 | Variable | Default | Purpose |
 |---|---|---|
-| `MODEL_SERVER_URL` | `http://model-server:5001` | MLflow model server |
-| `MLFLOW_TRACKING_URI` | `http://mlflow:5000` | registry lookup for `/model/info` |
-| `FEEDBACK_DIR` | `/app/feedback` | feedback images and DB |
+| `MODEL_SERVER_URL` | `http://localhost:5001` | MLflow model server |
+| `MLFLOW_TRACKING_URI` | `http://localhost:5000` | registry lookup for `/model/info` |
+| `FEEDBACK_DIR` | `feedback` | feedback images and DB |
 | `MAX_UPLOAD_MB` | `5` | upload limit |
 | `MODEL_INFO_TTL` | `60` | seconds to cache registry info |
+| `MODEL_NAME`, `MODEL_ALIAS` | `malariascope`, `champion` | which registered model to serve |
+| `MODEL_REQUEST_TIMEOUT` | `10` | seconds to wait for the model server |
 | `LOG_LEVEL` | `INFO` | logging level |
 
 ## 4. Feedback store
@@ -154,8 +162,8 @@ CREATE TABLE feedback (
 ## 5. Frontend (Streamlit, port 8501)
 
 - Reads `BACKEND_URL` from the environment. It has no other link to the backend (loose coupling).
-- **Predict page:** upload → preview → Predict → label, confidence bar and threshold → feedback buttons ("Correct" / "Wrong, it is …").
-- **Pipeline page:** latest Airflow DAG runs, MLflow champion version and metrics, feedback stats, and links to the Airflow, MLflow, Grafana and Prometheus UIs.
+- **Predict page:** upload or pick a sample → preview → Analyse → label, confidence bar and threshold → 👍 / 👎 feedback, sent once per result. Below 70% confidence the result is flagged for a manual re-check.
+- **Pipeline page:** Airflow DAG runs with Run now buttons, per-stage state and duration, Ray throughput, MLflow champion, versions and recent runs, feedback stats, and links to the Airflow, MLflow, Grafana, Prometheus and Alertmanager UIs.
 - Error states: backend unreachable, model not ready, invalid file, file too large.
 
 ## 6. Airflow DAGs
@@ -314,3 +322,37 @@ The last four are refreshed on every scrape, so they stay current without traffi
     false negatives
   - data and Ray: Ray throughput by stage, split sizes, feedback received / dropped / added,
     last success time per stage
+
+## 8. Docker images
+
+All Python images are multi-stage: a `python:3.10` builder and a `python:3.10-slim` runtime.
+
+| Image | Base | Entrypoint | User |
+|---|---|---|---|
+| `malariascope/backend:1.0` | `python:3.10-slim` | `uvicorn app.main:create_app --factory --host 0.0.0.0 --port 8000` | `appuser` (compose: host user) |
+| `malariascope/frontend:1.0` | `python:3.10-slim` | `streamlit run app.py --server.port=8501 --server.address=0.0.0.0` | `appuser` |
+| `malariascope/mlflow:3.17.2` | `python:3.10-slim` | `mlflow server --backend-store-uri sqlite:///mlflow.db --artifacts-destination ./mlartifacts` | compose: host user |
+| `malariascope/model-server:1.0` | `python:3.10-slim` | `python serve.py` (resolves `@champion`, runs `mlflow models serve`) | `appuser` |
+| `malariascope/airflow:2.10.5` | `apache/airflow:2.10.5-python3.10` | `airflow webserver`, `airflow scheduler`, one-shot `airflow-init` | compose: host user |
+| Pinned upstream | `prom/prometheus:v3.15.0`, `prom/pushgateway:v1.11.4`, `prom/alertmanager:v0.34.1`, `prom/node-exporter:v1.12.1`, `grafana/grafana:12.4.14` | image default | image default |
+
+The alert receiver runs `monitoring/alert-receiver/alert_receiver.py` on plain `python:3.10-slim`.
+
+## 9. Environment variables summary
+
+Backend variables are in section 3.7. The others:
+
+| Variable | Default | Used by | Meaning |
+|---|---|---|---|
+| `BACKEND_URL` | `http://localhost:8000` | Streamlit | API base for all UI requests |
+| `MLFLOW_URL` | `http://localhost:5000` | Streamlit | MLflow REST API for the Pipeline page |
+| `AIRFLOW_API_URL` | `http://localhost:8080` | Streamlit | Airflow REST API |
+| `AIRFLOW_USER`, `AIRFLOW_PASSWORD` | `admin`, `admin` | Streamlit | Airflow REST basic auth |
+| `BACKEND_TIMEOUT` | `30` | Streamlit | Seconds to wait for the backend |
+| `AIRFLOW_URL`, `MLFLOW_PUBLIC_URL`, `GRAFANA_URL`, `PROMETHEUS_URL`, `ALERTMANAGER_URL` | `http://localhost:<port>` | Streamlit | Links opened by the user's browser |
+| `MLFLOW_TRACKING_URI` | `http://localhost:5000` | Pipeline stages, model server | MLflow server |
+| `MODEL_NAME`, `MODEL_ALIAS` | `malariascope`, `champion` | Model server | Model to follow |
+| `POLL_SECONDS` | `15` | Model server | How often to check the alias |
+| `PROJECT_DIR`, `PIPELINE_BIN` | `/opt/project`, `/opt/pipeline/bin` | Airflow DAGs | Mounted repo and pipeline venv |
+| `PUSHGATEWAY_URL` | not set (pushing is off) | Airflow tasks | Pushgateway address |
+| `HOST_UID`, `HOST_GID` | `1000` | Compose | User that owns bind-mounted files |

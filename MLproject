@@ -1,7 +1,8 @@
 # MLflow Project (Lecture 3): one entry point per pipeline stage, all run in the
 # same Conda environment, so dev and test use identical dependencies.
-#   mlflow run . -e train
-#   mlflow run . -e main            # whole pipeline through DVC
+#   mlflow run . -e train --experiment-name malariascope --env-manager local
+#   mlflow run . -e main --env-manager local      # whole pipeline through DVC
+# Without --env-manager local, MLflow builds the environment.yml environment first.
 # Parameters come from params.yaml (shared with DVC); entry points take only paths.
 name: malariascope
 

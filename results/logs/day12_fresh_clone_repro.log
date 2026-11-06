@@ -1,0 +1,94 @@
+Sat 07 Nov 2026 02:42:57 AM IST
+Stage 'ingest' didn't change, skipping
+Stage 'validate' didn't change, skipping
+'data/feedback.dvc' didn't change, skipping
+Stage 'split' didn't change, skipping
+Stage 'preprocess' didn't change, skipping
+Stage 'eda' didn't change, skipping
+Running stage 'train':
+> PYTHONPATH=src python -m malariascope.train
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793999581.308381   18834 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793999581.308619   18834 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1793999581.342884   18834 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793999582.276988   18834 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793999582.277346   18834 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+2026/11/07 02:43:03 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+E0000 00:00:1793999584.203338   18834 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+Epoch 1/25
+346/346 - 37s - 108ms/step - accuracy: 0.8841 - loss: 0.2789 - val_accuracy: 0.5036 - val_loss: 1.5632
+Epoch 2/25
+346/346 - 36s - 104ms/step - accuracy: 0.9462 - loss: 0.1571 - val_accuracy: 0.9321 - val_loss: 0.1933
+Epoch 3/25
+346/346 - 37s - 108ms/step - accuracy: 0.9503 - loss: 0.1476 - val_accuracy: 0.9565 - val_loss: 0.1272
+Epoch 4/25
+346/346 - 37s - 107ms/step - accuracy: 0.9522 - loss: 0.1429 - val_accuracy: 0.9525 - val_loss: 0.1336
+Epoch 5/25
+346/346 - 37s - 107ms/step - accuracy: 0.9534 - loss: 0.1396 - val_accuracy: 0.9256 - val_loss: 0.2717
+Epoch 6/25
+346/346 - 37s - 106ms/step - accuracy: 0.9553 - loss: 0.1366 - val_accuracy: 0.9496 - val_loss: 0.1388
+Epoch 7/25
+346/346 - 37s - 106ms/step - accuracy: 0.9553 - loss: 0.1316 - val_accuracy: 0.9253 - val_loss: 0.2353
+2026-11-07 02:47:22,707 INFO train: training done: {'best_epoch': 3, 'epochs_run': 7, 'val_loss': 0.1271880716085434, 'val_accuracy': 0.9564586281776428, 'train_seconds': 258.2}
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 56ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 65ms/step
+2026-11-07 02:47:29,591 INFO train: mlflow run b96b44b2d4f74aa5b7f910847af58d84
+🏃 View run train at: http://localhost:5000/#/experiments/1/runs/b96b44b2d4f74aa5b7f910847af58d84
+🧪 View experiment at: http://localhost:5000/#/experiments/1
+Updating lock file 'dvc.lock'
+
+Running stage 'evaluate':
+> PYTHONPATH=src python -m malariascope.evaluate
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793999851.183735   27205 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793999851.183985   27205 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1793999851.221975   27205 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793999852.181769   27205 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793999852.182112   27205 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+2026/11/07 02:47:33 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+E0000 00:00:1793999853.584778   27205 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+2026-11-07 02:47:35,809 INFO evaluate: test metrics at 0.5: {'accuracy': 0.9597242380261248, 'recall_parasitized': 0.9521044992743106, 'precision_parasitized': 0.9668386145910096, 'f1_parasitized': 0.9594149908592322, 'specificity': 0.967343976777939, 'roc_auc': 0.9916419328405527, 'false_negatives': 66, 'false_positives': 45, 'n': 2756}
+2026-11-07 02:47:35,809 INFO evaluate: val-tuned threshold 0.2983, test metrics: {'accuracy': 0.9560957910014514, 'recall_parasitized': 0.969521044992743, 'precision_parasitized': 0.9441696113074205, 'f1_parasitized': 0.9566774078052274, 'specificity': 0.9426705370101597, 'roc_auc': 0.9916419328405527, 'false_negatives': 42, 'false_positives': 79, 'n': 2756}
+2026-11-07 02:47:35,946 INFO evaluate: classification report (tuned threshold):
+              precision    recall  f1-score   support
+
+ parasitized     0.9442    0.9695    0.9567      1378
+  uninfected     0.9687    0.9427    0.9555      1378
+
+    accuracy                         0.9561      2756
+   macro avg     0.9564    0.9561    0.9561      2756
+weighted avg     0.9564    0.9561    0.9561      2756
+
+🏃 View run train at: http://localhost:5000/#/experiments/1/runs/b96b44b2d4f74aa5b7f910847af58d84
+🧪 View experiment at: http://localhost:5000/#/experiments/1
+Updating lock file 'dvc.lock'
+
+Running stage 'promote':
+> PYTHONPATH=src python -m malariascope.promote
+2026/11/07 02:47:38 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/kiran/miniforge3/envs/malariascope/lib/python3.10/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793999858.593674   27602 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793999858.594212   27602 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+I0000 00:00:1793999858.628601   27602 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793999859.541901   27602 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1793999859.542275   27602 cudart_stub.cc:31] Could not find cuda drivers on your machine, GPU will not be used.
+Registered model 'malariascope' already exists. Creating a new version of this model...
+2026/11/07 02:47:40 WARNING mlflow.tracking._model_registry.fluent: Run with id b96b44b2d4f74aa5b7f910847af58d84 has no artifacts at artifact path 'model', registering model based on models:/m-29a83794933c4153ab3a7c984208595f instead
+2026/11/07 02:47:40 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: malariascope, version 3
+Created version '3' of model 'malariascope'.
+2026-11-07 02:47:41,218 INFO promote: registered malariascope version 3 from run b96b44b2d4f74aa5b7f910847af58d84
+Downloading artifacts:   0%|          | 0/9 [00:00<?, ?it/s]Downloading artifacts:  11%|█         | 1/9 [00:00<00:00, 21076.90it/s]Downloading artifacts:  22%|██▏       | 2/9 [00:00<00:00, 18315.74it/s]Downloading artifacts:  33%|███▎      | 3/9 [00:00<00:00, 204.96it/s]  Downloading artifacts:  44%|████▍     | 4/9 [00:00<00:00, 270.05it/s]Downloading artifacts:  56%|█████▌    | 5/9 [00:00<00:00, 262.10it/s]Downloading artifacts:  67%|██████▋   | 6/9 [00:00<00:00, 310.62it/s]Downloading artifacts:  78%|███████▊  | 7/9 [00:00<00:00, 359.25it/s]Downloading artifacts:  89%|████████▉ | 8/9 [00:00<00:00, 379.33it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 198.69it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 197.66it/s]
+E0000 00:00:1793999861.903314   27602 cuda_platform.cc:52] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+[1m 1/87[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m8s[0m 97ms/step[1m 8/87[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 8ms/step [1m15/87[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m0s[0m 8ms/step[1m22/87[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 8ms/step[1m29/87[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 8ms/step[1m36/87[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 8ms/step[1m43/87[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 8ms/step[1m51/87[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 7ms/step[1m59/87[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 7ms/step[1m67/87[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 7ms/step[1m75/87[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 7ms/step[1m83/87[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 7ms/step[1m87/87[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 8ms/step[1m87/87[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 8ms/step
+Downloading artifacts:   0%|          | 0/9 [00:00<?, ?it/s]Downloading artifacts:  11%|█         | 1/9 [00:00<00:00, 19152.07it/s]Downloading artifacts:  22%|██▏       | 2/9 [00:00<00:00, 12210.49it/s]Downloading artifacts:  33%|███▎      | 3/9 [00:00<00:00, 254.98it/s]  Downloading artifacts:  44%|████▍     | 4/9 [00:00<00:00, 310.10it/s]Downloading artifacts:  56%|█████▌    | 5/9 [00:00<00:00, 360.94it/s]Downloading artifacts:  67%|██████▋   | 6/9 [00:00<00:00, 416.78it/s]Downloading artifacts:  78%|███████▊  | 7/9 [00:00<00:00, 447.28it/s]Downloading artifacts:  89%|████████▉ | 8/9 [00:00<00:00, 505.70it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 195.27it/s]Downloading artifacts: 100%|██████████| 9/9 [00:00<00:00, 193.82it/s]
+[1m 1/87[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m5s[0m 61ms/step[1m 9/87[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 7ms/step [1m17/87[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m0s[0m 7ms/step[1m25/87[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 7ms/step[1m33/87[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 7ms/step[1m41/87[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 7ms/step[1m49/87[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 7ms/step[1m57/87[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 7ms/step[1m65/87[0m [32m━━━━━━━━━━━━━━[0m[37m━━━━━━[0m [1m0s[0m 7ms/step[1m73/87[0m [32m━━━━━━━━━━━━━━━━[0m[37m━━━━[0m [1m0s[0m 7ms/step[1m81/87[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 7ms/step[1m87/87[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 7ms/step[1m87/87[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 7ms/step
+2026-11-07 02:47:44,175 INFO promote: kept champion, version 3: accuracy gain -0.0065 < 0.005
+Updating lock file 'dvc.lock'
+Use `dvc push` to send your updates to remote storage.
+EXIT=0
+Sat 07 Nov 2026 02:47:45 AM IST

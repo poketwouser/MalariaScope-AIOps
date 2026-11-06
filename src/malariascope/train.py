@@ -13,6 +13,7 @@ Run: PYTHONPATH=src python -m malariascope.train
 """
 
 import argparse
+import os
 import platform
 from pathlib import Path
 
@@ -154,7 +155,10 @@ def main():
     image_size = load_params("preprocess")["image_size"]
 
     mlflow.set_tracking_uri(tracking_uri())
-    mlflow.set_experiment(params["experiment"])
+    # `mlflow run` has already activated a run in its --experiment-name, and setting
+    # another experiment here would make start_run fail (MLflow Exercise 2)
+    if not os.getenv("MLFLOW_RUN_ID"):
+        mlflow.set_experiment(params["experiment"])
     with mlflow.start_run(run_name="train") as run:
         mlflow.set_tags(run_tags("preprocess", args.data_dir))
         summary = train(params, image_size, args.data_dir, args.model, args.plots_dir)

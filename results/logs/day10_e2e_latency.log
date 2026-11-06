@@ -1,5 +1,0 @@
-# 2026-11-05 13:57:29 AC-3 latency (E2E-10)
-
-/predict over 50 calls: p50 59.2 ms, p95 247.0 ms
-.
-1 passed, 23 deselected in 4.13s

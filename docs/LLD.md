@@ -26,7 +26,7 @@ backend/             FastAPI service (section 3)
 frontend/            Streamlit UI (section 5)
 airflow/dags/        training and feedback-retrain DAGs (section 6)
 monitoring/          Prometheus, Alertmanager and Grafana configuration (section 7)
-scripts/             experiments, traffic simulator, serving smoke test, MLflow store snapshot
+scripts/             traffic simulator, serving smoke test, MLflow store snapshot
 ```
 
 ## 2. Pipeline stages (dvc.yaml)
@@ -229,7 +229,7 @@ Airflow tasks ─push─▶ pushgateway ─┤──▶ prometheus ──▶ gra
                                │        │ rules.yml
                                │        ▼
                                │   alertmanager ──webhook──▶ alert-receiver
-                               │                             (results/logs/alerts.log)
+                               │                             (results/alerts.log)
 ```
 
 | Service | Port | Image | Role |
@@ -237,7 +237,7 @@ Airflow tasks ─push─▶ pushgateway ─┤──▶ prometheus ──▶ gra
 | prometheus | 9090 | `prom/prometheus:v3.15.0` | scrapes every 5 s, evaluates `rules.yml` every 5 s |
 | pushgateway | 9091 | `prom/pushgateway:v1.11.4` | holds metrics pushed by batch jobs (persisted to a volume) |
 | alertmanager | 9093 | `prom/alertmanager:v0.34.1` | groups alerts, applies inhibit rules, posts to the webhook |
-| alert-receiver | (internal 9095) | `python:3.10-slim` | appends each notification to `results/logs/alerts.log` |
+| alert-receiver | (internal 9095) | `python:3.10-slim` | appends each notification to `results/alerts.log` |
 | node-exporter | (internal 9100) | `prom/node-exporter:v1.12.1` | host CPU, memory, disk |
 | grafana | 3000 | `grafana/grafana:12.4.14` | provisioned datasource and dashboards |
 

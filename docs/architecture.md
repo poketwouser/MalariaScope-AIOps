@@ -2,7 +2,7 @@
 
 ![MalariaScope architecture](architecture.png)
 
-Source: [architecture.mmd](architecture.mmd). Solid arrows are the main data path; dotted arrows are read-only lookups and pipeline controls from the UI. Blocks talk only over REST or files they own, using addresses set in the environment.
+Solid arrows are the main data path; dotted arrows are read-only lookups and pipeline controls from the UI. Blocks talk only over REST or files they own, using addresses set in the environment.
 
 ## Blocks
 

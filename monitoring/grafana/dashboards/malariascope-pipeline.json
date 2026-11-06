@@ -1426,10 +1426,25 @@
         }
       ],
       "fieldConfig": {
-        "defaults": {
-          "unit": "dateTimeAsLocal"
-        },
-        "overrides": []
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "displayName",
+                "value": "Last success"
+              }
+            ]
+          }
+        ]
       },
       "transformations": [
         {
@@ -1437,7 +1452,8 @@
           "options": {
             "excludeByName": {
               "Time": true,
-              "__name__": true
+              "__name__": true,
+              "job": true
             },
             "indexByName": {
               "stage": 0,

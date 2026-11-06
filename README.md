@@ -3,10 +3,9 @@
 Automated malaria parasite detection from thin blood smear cell images, built as an AIOps (DA3408) course project.
 
 - Problem and objectives: [PROJECT_STATEMENT.md](PROJECT_STATEMENT.md)
-- Architecture (draft): [docs/architecture.md](docs/architecture.md)
-- High-level design (in progress): [docs/HLD.md](docs/HLD.md)
-
-> Work in progress. Setup and run instructions will be completed as the components are built.
+- Documents: [architecture](docs/architecture.md), [HLD](docs/HLD.md), [LLD](docs/LLD.md), [test plan](docs/test_plan.md), [test report](docs/test_report.md), [user manual](docs/user_manual.md)
+- Evidence: [screenshots/](screenshots/), one folder per rubric section
+- [AI disclosure](AI_DISCLOSURE.md)
 
 ## Development environment
 
@@ -34,7 +33,7 @@ docker compose ps                      # wait until every service shows (healthy
 | model-server | http://localhost:5001/ping | `mlflow models serve` for `malariascope@champion` |
 | prometheus | http://localhost:9090/targets | metrics scraping and alert rules |
 | pushgateway | http://localhost:9091 | metrics pushed by pipeline stages and DAG runs |
-| alertmanager | http://localhost:9093 | alert routing; notifications go to `results/logs/alerts.log` |
+| alertmanager | http://localhost:9093 | alert routing; notifications go to `results/alerts.log` |
 | grafana | http://localhost:3000 | Service and Pipeline dashboards (admin / admin, or anonymous view) |
 | airflow-webserver | http://localhost:8080 | Airflow UI and REST API (admin / admin) |
 
@@ -70,7 +69,8 @@ monitoring/         Prometheus and Grafana configuration
 mlflow-server/      MLflow tracking server image
 mlflow-model-server/ MLflow model server image
 tests/              unit, integration and end-to-end tests
-docs/               architecture, HLD, LLD, test plan, user manual
+docs/               architecture, HLD, LLD, test plan and report, user manual
+scripts/            traffic simulator, serving smoke test, MLflow store snapshot
 screenshots/        evidence, one folder per rubric section
-results/            raw logs behind every reported number
+results/            pipeline metrics and plots tracked by DVC
 ```

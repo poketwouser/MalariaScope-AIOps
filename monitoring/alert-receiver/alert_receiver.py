@@ -2,7 +2,7 @@
 
 Same idea as Assignment 4's alert_receiver.py: the course sample sends alerts to
 webhook.site, but this deployment stays on-prem, so notifications are written to
-a log file instead (ALERT_LOG, default /logs/alerts.log). Standard library only.
+a log file instead (ALERT_LOG, default /results/alerts.log). Standard library only.
 """
 
 import json
@@ -11,7 +11,7 @@ from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
-LOG = Path(os.getenv("ALERT_LOG", "/logs/alerts.log"))
+LOG = Path(os.getenv("ALERT_LOG", "/results/alerts.log"))
 PORT = int(os.getenv("PORT", "9095"))
 
 

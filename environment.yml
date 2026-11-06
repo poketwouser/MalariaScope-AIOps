@@ -1,6 +1,6 @@
 # Conda/Mamba environment for local development (DA3408 Mod1 lab: Git + Conda/Mamba reproducible environment).
 # Create:  mamba env create -f environment.yml
-# Pin:     mamba env export --no-builds > environment.lock.yml && pip freeze > requirements.txt
+# Pin:     pip freeze > requirements.txt
 # Python 3.10 matches the course Docker base image (python:3.10-slim, Mod3).
 # Airflow is not installed here; it runs in its own container (as in the reference repo's Dockerfile.airflow).
 name: malariascope

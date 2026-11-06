@@ -1,7 +1,7 @@
 # Based on DA3408/Monitoring/sample_alertmanager.yml and Assignment 4's alertmanager.yml.
 # The course sample posts to webhook.site; here the webhook is the alert-receiver
 # service on the compose network, which appends every notification to
-# results/logs/alerts.log (no data leaves the machine).
+# results/alerts.log (no data leaves the machine).
 route:
   group_by: ['alertname']
   group_wait: 5s

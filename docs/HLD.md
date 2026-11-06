@@ -12,7 +12,7 @@ Around the model sits a full ML lifecycle: versioned data, reproducible pipeline
 
 ![MalariaScope high-level design](hld_diagram.png)
 
-Data is prepared and versioned, the pipeline trains and gates a model, the champion is served, and monitoring and user feedback feed the next training run. Source: [hld_diagram.mmd](hld_diagram.mmd).
+Data is prepared and versioned, the pipeline trains and gates a model, the champion is served, and monitoring and user feedback feed the next training run.
 
 ### 2.2 Architecture
 

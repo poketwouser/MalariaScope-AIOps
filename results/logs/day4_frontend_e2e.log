@@ -1,6 +1,0 @@
-sidebar: ['Ready'] ['Model version 1 · test accuracy 96.3% · catches 96.7% of infected cells']
-result: ['### 🦠 Parasite detected'] ['Ready']
-exceptions: none
-after feedback: ['Thanks, your feedback was saved and will be used to improve the model.']
-pipeline metrics: [('Version', '1'), ('Test accuracy', '96.3%'), ('Infected cells caught', '96.7%'), ('Decision threshold', '0.242'), ('Feedback received', '1'), ('Model was wrong', '0'), ('Waiting for retraining', '1')]
-pipeline exceptions: none

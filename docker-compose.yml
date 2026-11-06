@@ -171,6 +171,10 @@ services:
         condition: service_completed_successfully
       mlflow:
         condition: service_healthy
+      # feedback_retrain asks the backend for counts; without this a catch-up run
+      # at start-up fails on DNS and raises a false PipelineRunFailed alert
+      backend:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname \"$${HOSTNAME}\""]
       interval: 30s
@@ -240,17 +244,17 @@ services:
     restart: unless-stopped
 
   # Alertmanager's webhook target (Assignment 4 pattern): appends each alert to
-  # results/logs/alerts.log. Standard library only, so it runs on the plain base image.
+  # results/alerts.log. Standard library only, so it runs on the plain base image.
   alert-receiver:
     image: python:3.10-slim
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     command: ["python", "/app/alert_receiver.py"]
     environment:
-      ALERT_LOG: /logs/alerts.log
+      ALERT_LOG: /results/alerts.log
       PYTHONUNBUFFERED: "1"
     volumes:
       - ./monitoring/alert-receiver:/app:ro
-      - ./results/logs:/logs
+      - ./results:/results
     healthcheck:
       <<: *py-health
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9095/health')"]

@@ -206,12 +206,12 @@ stages:
       size: 1468
     - path: src/malariascope/tracking.py
       hash: md5
-      md5: affb1449130cddcdf0d442d74629b016
-      size: 2027
+      md5: a91d7d5682462ef36ed74c2f73eb7aa0
+      size: 2555
     - path: src/malariascope/train.py
       hash: md5
-      md5: bab9a9e5c40b5724b62f2ec4048ad30d
-      size: 5578
+      md5: 3e60bf2c2941bf641e4cba081af23482
+      size: 5792
     params:
       params.yaml:
         preprocess.image_size: 64
@@ -232,7 +232,7 @@ stages:
     outs:
     - path: models/model.keras
       hash: md5
-      md5: f64638e6d0ef1519c470d46696f6edc3
+      md5: bda086cdb1862355fb4296a4b580373b
       size: 1404439
     - path: results/plots/training_curves.png
       hash: md5
@@ -240,7 +240,7 @@ stages:
       size: 77178
     - path: results/train.json
       hash: md5
-      md5: dee4c2d130c140c354dc09804964f94f
+      md5: c35cdbd0b8ea4828dd1e0ebf4bee0d27
       size: 187
   evaluate:
     cmd: PYTHONPATH=src python -m malariascope.evaluate
@@ -252,11 +252,11 @@ stages:
       nfiles: 3
     - path: models/model.keras
       hash: md5
-      md5: f64638e6d0ef1519c470d46696f6edc3
+      md5: bda086cdb1862355fb4296a4b580373b
       size: 1404439
     - path: results/train.json
       hash: md5
-      md5: dee4c2d130c140c354dc09804964f94f
+      md5: c35cdbd0b8ea4828dd1e0ebf4bee0d27
       size: 187
     - path: src/malariascope/common.py
       hash: md5
@@ -276,8 +276,8 @@ stages:
       size: 1468
     - path: src/malariascope/tracking.py
       hash: md5
-      md5: affb1449130cddcdf0d442d74629b016
-      size: 2027
+      md5: a91d7d5682462ef36ed74c2f73eb7aa0
+      size: 2555
     params:
       params.yaml:
         evaluate:
@@ -285,7 +285,7 @@ stages:
     outs:
     - path: results/evaluate.json
       hash: md5
-      md5: 1e977760a777e412d6bf04406ac54dff
+      md5: adb9a62e1e445e19c716c5c808aa0a55
       size: 753
     - path: results/plots/confusion_matrix.png
       hash: md5
@@ -305,7 +305,7 @@ stages:
       nfiles: 3
     - path: results/evaluate.json
       hash: md5
-      md5: 1e977760a777e412d6bf04406ac54dff
+      md5: adb9a62e1e445e19c716c5c808aa0a55
       size: 753
     - path: src/malariascope/common.py
       hash: md5
@@ -325,8 +325,8 @@ stages:
       size: 5299
     - path: src/malariascope/tracking.py
       hash: md5
-      md5: affb1449130cddcdf0d442d74629b016
-      size: 2027
+      md5: a91d7d5682462ef36ed74c2f73eb7aa0
+      size: 2555
     params:
       params.yaml:
         promote:
@@ -335,5 +335,5 @@ stages:
     outs:
     - path: results/promote.json
       hash: md5
-      md5: c080c64536164ff2ca59739684da31d7
+      md5: 1532434fcbe925f89760438b07727ffb
       size: 881

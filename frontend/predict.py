@@ -5,8 +5,8 @@ from pathlib import Path
 import streamlit as st
 
 import api
+from uploads import upload_error
 
-MAX_MB = 5
 LOW_CONFIDENCE = 0.70  # below this the result is flagged for a manual re-check
 SAMPLES = Path(__file__).parent / "samples"
 LABEL_TEXT = {"parasitized": "Parasite detected", "uninfected": "No parasite detected"}
@@ -88,7 +88,7 @@ def feedback(image, result):
     if yes.button("👍 Yes, correct", width="stretch"):
         choice = result["label"]
     if no.button(
-        f"👎 No, it is {LABEL_TEXT[OTHER[result['label']]].lower()}",
+        f"👎 No, it is {OTHER[result['label']]}",
         width="stretch",
     ):
         choice = OTHER[result["label"]]
@@ -117,10 +117,9 @@ with left:
     image = pick_image()
     if image:
         name, data, _ = image
-        if len(data) > MAX_MB * 1024 * 1024:
-            st.error(
-                f"This file is larger than {MAX_MB} MB. Please use a smaller image."
-            )
+        error = upload_error(data)
+        if error:
+            st.error(error)
             image = None
         else:
             st.image(data, caption=name, width=260)

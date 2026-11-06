@@ -20,7 +20,7 @@ MalariaScope looks at one cell at a time. It can't read a whole slide or a pictu
 
    ![MalariaScope home page](../screenshots/01_ui/01_home.png)
 
-2. Click **Browse files** and choose your cell image. To try the tool first, pick one under **…or try a sample image**.
+2. Click **Upload** and choose your cell image. To try the tool first, pick one under **…or try a sample image**.
 3. A preview of the image appears.
 
    ![An uploaded image with its preview](../screenshots/01_ui/02_upload_preview.png)

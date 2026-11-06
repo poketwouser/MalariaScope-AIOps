@@ -1,0 +1,28 @@
+2026/11/07 02:58:20 INFO mlflow.projects.utils: === Created directory /tmp/tmphw3tbwjg for downloading remote URIs passed to arguments of type 'path' ===
+2026/11/07 02:58:20 INFO mlflow.projects.backend.local: === Running command 'PYTHONPATH=src python -m malariascope.train --data-dir data/processed --model models/model.keras' in run with ID '53ce10b23f8c408fb056944c62921df2' === 
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1794000500.521244   46729 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1794000501.554927   46729 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+Epoch 1/25
+346/346 - 39s - 113ms/step - accuracy: 0.8841 - loss: 0.2789 - val_accuracy: 0.5036 - val_loss: 1.5632
+Epoch 2/25
+346/346 - 38s - 110ms/step - accuracy: 0.9462 - loss: 0.1571 - val_accuracy: 0.9321 - val_loss: 0.1933
+Epoch 3/25
+346/346 - 38s - 111ms/step - accuracy: 0.9503 - loss: 0.1476 - val_accuracy: 0.9565 - val_loss: 0.1272
+Epoch 4/25
+346/346 - 38s - 110ms/step - accuracy: 0.9522 - loss: 0.1429 - val_accuracy: 0.9525 - val_loss: 0.1336
+Epoch 5/25
+346/346 - 38s - 111ms/step - accuracy: 0.9534 - loss: 0.1396 - val_accuracy: 0.9256 - val_loss: 0.2717
+Epoch 6/25
+346/346 - 38s - 111ms/step - accuracy: 0.9553 - loss: 0.1366 - val_accuracy: 0.9496 - val_loss: 0.1388
+Epoch 7/25
+346/346 - 39s - 112ms/step - accuracy: 0.9553 - loss: 0.1316 - val_accuracy: 0.9253 - val_loss: 0.2353
+2026-11-07 03:02:53,441 INFO train: training done: {'best_epoch': 3, 'epochs_run': 7, 'val_loss': 0.1271880716085434, 'val_accuracy': 0.9564586281776428, 'train_seconds': 269.9}
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 60ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 69ms/step
+2026-11-07 03:02:59,351 INFO train: mlflow run 53ce10b23f8c408fb056944c62921df2
+🏃 View run train at: http://localhost:5000/#/experiments/1/runs/53ce10b23f8c408fb056944c62921df2
+🧪 View experiment at: http://localhost:5000/#/experiments/1
+2026/11/07 03:03:00 INFO mlflow.projects: === Run (ID '53ce10b23f8c408fb056944c62921df2') succeeded ===
+🏃 View run train at: http://localhost:5000/#/experiments/1/runs/53ce10b23f8c408fb056944c62921df2
+🧪 View experiment at: http://localhost:5000/#/experiments/1

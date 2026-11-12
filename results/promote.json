@@ -10,7 +10,7 @@
     "roc_auc": 0.9916419328405527,
     "specificity": 0.9426705370101597,
     "threshold": 0.29834648966789246,
-    "version": 3
+    "version": 4
   },
   "champion_before": {
     "accuracy": 0.9626269956458636,

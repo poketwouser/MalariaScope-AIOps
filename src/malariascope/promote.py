@@ -31,8 +31,11 @@ def version_by_alias(client, alias):
         return None
 
 
-def score_version(version, x_test, y_test):
-    model = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/{version.version}")
+def score_alias(client, alias, x_test, y_test):
+    # load the model by alias, like the serving exercise, and score it at the
+    # threshold stored on that version
+    version = client.get_model_version_by_alias(MODEL_NAME, alias)
+    model = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}@{alias}")
     p_pos = np.asarray(model.predict(x_test))[:, POSITIVE]
     threshold = float(version.tags["decision_threshold"])
     return {
@@ -42,7 +45,7 @@ def score_version(version, x_test, y_test):
     }
 
 
-def decide(challenger, champion, min_gain, min_recall):
+def promotion_gate(challenger, champion, min_gain, min_recall):
     if challenger["recall_parasitized"] < min_recall:
         return False, (
             f"challenger recall {challenger['recall_parasitized']:.4f} "
@@ -93,9 +96,9 @@ def main():
     challenger_v = register(client, evaluation["run_id"], evaluation)
     champion_v = version_by_alias(client, CHAMPION)
 
-    challenger = score_version(challenger_v, x_test, y_test)
-    champion = score_version(champion_v, x_test, y_test) if champion_v else None
-    promote, reason = decide(
+    challenger = score_alias(client, CHALLENGER, x_test, y_test)
+    champion = score_alias(client, CHAMPION, x_test, y_test) if champion_v else None
+    promote, reason = promotion_gate(
         challenger, champion, params["min_gain"], params["min_recall"]
     )
 

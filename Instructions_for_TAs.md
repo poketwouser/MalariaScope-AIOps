@@ -29,7 +29,7 @@ dvc remote modify --local loc_remote url ~/tmp/dvc_storage
 ```bash
 cp -r /path/to/dvc_storage/. ~/tmp/dvc_storage/
 dvc pull                                 # data, model and the MLflow store snapshot
-python scripts/mlflow_store.py restore   # registry: 3 versions, malariascope@champion = v1
+python scripts/mlflow_store.py restore   # registry: 4 versions, malariascope@champion = v1
 docker compose up -d --build
 ```
 
@@ -140,7 +140,7 @@ Screenshots: [`screenshots/04_mlflow`](screenshots/04_mlflow). MLflow at http://
 | Params, metrics, artifacts | any run in experiment `malariascope` | per-epoch curves, confusion matrix, ROC, classification report, model (04–06, 08–10) |
 | Beyond autolog | run tags and params | tags `git_commit`, `git_dirty`, `data_md5` (DVC hash), `dvc_exp`, python, keras, CPU; params `n_train` (22,046, or 22,106 with feedback), `n_val`; metrics `train_seconds`, `test_tuned_recall_parasitized`; the version's `test_recall_parasitized` tag |
 | Experiments | runs table / compare | baseline, lr5e-4, wider, img96, no-augment (02, 03) |
-| Registry with a promotion rule | Models → malariascope | v1 `@champion`; v2 and v3 rejected (accuracy 0.9561 < 0.9626 + 0.005), v3 `@challenger` (07, 11–13) |
+| Registry with a promotion rule | Models → malariascope | v1 `@champion`; v2, v3 and v4 rejected (accuracy 0.9561 < 0.9626 + 0.005), v4 `@challenger`. v4 is the v3 run registered again when the gate code changed on 13 Nov (07, 11–13) |
 
 ### Prometheus and Grafana
 
@@ -197,7 +197,7 @@ Training is seeded, so `dvc repro` on another machine should give the same split
 - Stored feedback images aren't encrypted, and Grafana and Airflow use local default passwords. Ports are bound
   to 127.0.0.1 and containers run as non-root.
 - No Grad-CAM; the UI explains a result through the confidence score and a low-confidence warning.
-- `models/model.keras` and `results/evaluate.json` in the repo are from the latest pipeline run (the rejected v3).
+- `models/model.keras` and `results/evaluate.json` in the repo are from the latest pipeline run (the run behind the rejected v3 and v4).
   What is served is decided by the registry alias (`@champion` = v1), not by the latest file.
 - v1 and v2 carry `git_dirty=True` from a bug fixed on 7 Nov (DVC deletes stage outputs before running); v3 shows
   `git_dirty=False` and matches v2 exactly.

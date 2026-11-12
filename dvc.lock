@@ -321,8 +321,8 @@ stages:
       size: 168
     - path: src/malariascope/promote.py
       hash: md5
-      md5: f7a89b56f07b325095b2f921b1904025
-      size: 4491
+      md5: 177935ca2bb62145d26b7abdcb743b23
+      size: 4693
     - path: src/malariascope/tracking.py
       hash: md5
       md5: 2637df626c1193ad95a6028aa1e11088
@@ -335,5 +335,5 @@ stages:
     outs:
     - path: results/promote.json
       hash: md5
-      md5: 1532434fcbe925f89760438b07727ffb
+      md5: 42df1437f5a350c58fc19bc3fbfea1c6
       size: 881

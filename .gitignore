@@ -1,10 +1,3 @@
-# Personal planning notes and course material (kept locally, not part of the submission)
-PLAN.md
-RUBRIC_NOTES.md
-TRACEABILITY.md
-VIVA_PREP.md
-Rubric/
-
 # Python
 __pycache__/
 *.py[cod]
@@ -13,7 +6,7 @@ __pycache__/
 *.egg-info/
 
 # Data and models are versioned with DVC, not Git. DVC writes its own .gitignore entries
-# for each tracked output (Lecture 2), so they are not listed here.
+# for each tracked output, so they are not listed here.
 # The TFDS download cache is not tracked at all: the exported data/raw is.
 /data/tfds/
 

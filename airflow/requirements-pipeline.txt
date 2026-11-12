@@ -1,6 +1,5 @@
-# The pipeline's own dependencies, installed in a separate venv (/opt/pipeline) inside the
-# Airflow image so they can't clash with Airflow's pinned packages. Same versions as
-# requirements.txt; tensorflow-cpu as in the reference repo (no GPU).
+# pipeline dependencies, installed in a separate venv (/opt/pipeline) so they can't
+# clash with airflow's own pins. same versions as requirements.txt, cpu-only tensorflow
 tensorflow-cpu==2.21.0
 keras==3.12.4
 tensorflow-datasets==4.9.10

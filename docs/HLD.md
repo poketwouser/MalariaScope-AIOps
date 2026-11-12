@@ -27,7 +27,7 @@ The system has four parts. Each block is explained in [architecture.md](architec
 
 ### 2.3 Design paradigm
 
-Pipeline stages are **functional**: each is a script that reads declared inputs and writes declared outputs, which is what lets DVC cache and skip them. The services are **object-oriented**: `ModelClient` and `FeedbackStore` wrap the model server and the store behind small interfaces, and the FastAPI app comes from a `create_app()` factory so tests can inject a fake model.
+Pipeline stages are **functional**: each is a script that reads declared inputs and writes declared outputs, which is what lets DVC cache and skip them. The services are **object-oriented**: `ModelClient` and `FeedbackStore` wrap the model server and the store behind small interfaces, and, as in the Lecture 10 REST serving exercise, the FastAPI `app`, the model client and the store are created once when `main.py` is imported; tests swap the model client for a fake with `monkeypatch`.
 
 ## 3. Key components and responsibilities
 

@@ -29,7 +29,7 @@ Solid arrows are the main data path; dotted arrows are read-only lookups and pip
 - `mlflow run . -e train --experiment-name …` without `set_experiment` inside the run: MLflow Exercise 2. `MLproject` entry points: Lecture 3.
 - Registering a version, `@champion` and `@challenger` aliases, and a gate that promotes only on a minimum accuracy gain: Lecture 10 MLflow serving exercise and MLflow Exercise 4. Rollback is moving the alias back.
 - `mlflow models serve` resolves an alias only at start-up: Lecture 10. `mlflow-model-server/serve.py` restarts it when the alias moves; stopping the whole process group (SIGTERM, then SIGKILL) is the same as `m4util.stop` in the Lecture 10 notebooks.
-- Plain `def` endpoints so FastAPI runs them in a thread pool, and the `X-Process-Time-ms` header from a timing middleware: Lecture 10 REST API serving exercise.
+- A module-level FastAPI `app` with the model client created once at import, plain `def` endpoints so FastAPI runs them in a thread pool, and the `X-Process-Time-ms` header from a `timing` middleware: Lecture 10 REST API serving exercise (`rest_app.py`). The tests replace the model client with `monkeypatch`, as in my Assignment 5.
 - `prometheus_client` counters, gauges, histograms and a summary: Lecture 9 (`Monitoring/prom_client.py`). Recording rules, the alert receiver and node-exporter with `hwmon` and `powersupplyclass` turned off: Assignment 4.
 - Run tags for the git commit and the DVC data hash: the development guideline's "reproducible via a specific Git commit hash and a corresponding MLflow run ID".
 - EDA figures with colour-blind-safe colours, labelled axes and a one-line message under each title: the plotting rules in `Mod 6_Assignments.pdf` (Assignment 4).

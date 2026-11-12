@@ -12,6 +12,7 @@ import numpy as np
 import requests
 from mlflow import MlflowClient
 
+from app import config
 from malariascope.labels import CLASS_NAMES, POSITIVE
 
 
@@ -20,27 +21,27 @@ class ModelUnavailable(Exception):
 
 
 class ModelClient:
-    def __init__(self, settings, session=None):
-        self.settings = settings
+    def __init__(self, session=None):
         self.session = session or requests.Session()
         self._info = None
         self._info_time = 0.0
         self._lock = threading.Lock()
 
     def _fetch_info(self):
-        s = self.settings
-        client = MlflowClient(tracking_uri=s.tracking_uri)
-        version = client.get_model_version_by_alias(s.model_name, s.model_alias)
-        mlflow.set_tracking_uri(s.tracking_uri)
+        client = MlflowClient(tracking_uri=config.TRACKING_URI)
+        version = client.get_model_version_by_alias(
+            config.MODEL_NAME, config.MODEL_ALIAS
+        )
+        mlflow.set_tracking_uri(config.TRACKING_URI)
         signature = mlflow.models.get_model_info(
-            f"models:/{s.model_name}/{version.version}"
+            f"models:/{config.MODEL_NAME}/{version.version}"
         ).signature
         # input tensor shape is (-1, size, size, 3)
         image_size = int(signature.inputs.inputs[0].shape[1])
         tags = version.tags
         return {
-            "name": s.model_name,
-            "alias": s.model_alias,
+            "name": config.MODEL_NAME,
+            "alias": config.MODEL_ALIAS,
             "version": str(version.version),
             "threshold": float(tags.get("decision_threshold", 0.5)),
             "image_size": image_size,
@@ -56,7 +57,7 @@ class ModelClient:
     def info(self):
         # cached for model_info_ttl seconds
         with self._lock:
-            fresh = time.monotonic() - self._info_time < self.settings.model_info_ttl
+            fresh = time.monotonic() - self._info_time < config.MODEL_INFO_TTL
             if self._info is not None and fresh:
                 return self._info
             try:
@@ -70,7 +71,7 @@ class ModelClient:
 
     def ready(self):
         try:
-            r = self.session.get(f"{self.settings.model_server_url}/ping", timeout=2)
+            r = self.session.get(f"{config.MODEL_SERVER_URL}/ping", timeout=2)
             return r.status_code == 200
         except requests.RequestException:
             return False
@@ -79,9 +80,9 @@ class ModelClient:
         """p(parasitized) for a (N, size, size, 3) uint8 batch."""
         try:
             r = self.session.post(
-                f"{self.settings.model_server_url}/invocations",
+                f"{config.MODEL_SERVER_URL}/invocations",
                 json={"instances": batch.tolist()},
-                timeout=self.settings.request_timeout,
+                timeout=config.REQUEST_TIMEOUT,
             )
             r.raise_for_status()
             probs = np.asarray(r.json()["predictions"], dtype=np.float32)

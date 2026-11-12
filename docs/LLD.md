@@ -44,7 +44,7 @@ scripts/             traffic simulator, serving smoke test, MLflow store snapsho
 
 ## 3. Backend REST API (FastAPI, port 8000)
 
-Run: `PYTHONPATH=src:backend uvicorn app.main:create_app --factory --port 8000`. Every response carries `X-Request-ID` and `X-Process-Time-ms` headers.
+Run: `PYTHONPATH=src:backend uvicorn app.main:app --port 8000`. Every response carries `X-Request-ID` and `X-Process-Time-ms` headers.
 
 All JSON responses use UTF-8. Every error response has the same shape:
 
@@ -329,7 +329,7 @@ All Python images are multi-stage: a `python:3.10` builder and a `python:3.10-sl
 
 | Image | Base | Entrypoint | User |
 |---|---|---|---|
-| `malariascope/backend:1.0` | `python:3.10-slim` | `uvicorn app.main:create_app --factory --host 0.0.0.0 --port 8000` | `appuser` (compose: host user) |
+| `malariascope/backend:1.0` | `python:3.10-slim` | `uvicorn app.main:app --host 0.0.0.0 --port 8000` | `appuser` (compose: host user) |
 | `malariascope/frontend:1.0` | `python:3.10-slim` | `streamlit run app.py --server.port=8501 --server.address=0.0.0.0` | `appuser` |
 | `malariascope/mlflow:3.17.2` | `python:3.10-slim` | `mlflow server --backend-store-uri sqlite:///mlflow.db --artifacts-destination ./mlartifacts` | compose: host user |
 | `malariascope/model-server:1.0` | `python:3.10-slim` | `python serve.py` (resolves `@champion`, runs `mlflow models serve`) | `appuser` |

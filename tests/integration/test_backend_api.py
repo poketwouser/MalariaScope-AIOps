@@ -1,17 +1,21 @@
 """Backend API tests with a fake model client instead of the model server."""
 
 import io
-from dataclasses import replace
+import os
+import tempfile
 
 import numpy as np
 import pytest
-from fastapi.testclient import TestClient
 from PIL import Image
 
-from app.config import load_settings
-from app.feedback_store import FeedbackStore
-from app.main import create_app
-from app.model_client import ModelUnavailable
+# app.main opens the feedback store on import, keep it away from the real one
+os.environ.setdefault("FEEDBACK_DIR", tempfile.mkdtemp())
+
+from fastapi.testclient import TestClient  # noqa: E402
+
+from app import config, main  # noqa: E402
+from app.feedback_store import FeedbackStore  # noqa: E402
+from app.model_client import ModelUnavailable  # noqa: E402
 
 THRESHOLD = 0.3
 
@@ -55,17 +59,13 @@ def png_bytes(fmt="PNG", size=(120, 110)):
 
 
 @pytest.fixture
-def make_client(tmp_path):
+def make_client(tmp_path, monkeypatch):
     def make(model=None, max_upload_bytes=None):
-        settings = replace(load_settings(), feedback_dir=tmp_path / "feedback")
+        monkeypatch.setattr(main, "model", model or FakeModel())
+        monkeypatch.setattr(main, "store", FeedbackStore(tmp_path / "feedback"))
         if max_upload_bytes is not None:
-            settings = replace(settings, max_upload_bytes=max_upload_bytes)
-        app = create_app(
-            settings,
-            model_client=model or FakeModel(),
-            store=FeedbackStore(settings.feedback_dir),
-        )
-        return TestClient(app)
+            monkeypatch.setattr(config, "MAX_UPLOAD_BYTES", max_upload_bytes)
+        return TestClient(main.app)
 
     return make
 

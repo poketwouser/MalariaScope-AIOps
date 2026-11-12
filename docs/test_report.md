@@ -16,7 +16,7 @@ Test cases and acceptance criteria are in [test_plan.md](test_plan.md).
 | End to end | 24 | 24 | 0 | 0 |
 | **pytest total** | **89** | **89** | **0** | **0** |
 | Alert rules (promtool) | 6 | 6 | 0 | 0 |
-| System (manual) | 9 | 9 | 0 | 0 |
+| System (manual) | 10 | 10 | 0 | 0 |
 
 Static checks: `black --check .` clean, `flake8` no issues.
 
@@ -57,6 +57,7 @@ System tests (section 6.6):
 | ST-07 | `ingest` failed with `PermissionError`, 8 tasks `upstream_failed`, `PipelineRunFailed` fired, and resolved after the next good run |
 | ST-08 | Fresh clone of the final repo: 12 healthy services and 89/89 tests. `docker compose up -d --build` took 10 min 45 s: the Airflow image was rebuilt and the others came from Docker's layer cache, so this isn't the time for a build from nothing |
 | ST-09 | Fake PNG, oversize file and stopped backend each gave a plain message |
+| ST-10 | 13 Nov, fresh clone without the DVC remote: `dvc repro` from TFDS took 8 min 34 s and reproduced v1 exactly (threshold 0.2417, accuracy 0.9626, recall 0.9673, 45 missed, 58 false alarms), registered it as `@champion`; 12 healthy services; 89/89 tests |
 
 ## 4. Defects found and fixed in the final run
 
@@ -86,3 +87,5 @@ The full run-through on 7 Nov found problems the automated tests had missed. Eac
 **Verdict:** 6 of 7 criteria met. The software is **not yet fully accepted**: AC-2 fails.
 
 About AC-2: the threshold is tuned on the validation split to reach 97% recall there (`evaluate.target_recall`). On the test split the same threshold gives 96.73%. Tuning the threshold on test would pass AC-2, but it would leak test data, so it isn't done. Variants with higher test recall (wider 97.1%, img96 97.1%, no-augment 97.2%) got it only with much lower thresholds and lower accuracy (HLD section 5.4).
+
+AC-2 is stricter than the project statement, which asks for at least 95% test accuracy "with high recall on the Parasitized class". That requirement is met (96.26% accuracy, 96.73% recall). AC-2 stays failed here because it was set before testing and is not moved afterwards.

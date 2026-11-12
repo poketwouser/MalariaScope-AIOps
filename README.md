@@ -5,6 +5,7 @@ Automated malaria parasite detection from thin blood smear cell images, built as
 - Problem and objectives: [PROJECT_STATEMENT.md](PROJECT_STATEMENT.md)
 - Documents: [architecture](docs/architecture.md), [HLD](docs/HLD.md), [LLD](docs/LLD.md), [test plan](docs/test_plan.md), [test report](docs/test_report.md), [user manual](docs/user_manual.md)
 - Evidence: [screenshots/](screenshots/), one folder per rubric section
+- [Instructions for TAs](Instructions_for_TAs.md): how to run and check each rubric item
 - [AI disclosure](AI_DISCLOSURE.md)
 
 ## Development environment
@@ -16,13 +17,30 @@ mamba activate malariascope
 
 ## Run the stack (Docker Compose)
 
-Needs Docker with Compose v2 and the Conda environment above (for `dvc`). From a fresh clone:
+Needs Docker with Compose v2 and the Conda environment above (for `dvc`). The DVC remote is a local
+folder (Lecture 2); on another machine, point it at `~/tmp/dvc_storage`, which Airflow mounts:
+
+```bash
+mkdir -p ~/tmp/dvc_storage
+dvc remote modify --local loc_remote url ~/tmp/dvc_storage
+```
+
+With a copy of the remote in that folder:
 
 ```bash
 dvc pull                               # data, model and the MLflow store snapshot
 python scripts/mlflow_store.py restore # registry with the malariascope@champion model
 docker compose up -d --build           # first build takes about 35 minutes
 docker compose ps                      # wait until every service shows (healthy)
+```
+
+Without it, rebuild everything from TFDS (about 9 minutes on a 16-core CPU, including the download), then start the stack:
+
+```bash
+docker compose up -d mlflow            # empty tracking server and registry
+mkdir -p data/feedback                 # no feedback yet
+dvc repro                              # ingest → … → train → evaluate → promote (registers v1 as @champion)
+docker compose up -d --build
 ```
 
 | Service | URL | What it is |

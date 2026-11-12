@@ -1,12 +1,4 @@
-"""Preprocess stage: resize the split images in parallel with Ray Data.
-
-Output:
-    data/processed/{train,val,test}.npz   x: (N, size, size, 3) uint8, y: (N,) int
-    results/preprocess.json               rows per split, timing, throughput, and the
-                                          train intensity baseline for drift monitoring
-
-Run: PYTHONPATH=src python -m malariascope.data.preprocess
-"""
+"""Preprocess stage: resize the split images with Ray Data into .npz files."""
 
 import argparse
 from pathlib import Path
@@ -25,10 +17,7 @@ SPLITS = ("train", "val", "test")
 
 
 def resize_batch(batch, roots, size):
-    """Ray Data batch function: load and resize each image in the batch.
-
-    roots maps the manifest's "source" column (raw or feedback) to its folder.
-    """
+    # roots: {"raw": folder, "feedback": folder}, picked by the source column
     images = []
     for rel_path, source in zip(batch["path"], batch["source"]):
         with Image.open(Path(roots[source]) / rel_path) as img:
@@ -41,7 +30,6 @@ def resize_batch(batch, roots, size):
 
 
 def preprocess(manifest, roots, size, batch_size, num_blocks):
-    """Resize all images with Ray and return {split: (x, y)}."""
     # several blocks, or Ray runs everything as a single task on one CPU
     ds = ray.data.from_pandas(manifest, override_num_blocks=num_blocks).map_batches(
         resize_batch,
@@ -64,12 +52,7 @@ def preprocess(manifest, roots, size, batch_size, num_blocks):
 
 
 def intensity_stats(x):
-    """Distribution of per-image mean pixel intensity (0-255).
-
-    The backend observes the same value for every upload (on the resized model
-    input), so these numbers are the training baseline for the drift panel and
-    alert.
-    """
+    # baseline for the drift alert: the backend records the same mean for each upload
     means = x.mean(axis=(1, 2, 3))
     p05, p95 = np.percentile(means, [5, 95])
     return {

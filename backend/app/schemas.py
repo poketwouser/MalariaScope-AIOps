@@ -1,5 +1,3 @@
-"""Response schemas: the contract with the frontend (LLD section 3)."""
-
 from typing import List, Literal
 
 from pydantic import BaseModel, Field

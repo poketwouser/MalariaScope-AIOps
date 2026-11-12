@@ -1,16 +1,8 @@
-"""Push a pipeline stage's metrics to the Prometheus Pushgateway.
+"""Push a stage's metrics json to the Pushgateway.
 
-Prometheus pulls metrics (Lecture 9), which suits the long-running backend. A
-pipeline stage is a batch job that exits before a scrape could reach it, so the
-Airflow task pushes the stage's metrics JSON to the Pushgateway instead, and
-Prometheus scrapes them from there. Every numeric field becomes a gauge, e.g.
-results/preprocess.json {"images_per_sec": 5502.4} becomes the gauge
-malariascope_pipeline_images_per_sec{stage="preprocess"}.
-
-Monitoring must never fail the pipeline: without PUSHGATEWAY_URL this is a
-no-op, and a failed push is logged and ignored.
-
-Run: PYTHONPATH=src python -m malariascope.pushmetrics STAGE [METRICS_JSON]
+a stage finishes before prometheus would scrape it, so it pushes instead.
+every number in the json becomes a gauge. if the push fails we only log it,
+monitoring should never fail the pipeline.
 """
 
 import argparse
@@ -30,7 +22,6 @@ PREFIX = "malariascope_pipeline_"
 
 
 def flatten(metrics, prefix=""):
-    """Yield (name, value) for every number or bool in a nested dict."""
     for key, value in metrics.items():
         name = re.sub(r"[^a-zA-Z0-9_]", "_", f"{prefix}{key}")
         if isinstance(value, dict):

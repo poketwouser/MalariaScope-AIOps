@@ -1,5 +1,3 @@
-# Streamlit UI. It only knows the backend through BACKEND_URL (loose coupling).
-
 # Stage 1: builder
 FROM python:3.10 AS builder
 COPY requirements.txt /tmp/requirements.txt

@@ -1,10 +1,4 @@
-"""MalariaScope backend: the REST API the Streamlit UI calls.
-
-Spec: docs/LLD.md section 3.
-
-Run locally (uvicorn app factory):
-    PYTHONPATH=src:backend uvicorn app.main:create_app --factory --port 8000
-"""
+"""MalariaScope backend: the REST API the Streamlit UI calls."""
 
 import io
 import logging
@@ -45,7 +39,6 @@ ERROR_RESPONSES = {code: {"model": ErrorResponse} for code in (400, 413, 422, 50
 
 
 class APIError(Exception):
-    """An error with a status code and a machine-readable code (LLD 3)."""
 
     def __init__(self, status, error, detail):
         super().__init__(detail)
@@ -59,7 +52,6 @@ def error_json(request, status, error, detail):
 
 
 def read_image(upload, max_bytes):
-    """Read and decode an uploaded PNG/JPEG; return (PIL image, raw size)."""
     data = upload.file.read(max_bytes + 1)
     if len(data) > max_bytes:
         raise APIError(
@@ -177,8 +169,8 @@ def create_app(settings=None, model_client=None, store=None):
         metrics.MODEL_THRESHOLD.set(info["threshold"])
         return info
 
-    # plain `def`: FastAPI runs it in a thread pool, so decoding and the model
-    # round trip don't block the event loop (Lecture 10)
+    # plain def, so fastapi runs it in a thread pool and the model call
+    # doesn't block the event loop
     @app.post("/predict", response_model=PredictResponse, responses=ERROR_RESPONSES)
     def predict(request: Request, file: UploadFile = File(...)):
         start = time.perf_counter()

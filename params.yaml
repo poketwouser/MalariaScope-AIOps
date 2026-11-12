@@ -1,5 +1,4 @@
-# Pipeline parameters read by the DVC stages (Lecture 11: params.yaml).
-# Changing a value here makes `dvc repro` re-run only the stages that depend on it.
+# read by the dvc stages. changing a value re-runs only the stages that use it
 
 data:
   dataset: malaria          # TensorFlow Datasets name

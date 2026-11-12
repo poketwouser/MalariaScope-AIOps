@@ -1,8 +1,5 @@
-"""Feedback store: SQLite metadata plus one PNG per feedback (LLD section 4).
-
-Images are plain files under images/<correct_label>/ so the retraining DAG can
-snapshot the folder with `dvc add` and train on it like the original data.
-"""
+# sqlite for the metadata, one png per feedback under images/<correct_label>/
+# so the retraining dag can copy them like normal training images
 
 import io
 import sqlite3
@@ -43,7 +40,6 @@ class FeedbackStore:
         p_parasitized,
         model_version,
     ):
-        """Store one feedback item; return (feedback_id, total_count)."""
         buf = io.BytesIO()
         image.convert("RGB").save(buf, format="PNG")
         with self._lock:

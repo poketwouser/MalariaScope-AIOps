@@ -33,7 +33,6 @@ def sidebar():
 
 
 def pick_image():
-    """Return (name, bytes, mime) from an upload or a sample, or None."""
     uploaded = st.file_uploader(
         "Upload a single-cell image (PNG or JPEG, up to 5 MB)",
         type=["png", "jpg", "jpeg"],

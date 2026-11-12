@@ -1,7 +1,4 @@
-"""Prometheus metrics exposed on /metrics (Lecture 9: prometheus_client).
-
-Covers the four metric types: counters, gauges, histograms and a summary.
-"""
+"""Prometheus metrics for /metrics."""
 
 from prometheus_client import Counter, Gauge, Histogram, Summary
 

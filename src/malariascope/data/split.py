@@ -1,19 +1,7 @@
-"""Split stage: fixed, stratified train/val/test split of the validated images.
+"""Split stage: seeded, stratified train/val/test split, plus feedback in train.
 
-The split is seeded, so the same params give the same split every time, and
-stratified, so every split keeps the dataset's class balance.
-
-User feedback (data/feedback, exported by the retraining DAG) is added to the
-train split only. Val and test stay fixed, so a retrained challenger is compared
-with the champion on exactly the same images. Feedback whose pixels match a val
-or test image is dropped: the UI's sample images come from the test set, and
-training on them would leak test data into the comparison.
-
-Output:
-    data/split/manifest.csv   validated manifest plus "split" and "source" columns
-    results/split.json        rows per split and class, feedback counts
-
-Run: PYTHONPATH=src python -m malariascope.data.split
+feedback only goes into train, so val and test stay the same and a retrained
+model is compared with the champion on the same images.
 """
 
 import argparse
@@ -31,7 +19,6 @@ log = get_logger("split")
 
 
 def make_split(manifest, fractions, seed):
-    """Return a copy of manifest with a "split" column of train/val/test."""
     total = fractions["train"] + fractions["val"] + fractions["test"]
     if abs(total - 1.0) > 1e-6:
         raise ValueError(f"split fractions must add up to 1, got {total}")
@@ -54,11 +41,9 @@ def make_split(manifest, fractions, seed):
 
 
 def add_feedback(split, feedback, raw_root):
-    """Append feedback rows to the train split; return (manifest, counts).
-
-    Drops feedback that duplicates a val/test image (leakage) and keeps only the
-    latest label when the same cell was sent more than once.
-    """
+    # feedback that matches a val/test image is dropped: the UI sample images are
+    # test images, training on them would leak test data. if the same cell came
+    # back twice, the latest label wins
     split = split.assign(source="raw")
     counts = {"received": len(feedback), "leaked_dropped": 0, "duplicates_dropped": 0}
     if feedback.empty:

@@ -1,10 +1,6 @@
-"""Smoke test of the serving chain: MLflow model server, then the backend.
+"""Smoke test: send the sample images to the model server and to the backend.
 
-Sends the frontend sample images to both and prints label, p(parasitized) and
-latency. Exits non-zero if any call fails.
-
-Usage: PYTHONPATH=src python scripts/smoke_test_serving.py \
-         [--model-server http://127.0.0.1:5001] [--backend http://127.0.0.1:8000]
+exits non-zero if any call fails.
 """
 
 import argparse

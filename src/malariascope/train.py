@@ -1,16 +1,4 @@
-"""Train stage: fit the CNN on the train split and track the run in MLflow.
-
-Logged to MLflow: every train param, data sizes, per-epoch loss and accuracy
-(train and val), training time, Git and DVC tags, the training curves, the
-model summary and the model itself with an input/output signature.
-
-Output:
-    models/model.keras                  trained model (DVC output)
-    results/train.json                  run id and best val metrics (DVC metrics)
-    results/plots/training_curves.png   loss and accuracy per epoch (DVC plot)
-
-Run: PYTHONPATH=src python -m malariascope.train
-"""
+"""Train stage: fit the CNN and log the run to MLflow."""
 
 import argparse
 import os
@@ -39,7 +27,6 @@ def load_split(data_dir, split):
 
 
 class MlflowEpochLogger(keras.callbacks.Callback):
-    """Log Keras' epoch metrics to the active MLflow run."""
 
     def on_epoch_end(self, epoch, logs=None):
         mlflow.log_metrics({k: float(v) for k, v in (logs or {}).items()}, step=epoch)
@@ -155,8 +142,8 @@ def main():
     image_size = load_params("preprocess")["image_size"]
 
     mlflow.set_tracking_uri(tracking_uri())
-    # `mlflow run` has already activated a run in its --experiment-name, and setting
-    # another experiment here would make start_run fail (MLflow Exercise 2)
+    # under `mlflow run` a run is already active in --experiment-name,
+    # and set_experiment here would make start_run fail
     if not os.getenv("MLFLOW_RUN_ID"):
         mlflow.set_experiment(params["experiment"])
     with mlflow.start_run(run_name="train") as run:

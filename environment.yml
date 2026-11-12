@@ -1,8 +1,6 @@
-# Conda/Mamba environment for local development (DA3408 Mod1 lab: Git + Conda/Mamba reproducible environment).
-# Create:  mamba env create -f environment.yml
-# Pin:     pip freeze > requirements.txt
-# Python 3.10 matches the course Docker base image (python:3.10-slim, Mod3).
-# Airflow is not installed here; it runs in its own container (as in the reference repo's Dockerfile.airflow).
+# mamba env create -f environment.yml
+# pin with: pip freeze > requirements.txt
+# python 3.10 to match the python:3.10-slim images. airflow runs in its own container.
 name: malariascope
 channels:
   - conda-forge
@@ -19,20 +17,20 @@ dependencies:
       - scikit-learn
       - matplotlib
       - pyyaml
-      # data engineering (Lecture 8: Ray)
+      # data engineering
       - ray[data,default]
-      # versioning and tracking (Lecture 2 and 11: DVC; Lecture 3 and 10: MLflow)
+      # versioning and tracking
       - dvc
       - mlflow
-      # serving and UI (Lecture 10: REST API serving; reference repo backend and frontend)
+      # serving and UI
       - fastapi
       - uvicorn[standard]
       - python-multipart
       - streamlit
       - requests
-      # monitoring (Lecture 9: prometheus_client)
+      # monitoring
       - prometheus-client
-      # testing and code style (rubric: unit tests and standard Python style; tools chosen by the project)
+      # tests and style
       - pytest
       - pytest-cov
       - httpx                 # required by FastAPI's TestClient

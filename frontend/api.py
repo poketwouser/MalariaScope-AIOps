@@ -1,8 +1,4 @@
-"""HTTP clients for the backend and the MLflow REST API.
-
-The UI talks to the backend only through BACKEND_URL (loose coupling, rubric:
-"independent software blocks connected only via configurable REST API calls").
-"""
+# all calls from the UI go through here. the backend is only reached via BACKEND_URL
 
 import os
 
@@ -19,7 +15,8 @@ TIMEOUT = float(os.getenv("BACKEND_TIMEOUT", "30"))
 
 
 class BackendError(Exception):
-    """A request to the backend failed; message is safe to show to users."""
+    # the message is shown to the user as is
+    pass
 
 
 def _call(method, path, **kwargs):
@@ -69,7 +66,6 @@ def feedback_stats():
 
 
 def mlflow_get(path, **params):
-    """GET on the MLflow REST API; returns {} if MLflow is unreachable."""
     try:
         r = requests.get(
             f"{MLFLOW_URL}/api/2.0/mlflow/{path}", params=params, timeout=5
@@ -88,7 +84,6 @@ def mlflow_post(path, body):
 
 
 def airflow_get(path, **params):
-    """GET on the Airflow REST API (v1); returns None if Airflow is unreachable."""
     try:
         r = requests.get(
             f"{AIRFLOW_API_URL}/api/v1/{path}",
@@ -102,7 +97,6 @@ def airflow_get(path, **params):
 
 
 def airflow_trigger(dag_id, conf=None):
-    """Start a DAG run; returns the run id, or raises BackendError."""
     try:
         r = requests.post(
             f"{AIRFLOW_API_URL}/api/v1/dags/{dag_id}/dagRuns",

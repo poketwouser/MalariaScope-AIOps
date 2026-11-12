@@ -1,5 +1,4 @@
-# Airflow scheduler/webserver image (reference repo Dockerfile.airflow, on Python 3.10).
-# DAG tasks run `dvc repro <stage>` with the pipeline venv, not with Airflow's interpreter.
+# tasks run `dvc repro <stage>` with the pipeline venv below, not airflow's own python
 FROM apache/airflow:2.10.5-python3.10
 
 USER root

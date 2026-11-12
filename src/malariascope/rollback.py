@@ -1,10 +1,6 @@
-"""Roll the champion back to the previous champion.
+"""Roll @champion back to @previous_champion.
 
-Lecture 10: a rollback is just an alias move, the same speed as a promotion.
-
-After running this, restart the model server so it re-resolves @champion.
-
-Run: PYTHONPATH=src python -m malariascope.rollback
+only the aliases move. the model server notices within about 15 s (serve.py).
 """
 
 from mlflow import MlflowClient
@@ -17,7 +13,6 @@ log = get_logger("rollback")
 
 
 def rollback(client):
-    """Swap champion and previous_champion; return (old, new) champion versions."""
     current = version_by_alias(client, CHAMPION)
     previous = version_by_alias(client, PREVIOUS)
     if previous is None:

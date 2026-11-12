@@ -1,6 +1,5 @@
-# Serves the registered model with `mlflow models serve` (Lecture 10: MLflow serving).
-# The model is not baked in: serve.py resolves the registry alias and restarts the server
-# whenever the alias moves, so a promotion or rollback takes effect on its own.
+# the model is not baked into the image, serve.py looks up @champion at start
+# and again every 15 s
 
 # Stage 1: builder
 FROM python:3.10 AS builder
@@ -23,6 +22,4 @@ USER appuser
 WORKDIR /home/appuser
 COPY serve.py .
 EXPOSE 5001
-# serve.py runs `mlflow models serve --env-manager local`: the image already holds
-# the model's pinned requirements.
 CMD ["python", "serve.py"]

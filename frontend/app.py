@@ -1,7 +1,4 @@
-"""MalariaScope UI: page navigation (Streamlit multipage app).
-
-Run: BACKEND_URL=http://localhost:8000 streamlit run frontend/app.py
-"""
+# run: BACKEND_URL=http://localhost:8000 streamlit run frontend/app.py
 
 import streamlit as st
 

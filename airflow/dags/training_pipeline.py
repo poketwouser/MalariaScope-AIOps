@@ -1,16 +1,5 @@
-"""Training pipeline DAG: the DVC stages as Airflow tasks (LLD section 6).
-
-Each task runs `dvc repro <stage>` in the repo mounted at /opt/project, with the
-pipeline venv on PATH. DVC skips a stage whose inputs did not change, so a run
-with no new data finishes in under a minute, while a run after a feedback export
-retrains, evaluates and goes through the promotion gate. Promotion only moves
-the @champion alias; the model server follows the alias by itself.
-
-Each task pushes the stage's metrics to the Pushgateway (for Grafana), then
-prints the metrics JSON as its last line, which Airflow keeps as the task's XCom.
-The Streamlit Pipeline page reads throughput from there. The run's result is
-pushed too (run_metrics.py), so Prometheus can alert on a failed run.
-"""
+# one task per dvc stage. dvc skips stages whose inputs didn't change, so a run
+# without new data takes under a minute.
 
 import os
 from datetime import datetime

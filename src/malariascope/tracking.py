@@ -1,9 +1,4 @@
-"""MLflow helpers: tracking URI and the reproducibility tags put on every run.
-
-Every run is tagged with the Git commit and the DVC hash of the data it used,
-so it can be traced back to exact code and data (development guideline:
-"reproducible via a specific Git commit hash and a corresponding MLflow run ID").
-"""
+"""mlflow helpers. every run gets the git commit and the dvc hash of its data"""
 
 import os
 import subprocess
@@ -11,10 +6,6 @@ from pathlib import Path
 
 import yaml
 
-# the tracking server (Lecture 3) runs with a SQLite backend, which the Model
-# Registry needs (Lecture 10), and proxies artifacts so their URIs stay portable:
-#   mlflow server --backend-store-uri sqlite:///mlflow.db \
-#     --artifacts-destination ./mlartifacts --port 5000
 DEFAULT_TRACKING_URI = "http://localhost:5000"
 MODEL_NAME = "malariascope"
 
@@ -32,7 +23,6 @@ def git(*args):
 
 
 def dvc_out_hash(stage, path, lock_file="dvc.lock"):
-    """Return the md5 DVC recorded for an output of a stage, or "" if unknown."""
     lock = Path(lock_file)
     if not lock.exists():
         return ""
@@ -44,12 +34,9 @@ def dvc_out_hash(stage, path, lock_file="dvc.lock"):
 
 
 def source_is_dirty():
-    """True if tracked files other than pipeline outputs have uncommitted changes.
-
-    dvc.lock and results/ are left out: DVC deletes a stage's outputs before it
-    runs and rewrites dvc.lock between stages, so under `dvc repro` they always
-    differ from the commit and say nothing about the code.
-    """
+    # dvc.lock and results/ are left out on purpose. dvc deletes a stage's outputs
+    # before running it and rewrites dvc.lock between stages, so during `dvc repro`
+    # they are always "dirty" even when the code is clean
     return bool(
         git(
             "status",
@@ -64,7 +51,6 @@ def source_is_dirty():
 
 
 def run_tags(data_stage, data_path):
-    """Tags that tie a run to its code and data versions."""
     return {
         "git_commit": git("rev-parse", "HEAD") or "unknown",
         # uncommitted changes mean the commit alone can't reproduce the run

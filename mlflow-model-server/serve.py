@@ -1,12 +1,6 @@
-"""Serve the model behind a registry alias, and follow the alias when it moves.
-
-`mlflow models serve` resolves an alias only when it starts (Lecture 10), so a
-promotion or rollback normally needs a manual restart. This wrapper resolves
-the alias to a version, serves that version, and polls the registry: when the
-alias points somewhere new it restarts the server on the new version. The
-retraining DAG and rollback.py therefore only move the alias; nothing else
-needs access to this container.
-"""
+# `mlflow models serve` only looks up the alias when it starts, so after a promotion
+# it would keep serving the old version. this script checks the alias every
+# POLL_SECONDS and restarts the server when it moved.
 
 import logging
 import os

@@ -1,5 +1,3 @@
-"""Backend settings, read once from environment variables (LLD 3.7)."""
-
 import os
 from dataclasses import dataclass
 from pathlib import Path

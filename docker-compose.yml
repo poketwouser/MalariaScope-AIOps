@@ -1,16 +1,14 @@
-# MalariaScope stack: tracking + registry, model server, backend, UI, Airflow and monitoring.
-# Start:  docker compose up -d --build      Status: docker compose ps
-# Blocks talk only over REST using service names on the compose network (loose coupling).
-# Host ports are bound to 127.0.0.1: this is a single-machine, on-prem deployment.
+# docker compose up -d --build, then docker compose ps
+# services call each other by service name. host ports are bound to 127.0.0.1 only
 
 x-py-health: &py-health
   interval: 10s
   timeout: 5s
   retries: 5
 
-# Airflow (reference repo layout: init + webserver + scheduler, SequentialExecutor on
-# SQLite). Tasks run inside the scheduler, on the repo mounted at /opt/project, so DVC,
-# the data and the feedback store are the same files as outside Docker.
+# airflow: init + webserver + scheduler, SequentialExecutor on sqlite.
+# tasks run in the scheduler on the repo mounted at /opt/project, so dvc sees the
+# same files as outside docker
 x-airflow: &airflow
   build: ./airflow
   image: malariascope/airflow:2.10.5
@@ -243,8 +241,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Alertmanager's webhook target (Assignment 4 pattern): appends each alert to
-  # results/alerts.log. Standard library only, so it runs on the plain base image.
+  # alertmanager webhook target, appends each alert to results/alerts.log
   alert-receiver:
     image: python:3.10-slim
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
@@ -262,8 +259,8 @@ services:
 
   node-exporter:
     image: prom/node-exporter:v1.12.1
-    # Host metrics from the host's /proc and /sys. hwmon and powersupplyclass are off:
-    # their ACPI reads were slow enough to miss scrapes in Assignment 4.
+    # hwmon and powersupplyclass are off: their acpi reads were slow enough to miss
+    # scrapes on this laptop
     command:
       - --path.procfs=/host/proc
       - --path.sysfs=/host/sys

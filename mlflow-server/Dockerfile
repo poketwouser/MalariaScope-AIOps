@@ -1,6 +1,3 @@
-# MLflow tracking server + model registry. Multi-stage build (Mod3 Lecture 1):
-# dependencies go into a venv in the builder, and only that venv ships.
-
 # Stage 1: builder
 FROM python:3.10 AS builder
 COPY requirements.txt /tmp/requirements.txt
@@ -15,8 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     HOME=/tmp \
     MLFLOW_DISABLE_AGENT_HINT=1
 COPY --from=builder /opt/venv /opt/venv
-# The store (mlflow.db + mlartifacts/) is bind-mounted at /project by docker-compose,
-# so the container runs as the host user (compose `user:`) to keep file ownership.
+# mlflow.db and mlartifacts/ are bind-mounted here from the repo, compose runs
+# this as the host user so the files stay owned by them
 WORKDIR /project
 EXPOSE 5000
 CMD ["mlflow", "server", "--backend-store-uri", "sqlite:///mlflow.db", \

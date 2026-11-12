@@ -1,16 +1,7 @@
-"""Export user feedback into the DVC-tracked training snapshot (LLD section 6).
+"""Copy new feedback from the backend's store into data/feedback (tracked by DVC).
 
-Copies every feedback item not yet exported from the backend's feedback store
-into data/feedback/, appends it to data/feedback/manifest.csv and marks it
-exported. The snapshot is cumulative: it holds all feedback ever exported, so
-`dvc add data/feedback` versions exactly what each retraining run saw.
-
-Output:
-    data/feedback/images/<label>/fb_<id>.png
-    data/feedback/manifest.csv     path, label, label_name, pixel_sha1, ...
-    results/feedback_export.json   items exported now and in the snapshot
-
-Run: PYTHONPATH=src python -m malariascope.data.feedback
+the folder keeps everything exported so far, so `dvc add data/feedback`
+versions exactly what each retraining run used.
 """
 
 import argparse
@@ -47,7 +38,6 @@ def read_snapshot(out_dir):
 
 
 def export(feedback_dir, out_dir):
-    """Copy unexported feedback into out_dir; return (n_new, n_in_snapshot)."""
     feedback_dir, out_dir = Path(feedback_dir), Path(out_dir)
     snapshot = read_snapshot(out_dir)
     # the backend writes to the same SQLite file; wait for its lock, never fail on it

@@ -1,18 +1,10 @@
-"""Send real cell images through the backend, like users of the UI would.
+"""Send train-split cell images to the backend, optionally with feedback or brightened.
 
-Used to exercise monitoring and the feedback loop on a running stack:
-  - predictions only: fills the Grafana service dashboard
-  - --feedback: also sends the true label as feedback for every prediction, so
-    feedback_retrain has data to retrain on
-  - --brightness F: brightens every upload by factor F to simulate a new
-    microscope or stain (data drift); the InputDrift alert should fire
+only train images are used, so feedback never touches val/test. brightened
+images (--brightness, the drift demo) are never sent as feedback.
 
-Images come from the TRAIN split only (data/split/manifest.csv), never val or
-test, so the feedback does not leak into the images the promotion gate scores.
-Brightened images are never sent as feedback, so they can't reach training.
-
-Usage: PYTHONPATH=src python scripts/simulate_traffic.py -n 60 --feedback
-       PYTHONPATH=src python scripts/simulate_traffic.py -n 40 --brightness 1.3
+  PYTHONPATH=src python scripts/simulate_traffic.py -n 60 --feedback
+  PYTHONPATH=src python scripts/simulate_traffic.py -n 40 --brightness 1.3
 """
 
 import argparse

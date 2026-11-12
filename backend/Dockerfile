@@ -1,5 +1,4 @@
-# FastAPI inference backend. Build context is the repo root, because the backend shares
-# malariascope.image and malariascope.labels with the training pipeline (no train/serve skew).
+# build context is the repo root: the backend reuses image.py and labels.py from src/
 
 # Stage 1: builder
 FROM python:3.10 AS builder

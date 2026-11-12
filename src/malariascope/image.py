@@ -1,8 +1,5 @@
-"""Image preprocessing shared by the pipeline and the inference backend.
-
-Both sides call to_model_input, so a cell image is prepared the same way at
-training and at serving time.
-"""
+# used by both the pipeline and the backend, so an image is resized the same way
+# for training and for serving
 
 import hashlib
 
@@ -11,20 +8,13 @@ from PIL import Image
 
 
 def to_model_input(img, size):
-    """Convert a PIL image to a (size, size, 3) uint8 array.
-
-    Scaling to [0, 1] happens inside the model (a Rescaling layer), so the array
-    stays uint8 here and on the wire.
-    """
+    # stays uint8, the model has its own Rescaling layer
     img = img.convert("RGB").resize((size, size), Image.Resampling.BILINEAR)
     return np.asarray(img, dtype=np.uint8)
 
 
 def pixel_hash(img):
-    """SHA-1 of the decoded RGB pixels.
-
-    Unlike a file hash, this still matches after an image is re-encoded (the
-    feedback store saves uploads as new PNG files), so it can spot the same cell.
-    """
+    # hash of the pixels, not the file: the feedback store re-saves uploads as PNG,
+    # so a file hash would not match the original image anymore
     arr = np.asarray(img.convert("RGB"), dtype=np.uint8)
     return hashlib.sha1(str(arr.shape).encode() + arr.tobytes()).hexdigest()

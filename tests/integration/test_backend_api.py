@@ -1,9 +1,4 @@
-"""Backend API tests against the LLD contract, with a fake model client.
-
-The fake stands in for the MLflow model server and registry, so these tests
-check the backend's own logic: validation, thresholding, errors, feedback
-storage and metrics.
-"""
+"""Backend API tests with a fake model client instead of the model server."""
 
 import io
 from dataclasses import replace

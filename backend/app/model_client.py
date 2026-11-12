@@ -1,8 +1,7 @@
-"""Talks to the MLflow model server (predictions) and the MLflow registry (model info).
+"""Client for the MLflow model server (predictions) and the registry (model info).
 
-The backend never loads the model itself: the MLflow model server serves
-models:/malariascope@champion over REST (Lecture 10), so the backend image stays
-free of TensorFlow and a promotion only needs the model server restarted.
+the backend never loads the model, so its image has no tensorflow. the model
+server follows @champion on its own after a promotion.
 """
 
 import threading
@@ -17,7 +16,7 @@ from malariascope.labels import CLASS_NAMES, POSITIVE
 
 
 class ModelUnavailable(Exception):
-    """The model server or the registry could not answer."""
+    pass
 
 
 class ModelClient:
@@ -27,8 +26,6 @@ class ModelClient:
         self._info = None
         self._info_time = 0.0
         self._lock = threading.Lock()
-
-    # ---- registry ------------------------------------------------------------
 
     def _fetch_info(self):
         s = self.settings
@@ -57,7 +54,7 @@ class ModelClient:
         }
 
     def info(self):
-        """Champion version metadata, cached for model_info_ttl seconds."""
+        # cached for model_info_ttl seconds
         with self._lock:
             fresh = time.monotonic() - self._info_time < self.settings.model_info_ttl
             if self._info is not None and fresh:
@@ -70,8 +67,6 @@ class ModelClient:
                 raise ModelUnavailable(f"model registry lookup failed: {e}") from e
             self._info_time = time.monotonic()
             return self._info
-
-    # ---- model server --------------------------------------------------------
 
     def ready(self):
         try:

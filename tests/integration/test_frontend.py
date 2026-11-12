@@ -1,9 +1,4 @@
-"""UI tests with Streamlit's AppTest: every page path, including the error paths.
-
-The `api` module is replaced with stubs, so these run without any service up
-and can force each failure (backend down, prediction error, feedback error).
-Test IDs match docs/test_plan.md.
-"""
+"""Streamlit AppTest tests (UI-xx in docs/test_plan.md), with `api` stubbed out."""
 
 import sys
 from pathlib import Path

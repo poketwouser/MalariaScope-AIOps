@@ -1,9 +1,8 @@
-# Recording and alerting rules. Format follows DA3408/Monitoring/sample_rules.yml and
-# Assignment 4's rules.yml. Thresholds come from measured numbers (see the comments).
+# thresholds are based on numbers measured on this project, see the comments
 groups:
   - name: recording
     rules:
-      # Same rule as the course sample: CPU cores busy in user and system mode.
+      # cpu cores busy in user and system mode
       - record: cpu_util
         expr: sum by (mode) (rate(node_cpu_seconds_total{mode=~"system|user"}[1m]))
 

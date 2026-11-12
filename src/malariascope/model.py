@@ -1,8 +1,7 @@
-"""The MalariaScope CNN.
+"""CNN for 2-class cell images.
 
-Input is a uint8 (size, size, 3) cell image. Scaling to [0, 1] and training-time
-augmentation are layers inside the model, so serving sends raw pixels and gets
-the same preprocessing as training (Rescaling is part of the saved model).
+Rescaling and augmentation are layers in the model, so the saved model takes
+raw uint8 pixels and serving does not need to repeat the preprocessing.
 """
 
 import keras
@@ -12,7 +11,6 @@ from malariascope.labels import CLASS_NAMES
 
 
 def build_model(image_size, filters, dense_units, dropout, augment, learning_rate):
-    """Build and compile a small conv net with a 2-way softmax output."""
     inputs = keras.Input(shape=(image_size, image_size, 3), name="image")
     x = layers.Rescaling(1.0 / 255)(inputs)
     if augment:

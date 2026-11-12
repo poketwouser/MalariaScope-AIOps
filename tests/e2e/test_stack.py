@@ -1,13 +1,7 @@
-"""End-to-end tests against the running Docker Compose stack.
+"""End-to-end tests against the running compose stack (E2E-xx in docs/test_plan.md).
 
-These exercise the real containers (images, env vars, network, mounted stores),
-which the unit and integration tests can't: the Day 7 missing-pandas bug in the
-backend image passed every other test. Test IDs match docs/test_plan.md.
-
-Start the stack first (`docker compose up -d`), then:
-    pytest tests/e2e -m e2e
-Every test is skipped when the backend isn't reachable. The tests never store
-feedback, so they don't change the retraining data.
+start the stack first, then: pytest tests/e2e -m e2e
+skipped when the backend is not reachable. no feedback is stored.
 """
 
 import os

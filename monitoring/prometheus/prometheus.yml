@@ -1,6 +1,4 @@
-# Prometheus config (Lecture 9; structure follows DA3408 Monitoring/sample_prometheus.yml,
-# with rules and Alertmanager as in the course samples and Assignment 4).
-# Targets are compose service names on the internal network.
+# targets are compose service names
 global:
   scrape_interval: 5s
   evaluation_interval: 5s

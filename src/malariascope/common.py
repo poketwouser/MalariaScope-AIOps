@@ -1,4 +1,4 @@
-"""Shared helpers for the pipeline stages: params, logging, timing and JSON output."""
+"""small helpers used by every pipeline stage"""
 
 import json
 import logging
@@ -12,13 +12,11 @@ LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 
 
 def get_logger(name):
-    """Return a logger that writes timestamped lines to stderr."""
     logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
     return logging.getLogger(name)
 
 
 def load_params(section=None, path=PARAMS_FILE):
-    """Read params.yaml, or one top-level section of it."""
     with open(path) as f:
         params = yaml.safe_load(f)
     if section is None:
@@ -29,7 +27,6 @@ def load_params(section=None, path=PARAMS_FILE):
 
 
 def write_json(data, path):
-    """Write a dict as pretty JSON, creating parent folders."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
@@ -38,12 +35,7 @@ def write_json(data, path):
 
 
 class Timer:
-    """Context manager that measures wall-clock seconds.
-
-    with Timer() as t:
-        work()
-    t.seconds
-    """
+    # with Timer() as t: ...   then t.seconds
 
     def __enter__(self):
         self._start = time.perf_counter()

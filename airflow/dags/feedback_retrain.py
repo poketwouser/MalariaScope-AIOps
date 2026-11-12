@@ -1,14 +1,6 @@
-"""Feedback retraining DAG (LLD section 6).
-
-Every 30 minutes, asks the backend how much feedback arrived since the last
-export. With at least retrain.min_feedback items (params.yaml) it copies them
-into the DVC-tracked snapshot data/feedback, versions it with `dvc add`, and
-starts training_pipeline, which retrains on the train split plus the feedback
-and lets the promotion gate decide. With too little feedback the run stops at
-the first task and the rest show as skipped.
-
-Trigger with config {"min_feedback": N} to override the threshold for one run.
-"""
+# every 30 min: if enough new feedback came in (retrain.min_feedback), export it
+# into data/feedback, dvc add it and start training_pipeline.
+# trigger with conf {"min_feedback": N} to use a different threshold once.
 
 import logging
 import os
@@ -35,7 +27,6 @@ def enough_feedback(dag_run=None):
     if min_needed is None:
         with open(f"{PROJECT}/params.yaml") as f:
             min_needed = yaml.safe_load(f)["retrain"]["min_feedback"]
-    # ask the backend over REST (loose coupling), as the LLD specifies
     r = requests.get(f"{BACKEND_URL}/feedback/stats", timeout=10)
     r.raise_for_status()
     pending = r.json()["since_last_export"]

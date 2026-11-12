@@ -1,5 +1,4 @@
-# MLflow Project (Lecture 3): one entry point per pipeline stage, all run in the
-# same Conda environment, so dev and test use identical dependencies.
+# one entry point per pipeline stage, all in the same conda env
 #   export MLFLOW_TRACKING_URI=http://localhost:5000
 #   mlflow run . -e train --experiment-name malariascope --env-manager local
 #   mlflow run . -e main --env-manager local      # whole pipeline through DVC

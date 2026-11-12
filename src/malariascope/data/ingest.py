@@ -1,12 +1,4 @@
-"""Ingest stage: download the TFDS malaria dataset and export it as PNG files.
-
-Output:
-    data/raw/images/<class>/<index>.png
-    data/raw/manifest.csv      columns: path, label, label_name
-    results/ingest.json        counts and timing (DVC metrics)
-
-Run: PYTHONPATH=src python -m malariascope.data.ingest
-"""
+"""Ingest stage: download the TFDS malaria dataset and save it as PNG files."""
 
 import argparse
 from pathlib import Path
@@ -19,7 +11,6 @@ log = get_logger("ingest")
 
 
 def export_dataset(name, tfds_dir, out_dir):
-    """Write every image of the TFDS dataset to out_dir and return the manifest."""
     # imported here so the other stages don't pay TensorFlow's import time
     import tensorflow_datasets as tfds
 

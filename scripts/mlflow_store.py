@@ -1,9 +1,6 @@
 """Snapshot or restore the MLflow store, so a fresh clone has a model to serve.
 
-mlflow.db and mlartifacts/ are live files written by the tracking server, so they
-stay out of Git. A copy of them is versioned with DVC in data/mlflow_store, which
-holds the registry (the @champion alias), all runs and their artifacts. The stored
-artifact URIs are proxied (mlflow-artifacts:/), so the copy works from any path.
+mlflow.db and mlartifacts/ are not in git, a copy is kept with dvc in data/mlflow_store.
 
   python scripts/mlflow_store.py snapshot && dvc add data/mlflow_store && dvc push
   dvc pull && python scripts/mlflow_store.py restore     # after a fresh clone
@@ -22,7 +19,7 @@ SNAPSHOT = ROOT / "data" / "mlflow_store"
 
 
 def snapshot():
-    """Copy the store, using SQLite's backup API so a running server is safe."""
+    # sqlite backup api, safe while the server is running
     if not DB.exists() or not ARTIFACTS.exists():
         sys.exit("No MLflow store here to snapshot.")
     shutil.rmtree(SNAPSHOT, ignore_errors=True)

@@ -1,9 +1,5 @@
-"""Webhook that Alertmanager posts to. Logs each alert as one line.
-
-Same idea as Assignment 4's alert_receiver.py: the course sample sends alerts to
-webhook.site, but this deployment stays on-prem, so notifications are written to
-a log file instead (ALERT_LOG, default /results/alerts.log). Standard library only.
-"""
+# alertmanager posts here, each alert becomes one line in ALERT_LOG.
+# standard library only, so it runs on the plain python image
 
 import json
 import os

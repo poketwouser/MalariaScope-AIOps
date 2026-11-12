@@ -1,4 +1,4 @@
-"""Pipeline page: one place to see the ML pipeline and jump to each tool's UI."""
+"""Pipeline page: pipeline runs, models, feedback and links to each tool."""
 
 import json
 import os
@@ -59,7 +59,7 @@ def local_time(ts):
 
 
 def xcom_json(dag_id, run_id, task_id):
-    """The metrics JSON a training task printed last, or {}."""
+    # each training task prints its metrics json last, airflow keeps it as the xcom
     path = (
         f"dags/{dag_id}/dagRuns/{quote(run_id, safe='')}/taskInstances/"
         f"{task_id}/xcomEntries/return_value"

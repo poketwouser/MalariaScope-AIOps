@@ -1,13 +1,4 @@
-"""EDA stage: figures describing the validated dataset.
-
-Figures follow the course's seven plotting commandments: colour-blind-safe
-palette (Okabe-Ito), named axes with units, legends, titles and a short story
-line under each title.
-
-Output (docs/figures/): class_balance.png, image_sizes.png, intensity.png, samples.png
-
-Run: PYTHONPATH=src python -m malariascope.eda
-"""
+"""EDA stage: four figures about the validated dataset, saved in docs/figures."""
 
 import argparse
 from pathlib import Path
@@ -23,7 +14,7 @@ from malariascope.common import get_logger  # noqa: E402
 
 log = get_logger("eda")
 
-# Okabe-Ito colours, distinguishable with the common types of colour blindness
+# colour-blind safe pair
 COLOURS = {"parasitized": "#D55E00", "uninfected": "#0072B2"}
 
 

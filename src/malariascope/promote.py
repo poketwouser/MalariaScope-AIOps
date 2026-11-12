@@ -1,20 +1,8 @@
-"""Promote stage: register the new model and promote it only if it is better.
+"""Promote stage: register the new model, make it champion only if it is better.
 
-Follows the Lecture 10 registry pattern:
-  1. register the run's model as a new version and point "challenger" at it
-  2. score challenger and current "champion" on the SAME current test split,
-     each with its own val-tuned threshold (stored on the version as a tag)
-  3. move "champion" to the challenger only if its accuracy is at least
-     promote.min_gain higher and its parasitized recall stays >= min_recall
-  4. the replaced version keeps the "previous_champion" alias, so a rollback is
-     a single alias move (see rollback.py)
-
-Serving loads models:/malariascope@champion, which is resolved at start-up, so
-the model server must be restarted after a promotion (Lecture 10).
-
-Output: results/promote.json   decision, versions and the comparison
-
-Run: PYTHONPATH=src python -m malariascope.promote
+challenger and champion are scored on the same test split, each at its own
+tuned threshold. the old champion keeps a previous_champion alias for rollback.
+the model server picks up the new @champion by itself (serve.py).
 """
 
 import argparse
@@ -44,7 +32,6 @@ def version_by_alias(client, alias):
 
 
 def score_version(version, x_test, y_test):
-    """Test metrics of a registered version at its own tuned threshold."""
     model = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/{version.version}")
     p_pos = np.asarray(model.predict(x_test))[:, POSITIVE]
     threshold = float(version.tags["decision_threshold"])
@@ -56,7 +43,6 @@ def score_version(version, x_test, y_test):
 
 
 def decide(challenger, champion, min_gain, min_recall):
-    """Return (promote, reason) for challenger vs champion metrics."""
     if challenger["recall_parasitized"] < min_recall:
         return False, (
             f"challenger recall {challenger['recall_parasitized']:.4f} "
@@ -71,7 +57,6 @@ def decide(challenger, champion, min_gain, min_recall):
 
 
 def register(client, run_id, evaluation):
-    """Register the run's model and tag the version with its evaluation."""
     version = mlflow.register_model(f"runs:/{run_id}/model", MODEL_NAME)
     run = client.get_run(run_id)
     tuned = evaluation["tuned"]

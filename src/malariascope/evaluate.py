@@ -1,20 +1,7 @@
-"""Evaluate stage: score the trained model on the held-out test split.
+"""Evaluate stage: test metrics at 0.5 and at a threshold tuned on val.
 
-Parasitized is the positive class: missing an infection is the costly error,
-so recall on it is reported alongside accuracy.
-
-The decision threshold on p(parasitized) is tuned on the validation split to
-reach evaluate.target_recall (a screening tool should rarely miss infections),
-then applied unchanged to the test split. Metrics are reported both at the
-default 0.5 threshold and at the tuned one. Metrics, plots and the
-classification report are logged into the same MLflow run as training.
-
-Output:
-    results/evaluate.json              test metrics (DVC metrics)
-    results/plots/confusion_matrix.png
-    results/plots/roc_curve.png
-
-Run: PYTHONPATH=src python -m malariascope.evaluate
+parasitized is the positive class. the threshold is picked on the val split
+(never on test) so recall reaches evaluate.target_recall.
 """
 
 import argparse
@@ -47,13 +34,11 @@ log = get_logger("evaluate")
 
 
 def predict_labels(p_pos, threshold):
-    """Class labels: parasitized when p(parasitized) >= threshold."""
     other = 1 - POSITIVE
     return np.where(p_pos >= threshold, POSITIVE, other)
 
 
 def pick_threshold(y_true, p_pos, target_recall):
-    """Highest threshold whose recall on parasitized reaches target_recall."""
     _, tpr, thresholds = roc_curve(y_true == POSITIVE, p_pos)
     # thresholds fall as tpr rises, so the first one reaching the target is the
     # highest, i.e. the one that costs the fewest false positives
@@ -62,7 +47,6 @@ def pick_threshold(y_true, p_pos, target_recall):
 
 
 def compute_metrics(y_true, p_pos, threshold=0.5):
-    """Metrics with parasitized as the positive class, at the given threshold."""
     y_pred = predict_labels(p_pos, threshold)
     is_pos = y_true == POSITIVE
     pred_pos = y_pred == POSITIVE

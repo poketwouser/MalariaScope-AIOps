@@ -1,9 +1,5 @@
-"""Run-level metrics for the DAGs, pushed to the Prometheus Pushgateway.
-
-Used as on_success_callback / on_failure_callback of both DAGs, so Grafana can
-show the latest run of each DAG and Prometheus can alert when one fails. Stage
-metrics are pushed by the tasks themselves (malariascope.pushmetrics).
-"""
+# dag success/failure callback: pushes the run result so prometheus can alert on
+# a failed run
 
 import logging
 import os

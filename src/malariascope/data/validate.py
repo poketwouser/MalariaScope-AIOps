@@ -1,14 +1,7 @@
 """Validate stage: check every raw image in parallel with Ray Data.
 
-Each image must decode, be RGB, have both sides within [min_side, max_side] and
-not be blank (pixel std >= min_std). Exact duplicates (same SHA-1) are dropped
-so the same picture can't end up in two splits.
-
-Output:
-    data/validated/manifest.csv   valid rows plus width, height, mean, std, sha1
-    results/validate.json         counts per drop reason, timing, throughput
-
-Run: PYTHONPATH=src python -m malariascope.data.validate
+drops unreadable, non-RGB, wrongly sized and blank images, and exact duplicates
+(same sha1) so one picture can't land in two splits.
 """
 
 import argparse
@@ -26,7 +19,6 @@ log = get_logger("validate")
 
 
 def check_image(path, min_side, max_side, min_std):
-    """Return (reason, stats) for one image file. reason is "ok" when it passes."""
     stats = {"width": 0, "height": 0, "mean": 0.0, "std": 0.0, "sha1": ""}
     try:
         data = Path(path).read_bytes()
@@ -52,7 +44,6 @@ def check_image(path, min_side, max_side, min_std):
 
 
 def check_batch(batch, root, min_side, max_side, min_std):
-    """Ray Data batch function: add the check result and image stats as columns."""
     reasons, stats = [], []
     for rel_path in batch["path"]:
         reason, s = check_image(Path(root) / rel_path, min_side, max_side, min_std)
@@ -66,7 +57,6 @@ def check_batch(batch, root, min_side, max_side, min_std):
 
 
 def validate(manifest, root, params):
-    """Run the checks on all rows with Ray and return the checked DataFrame."""
     # several blocks, or Ray runs everything as a single task on one CPU
     ds = ray.data.from_pandas(
         manifest, override_num_blocks=params["num_blocks"]

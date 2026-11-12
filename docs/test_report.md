@@ -67,7 +67,7 @@ The full run-through on 7 Nov found problems the automated tests had missed. Eac
 |---|---|---|
 | A fake or corrupt `.png` crashed the Predict page | Users saw a Python traceback. AC-5 had been reported as met on 5 Nov, which was wrong | Decode the file before previewing it; UT-18 added |
 | `git_dirty` was always true under `dvc repro` | DVC deletes a stage's outputs first, so the flag said nothing. v1 and v2 still carry `git_dirty=True` from this bug | Ignore DVC outputs in the check; UT-17 added |
-| `mlflow run . -e train` failed | The `MLproject` entry point couldn't run | Follow MLflow Exercise 2: set no experiment under `mlflow run` |
+| `mlflow run . -e train` failed | The `MLproject` entry point couldn't run | Set no experiment inside the script under `mlflow run`; pass `--experiment-name` instead |
 | A fresh clone had no model to serve | The MLflow store wasn't versioned, so the model server couldn't start | DVC snapshot of the store, `scripts/mlflow_store.py` |
 | The scheduler could start before the backend | A catch-up `feedback_retrain` run failed at cold start and raised a false alert | `depends_on: backend: service_healthy` |
 | Grafana "Stage last success" showed `NaN` | Text columns were formatted as dates | Apply the date format to the time column only |

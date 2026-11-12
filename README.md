@@ -1,11 +1,11 @@
 # MalariaScope
 
-Automated malaria parasite detection from thin blood smear cell images, built as an AIOps (DA3408) course project.
+Automated malaria parasite detection from thin blood smear cell images, with the ML pipeline, serving and monitoring around it.
 
 - Problem and objectives: [PROJECT_STATEMENT.md](PROJECT_STATEMENT.md)
-- Documents: [architecture](docs/architecture.md), [HLD](docs/HLD.md), [LLD](docs/LLD.md), [test plan](docs/test_plan.md), [test report](docs/test_report.md), [user manual](docs/user_manual.md)
-- Evidence: [screenshots/](screenshots/), one folder per rubric section
-- [Instructions for TAs](Instructions_for_TAs.md): how to run and check each rubric item
+- Documents: [architecture](docs/architecture.pdf), [HLD](docs/HLD.pdf), [LLD](docs/LLD.pdf), [test plan](docs/test_plan.md), [test report](docs/test_report.md), [user manual](docs/user_manual.md)
+- Evidence: [screenshots/](screenshots/), one folder per area
+- [Instructions for TAs](Instructions_for_TAs.md): how to run and check each part
 - [AI disclosure](AI_DISCLOSURE.md)
 
 ## Development environment
@@ -18,7 +18,7 @@ mamba activate malariascope
 ## Run the stack (Docker Compose)
 
 Needs Docker with Compose v2 and the Conda environment above (for `dvc`). The DVC remote is a local
-folder (Lecture 2); on another machine, point it at `~/tmp/dvc_storage`, which Airflow mounts:
+folder; on another machine, point it at `~/tmp/dvc_storage`, which Airflow mounts:
 
 ```bash
 mkdir -p ~/tmp/dvc_storage
@@ -89,6 +89,6 @@ mlflow-model-server/ MLflow model server image
 tests/              unit, integration and end-to-end tests
 docs/               architecture, HLD, LLD, test plan and report, user manual
 scripts/            traffic simulator, serving smoke test, MLflow store snapshot
-screenshots/        evidence, one folder per rubric section
+screenshots/        evidence, one folder per area
 results/            pipeline metrics and plots tracked by DVC
 ```

@@ -1,10 +1,10 @@
-# Instructions for TAs: DA3408 Project, MalariaScope
+# Instructions for TAs: MalariaScope
 
 Kiran Kumar P
 
-How to check each rubric item quickly. If you don't want to run anything, every check has screenshots in
-[`screenshots/`](screenshots/) (one folder per rubric section; numbers like "03" below are the file prefixes).
-The five design documents are in [`docs/`](docs/).
+How to check each part quickly. If you don't want to run anything, every check has screenshots in
+[`screenshots/`](screenshots/) (one folder per area; numbers like "03" below are the file prefixes).
+The design documents are in [`docs/`](docs/).
 
 ## 1. Running it
 
@@ -15,7 +15,7 @@ Everything runs on CPU. Run all commands from the repository root.
 mamba env create -f environment.yml && mamba activate malariascope
 ```
 
-The DVC remote in `.dvc/config` is a local folder on my laptop (`/home/kiran/tmp/dvc_storage`, Lecture 2), so
+The DVC remote in `.dvc/config` is a local folder on my laptop (`/home/kiran/tmp/dvc_storage`), so
 it doesn't exist on your machine. Point DVC at `~/tmp/dvc_storage` instead; Airflow mounts that same path.
 Then pick **A** if you have a copy of my DVC remote (about 1 GB), or **B** to rebuild everything from TFDS.
 
@@ -63,7 +63,7 @@ With the stack up, `pytest` gives **89 passed** (adds 24 end-to-end tests agains
 
 ## 2. Checklist
 
-### Demonstration: Front-end UI/UX (3)
+### Front-end UI/UX
 
 Screenshots: [`screenshots/01_ui`](screenshots/01_ui). User manual for non-technical users: [`docs/user_manual.md`](docs/user_manual.md).
 
@@ -77,7 +77,7 @@ Screenshots: [`screenshots/01_ui`](screenshots/01_ui). User manual for non-techn
 | Low confidence | any result under 70% | yellow warning to get the slide checked (UI-04 in the test plan) |
 | Narrow window | resize the browser to phone width | columns stack (09) |
 
-### Demonstration: ML pipeline visualisation (2)
+### ML pipeline visualisation
 
 Screenshots: [`screenshots/02_pipeline`](screenshots/02_pipeline).
 
@@ -88,39 +88,39 @@ Screenshots: [`screenshots/02_pipeline`](screenshots/02_pipeline).
 | Throughput | Pipeline page "Stages" table, or `dvc metrics show` | validate about 5,400 images/s, preprocess about 5,100 images/s with Ray (06, 12) |
 | Errors and failures | Grafana "MalariaScope - Pipeline" | failed runs, run duration, stage last success ([05_monitoring/04](screenshots/05_monitoring)) |
 
-### Software Engineering: Design principle (2)
+### Design documents
 
 | Document | File |
 |---|---|
-| Architecture diagram with each block explained | [`docs/architecture.md`](docs/architecture.md), [`architecture.png`](docs/architecture.png) |
-| HLD with design choices, paradigm and trade-offs | [`docs/HLD.md`](docs/HLD.md), [`hld_diagram.png`](docs/hld_diagram.png) |
-| LLD: every endpoint with request/response schemas, status codes, error format | [`docs/LLD.md`](docs/LLD.md) (matches Swagger at `/docs`, [06_packaging/03, 05](screenshots/06_packaging)) |
+| Architecture diagram with each block explained | [`docs/architecture.pdf`](docs/architecture.pdf) |
+| HLD with design choices, paradigm and trade-offs | [`docs/HLD.pdf`](docs/HLD.pdf) |
+| LLD: every endpoint with request/response schemas, status codes, error format | [`docs/LLD.pdf`](docs/LLD.pdf) (matches Swagger at `/docs`, [06_packaging/03, 05](screenshots/06_packaging)) |
 
 Loose coupling: the frontend reaches the backend only through `BACKEND_URL` ([`frontend/api.py`](frontend/api.py)),
 and the backend reaches the model only through the MLflow model server's REST `/invocations`.
 Paradigm: functional DVC stages for the pipeline, small classes for the service layer (`ModelClient`, `FeedbackStore`).
 
-### Software Engineering: Implementation (2) and Testing (1)
+### Implementation and testing
 
 Screenshots: [`screenshots/07_testing`](screenshots/07_testing).
 
 | Check | How | Expected |
 |---|---|---|
 | Style | `black --check .` and `flake8` | clean (03, 04) |
-| Logging and errors | `docker compose logs backend` | one line per request with request id and latency; one JSON error shape (LLD §3) |
+| Logging and errors | `docker compose logs backend` | one line per request with request id and latency; one JSON error shape ([LLD](docs/LLD.pdf) §3) |
 | Tests | `pytest` | 89 passed (01); coverage 51% (02, explained in the report) |
 | Alert rules | `promtool test rules monitoring/prometheus/rules_test.yml` (inside the Prometheus container) | 6/6 (05) |
 | Test plan, cases, acceptance criteria | [`docs/test_plan.md`](docs/test_plan.md) | AC-1…AC-7, cases UT/IT/UI/E2E/RT/ST |
 | Test report | [`docs/test_report.md`](docs/test_report.md) | counts, results per case, 6 of 7 criteria met (see §4) |
 
-### AIOps: Data engineering (2)
+### Data engineering
 
 `src/malariascope/data/`: `ingest` (TFDS → PNG + manifest) → `validate` (Ray Data `map_batches`: unreadable,
 non-RGB, size, blank, SHA-1 duplicates) → `split` (seeded, stratified 80/10/10) → `preprocess` (Ray Data resize to
 64 px, `.npz`). Throughput and time are in `results/validate.json` and `results/preprocess.json`.
 Ray dashboard during preprocessing: [02_pipeline/07, 08](screenshots/02_pipeline).
 
-### AIOps: Source control and CI (2)
+### Source control and CI
 
 Screenshots: [`screenshots/03_dvc_git`](screenshots/03_dvc_git).
 
@@ -131,7 +131,7 @@ Screenshots: [`screenshots/03_dvc_git`](screenshots/03_dvc_git).
 | Metrics and params | `dvc metrics show`, `dvc params diff`, `dvc exp show -A` | (03–06) |
 | Data, feedback and models in DVC | `data/feedback.dvc`, `data/mlflow_store.dvc`, stage outputs in `dvc.lock` | (07, 09, 10) |
 
-### AIOps: Experiment tracking (2)
+### Experiment tracking
 
 Screenshots: [`screenshots/04_mlflow`](screenshots/04_mlflow). MLflow at http://localhost:5000.
 
@@ -142,19 +142,19 @@ Screenshots: [`screenshots/04_mlflow`](screenshots/04_mlflow). MLflow at http://
 | Experiments | runs table / compare | baseline, lr5e-4, wider, img96, no-augment (02, 03) |
 | Registry with a promotion rule | Models → malariascope | v1 `@champion`; v2 and v3 rejected (accuracy 0.9561 < 0.9626 + 0.005), v3 `@challenger` (07, 11–13) |
 
-### AIOps: Prometheus instrumentation and Grafana (2)
+### Prometheus and Grafana
 
 Screenshots: [`screenshots/05_monitoring`](screenshots/05_monitoring).
 
 | Check | Where | Expected |
 |---|---|---|
-| Custom metrics | http://localhost:8000/metrics | `malariascope_predictions_total{label}`, `malariascope_prediction_confidence`, `malariascope_inference_seconds`, `malariascope_input_mean_intensity` (drift), `malariascope_feedback_total{agreed}`, `malariascope_model_version` (02; full list in LLD §7.1) |
+| Custom metrics | http://localhost:8000/metrics | `malariascope_predictions_total{label}`, `malariascope_prediction_confidence`, `malariascope_inference_seconds`, `malariascope_input_mean_intensity` (drift), `malariascope_feedback_total{agreed}`, `malariascope_model_version` (02; full list in [LLD](docs/LLD.pdf) §7.1) |
 | Components monitored | Prometheus targets | backend, model server (`malariascope_model_server_up`), host (node-exporter), pipeline tasks and DAG runs (Pushgateway), Alertmanager (01) |
 | Dashboards | Grafana | Service (15 panels) and Pipeline (23 panels), provisioned as JSON in `monitoring/grafana/dashboards/` (03, 04, 07, 12–17) |
 | Alerts | http://localhost:9090/alerts | 10 rules; alerts go Alertmanager → `alert-receiver` → `results/alerts.log` (05, 06, 08) |
 | Drift demo | `python scripts/simulate_traffic.py -n 80 --brightness 1.3` | `InputDrift` fires after about 5 minutes, resolves when traffic stops (05, 07) |
 
-### AIOps: Software packaging (2)
+### Software packaging
 
 Screenshots: [`screenshots/06_packaging`](screenshots/06_packaging).
 
@@ -165,7 +165,7 @@ Screenshots: [`screenshots/06_packaging`](screenshots/06_packaging).
 | FastAPI | http://localhost:8000/docs | (03, 05) |
 | Docker | `docker compose ps` | frontend and backend as separate services, pinned images, healthchecks, `depends_on: service_healthy` (01, 06) |
 
-### Feedback loop and retraining (project statement)
+### Feedback loop and retraining
 
 Screenshots: [`screenshots/08_feedback_loop`](screenshots/08_feedback_loop).
 
@@ -194,7 +194,6 @@ Training is seeded, so `dvc repro` on another machine should give the same split
 - **AC-2 is not met:** Parasitized recall is 96.73%, my own target was 97% (4 cells short). The project statement
   asks for ≥95% accuracy and high recall, which is met. Tuning the threshold on the test split would pass it but
   leak test data, so I didn't ([`docs/test_report.md`](docs/test_report.md) §5).
-- Pushgateway isn't in the course labs; I used it for the pipeline's batch metrics (Lecture 9, "Pull vs. Push").
 - Stored feedback images aren't encrypted, and Grafana and Airflow use local default passwords. Ports are bound
   to 127.0.0.1 and containers run as non-root.
 - No Grad-CAM; the UI explains a result through the confidence score and a low-confidence warning.

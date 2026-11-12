@@ -8,13 +8,13 @@ Results of the latest run are in [test_report.md](test_report.md).
 - Data pipeline stages: image checks, the split (including feedback and the leakage guard), the resize shared by training and serving.
 - Model contract and metrics: input/output shapes, threshold tuning, false-negative counting.
 - Registry promotion gate.
-- Backend REST API (LLD section 3): every endpoint, validation, error shapes, metrics.
+- Backend REST API ([LLD](LLD.pdf) section 3): every endpoint, validation, error shapes, metrics.
 - Streamlit UI: every path on the Predict page and the Pipeline page, including every error path.
 - The running Docker Compose stack: health of all services, champion serving, Prometheus scraping, alert rules, Grafana dashboards, Airflow DAG loading, latency.
 - Alert rules (promtool).
 
 **Out of scope**
-- Model quality beyond the acceptance criteria below (covered by the experiments in HLD section 5.4).
+- Model quality beyond the acceptance criteria below (covered by the experiments in [HLD](HLD.pdf) section 5.4).
 - Load and stress testing beyond the 50-request latency check.
 - Browsers other than the one used for screenshots; Streamlit renders the same everywhere.
 - Security testing (the stack binds only to 127.0.0.1).

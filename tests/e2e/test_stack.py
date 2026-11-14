@@ -64,7 +64,6 @@ def prom_query(expr):
         ("frontend", f"{HOST}:8501/_stcore/health"),
         ("airflow", f"{HOST}:8080/health"),
         ("prometheus", f"{PROMETHEUS}/-/ready"),
-        ("pushgateway", f"{HOST}:9091/-/ready"),
         ("alertmanager", f"{HOST}:9093/-/ready"),
         ("grafana", f"{HOST}:3000/api/health"),
     ],
@@ -187,7 +186,7 @@ def test_alert_rules_and_grafana_dashboards_are_provisioned():
         f"{HOST}:3000/api/search", params={"type": "dash-db"}, timeout=5
     ).json()
     uids = {d["uid"] for d in dashboards}
-    assert {"malariascope-service", "malariascope-pipeline"} <= uids
+    assert "malariascope-service" in uids
 
 
 # E2E-09

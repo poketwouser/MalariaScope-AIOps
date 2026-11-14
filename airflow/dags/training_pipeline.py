@@ -6,7 +6,6 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from run_metrics import push_run_result
 
 PROJECT = os.getenv("PROJECT_DIR", "/opt/project")
 PIPELINE_BIN = os.getenv("PIPELINE_BIN", "/opt/pipeline/bin")
@@ -31,10 +30,7 @@ STAGES = {
 
 def repro(stage, metrics):
     cmd = f"cd {PROJECT} && dvc repro {stage}"
-    # push before printing: the last stdout line must stay the JSON (the XCom)
-    cmd += (
-        f" && PYTHONPATH=src python -m malariascope.pushmetrics {stage} {metrics or ''}"
-    )
+    # the last stdout line is the JSON, so it becomes the task's XCom
     if metrics:
         cmd += f" && {PRINT_JSON} {metrics}"
     return BashOperator(task_id=stage, bash_command=cmd, env=ENV, append_env=True)
@@ -49,8 +45,6 @@ with DAG(
     catchup=False,
     max_active_runs=1,  # one DVC run at a time on the shared repo
     default_args={"owner": "malariascope", "retries": 0},
-    on_success_callback=push_run_result,
-    on_failure_callback=push_run_result,
     tags=["malariascope", "dvc"],
 ) as dag:
     t = {stage: repro(stage, metrics) for stage, metrics in STAGES.items()}

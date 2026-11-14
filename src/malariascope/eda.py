@@ -3,101 +3,74 @@
 import argparse
 from pathlib import Path
 
-import matplotlib
+import matplotlib.pyplot as plt
+import pandas as pd
+from PIL import Image
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import pandas as pd  # noqa: E402
-from PIL import Image  # noqa: E402
-
-from malariascope.common import get_logger  # noqa: E402
+from malariascope.common import get_logger
 
 log = get_logger("eda")
 
-# colour-blind safe pair
-COLOURS = {"parasitized": "#D55E00", "uninfected": "#0072B2"}
-
-
-def titled(ax, title, story):
-    ax.set_title(f"{title}\n{story}", fontsize=10, loc="left")
+CLASSES = ["parasitized", "uninfected"]
 
 
 def class_balance(df, out):
-    counts = df["label_name"].value_counts().reindex(list(COLOURS))
+    counts = df["label_name"].value_counts().reindex(CLASSES)
     fig, ax = plt.subplots(figsize=(6, 4))
-    bars = ax.bar(counts.index, counts.values, color=[COLOURS[c] for c in counts.index])
+    bars = ax.bar(counts.index, counts.values)
     ax.bar_label(bars)
     ax.set_xlabel("Class")
-    ax.set_ylabel("Images (count, linear scale)")
-    titled(ax, "Class balance", "The two classes are almost exactly balanced.")
+    ax.set_ylabel("Images")
+    ax.set_title("Class balance")
     fig.tight_layout()
-    fig.savefig(out, dpi=150)
+    fig.savefig(out)
     plt.close(fig)
 
 
 def image_sizes(df, out):
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
-    for ax, dim in zip(axes, ("width", "height")):
-        for name, colour in COLOURS.items():
+    for ax, dim in zip(axes, ["width", "height"]):
+        for name in CLASSES:
             ax.hist(
-                df.loc[df["label_name"] == name, dim],
-                bins=40,
-                alpha=0.6,
-                color=colour,
-                label=name,
+                df.loc[df["label_name"] == name, dim], bins=40, alpha=0.6, label=name
             )
         ax.set_xlabel(f"Image {dim} (pixels)")
-        ax.legend(title="Class")
-    axes[0].set_ylabel("Images (count, linear scale)")
-    titled(axes[0], "Image width", "Cell crops vary in size, so they are resized.")
-    titled(axes[1], "Image height", "Both classes have similar size ranges.")
+        ax.set_title(f"Image {dim}")
+        ax.legend()
+    axes[0].set_ylabel("Images")
     fig.tight_layout()
-    fig.savefig(out, dpi=150)
+    fig.savefig(out)
     plt.close(fig)
 
 
 def intensity(df, out):
     fig, ax = plt.subplots(figsize=(6, 4))
-    for name, colour in COLOURS.items():
+    for name in CLASSES:
         ax.hist(
-            df.loc[df["label_name"] == name, "mean"],
-            bins=50,
-            alpha=0.6,
-            color=colour,
-            label=name,
+            df.loc[df["label_name"] == name, "mean"], bins=50, alpha=0.6, label=name
         )
     ax.set_xlabel("Mean pixel intensity (0-255)")
-    ax.set_ylabel("Images (count, linear scale)")
-    ax.legend(title="Class")
-    titled(
-        ax,
-        "Mean intensity per image",
-        "Baseline for the drift metric watched in production.",
-    )
+    ax.set_ylabel("Images")
+    ax.set_title("Mean intensity per image")
+    ax.legend()
     fig.tight_layout()
-    fig.savefig(out, dpi=150)
+    fig.savefig(out)
     plt.close(fig)
 
 
 def samples(df, raw_dir, out, per_class=8, seed=0):
     fig, axes = plt.subplots(2, per_class, figsize=(per_class * 1.4, 3.4))
-    for row, name in enumerate(COLOURS):
+    for row, name in enumerate(CLASSES):
         picks = df[df["label_name"] == name].sample(per_class, random_state=seed)
         for ax, rel_path in zip(axes[row], picks["path"]):
             with Image.open(Path(raw_dir) / rel_path) as img:
                 ax.imshow(img.convert("RGB"))
             ax.set_xticks([])
             ax.set_yticks([])
-        axes[row][0].set_ylabel(name, color=COLOURS[name], fontsize=10)
-    fig.suptitle(
-        "Sample cells per class\n"
-        "Parasitized cells show purple-stained Plasmodium inside.",
-        fontsize=10,
-        x=0.01,
-        ha="left",
-    )
+        axes[row][0].set_ylabel(name)
+    fig.suptitle("Sample cells per class")
     fig.tight_layout()
-    fig.savefig(out, dpi=150)
+    fig.savefig(out)
     plt.close(fig)
 
 

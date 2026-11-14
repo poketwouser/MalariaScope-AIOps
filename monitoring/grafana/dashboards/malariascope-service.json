@@ -20,20 +20,7 @@
   "annotations": {
     "list": []
   },
-  "links": [
-    {
-      "title": "Pipeline dashboard",
-      "type": "link",
-      "url": "/d/malariascope-pipeline",
-      "icon": "dashboard"
-    },
-    {
-      "title": "Service dashboard",
-      "type": "link",
-      "url": "/d/malariascope-service",
-      "icon": "dashboard"
-    }
-  ],
+  "links": [],
   "panels": [
     {
       "type": "row",
@@ -790,7 +777,7 @@
     {
       "type": "timeseries",
       "title": "Input mean intensity vs training (drift)",
-      "description": "Mean per-image pixel intensity of uploads (resized model input) against the training baseline pushed by the preprocess stage. Alert InputDrift fires outside the band with 20+ uploads in 15 min.",
+      "description": "Mean per-image pixel intensity of uploads (resized model input) against the training baseline (119.5 ± 11.9, from results/preprocess.json). Alert InputDrift fires outside the band with 20+ uploads in 15 min.",
       "targets": [
         {
           "datasource": {
@@ -806,7 +793,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "malariascope_pipeline_train_intensity_mean{stage=\"preprocess\"}",
+          "expr": "vector(119.5)",
           "refId": "B",
           "legendFormat": "training mean"
         },
@@ -815,7 +802,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "malariascope_pipeline_train_intensity_mean{stage=\"preprocess\"} + malariascope_pipeline_train_intensity_std{stage=\"preprocess\"}",
+          "expr": "vector(131.4)",
           "refId": "C",
           "legendFormat": "alert band (+1 std)"
         },
@@ -824,7 +811,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "malariascope_pipeline_train_intensity_mean{stage=\"preprocess\"} - malariascope_pipeline_train_intensity_std{stage=\"preprocess\"}",
+          "expr": "vector(107.6)",
           "refId": "D",
           "legendFormat": "alert band (-1 std)"
         }

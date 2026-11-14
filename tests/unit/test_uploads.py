@@ -1,14 +1,10 @@
 """UI upload checks: a bad file must give a message, never reach st.image (UT-18)."""
 
 import io
-import sys
-from pathlib import Path
 
 import pytest
 from PIL import Image
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "frontend"))
-from uploads import MAX_MB, upload_error  # noqa: E402
+from uploads import MAX_MB, upload_error
 
 
 def png():

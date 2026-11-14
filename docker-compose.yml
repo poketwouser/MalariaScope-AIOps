@@ -23,7 +23,6 @@ x-airflow: &airflow
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-malariascope-local-only}
     MLFLOW_TRACKING_URI: http://mlflow:5000
     BACKEND_URL: http://backend:8000
-    PUSHGATEWAY_URL: pushgateway:9091
     PROJECT_DIR: /opt/project
   volumes:
     - ./airflow/dags:/opt/airflow/dags:ro
@@ -170,7 +169,7 @@ services:
       mlflow:
         condition: service_healthy
       # feedback_retrain asks the backend for counts; without this a catch-up run
-      # at start-up fails on DNS and raises a false PipelineRunFailed alert
+      # at start-up fails on DNS
       backend:
         condition: service_healthy
     healthcheck:
@@ -193,29 +192,10 @@ services:
     ports:
       - "127.0.0.1:9090:9090"
     depends_on:
-      pushgateway:
-        condition: service_healthy
       alertmanager:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # Batch jobs (pipeline stages, DAG runs) push here; Prometheus scrapes it.
-  pushgateway:
-    image: prom/pushgateway:v1.11.4
-    command:
-      - --persistence.file=/pushgateway/metrics.db
-      - --persistence.interval=30s
-    volumes:
-      - pushgateway-data:/pushgateway
-    ports:
-      - "127.0.0.1:9091:9091"
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9091/-/healthy"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -307,5 +287,4 @@ services:
 volumes:
   prometheus-data:
   grafana-data:
-  pushgateway-data:
   alertmanager-data:

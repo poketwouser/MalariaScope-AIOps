@@ -1,21 +1,15 @@
 """Backend API tests with a fake model client instead of the model server."""
 
 import io
-import os
-import tempfile
 
 import numpy as np
 import pytest
+from fastapi.testclient import TestClient
 from PIL import Image
 
-# app.main opens the feedback store on import, keep it away from the real one
-os.environ.setdefault("FEEDBACK_DIR", tempfile.mkdtemp())
-
-from fastapi.testclient import TestClient  # noqa: E402
-
-from app import config, main  # noqa: E402
-from app.feedback_store import FeedbackStore  # noqa: E402
-from app.model_client import ModelUnavailable  # noqa: E402
+from app import config, main
+from app.feedback_store import FeedbackStore
+from app.model_client import ModelUnavailable
 
 THRESHOLD = 0.3
 

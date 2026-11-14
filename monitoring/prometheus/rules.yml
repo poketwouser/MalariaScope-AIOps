@@ -31,7 +31,7 @@ groups:
         expr: sum(increase(malariascope_feedback_total[1h]))
 
       # drift signal: mean per-image intensity of recent uploads, compared with the
-      # training baseline the preprocess stage pushes (malariascope_pipeline_train_intensity_*)
+      # training baseline in results/preprocess.json (see InputDrift)
       - record: malariascope:input_intensity_mean:15m
         expr: |
           sum(increase(malariascope_input_mean_intensity_sum[15m]))
@@ -85,9 +85,7 @@ groups:
       # training std over at least 20 uploads is very unlikely to be chance.
       - alert: InputDrift
         expr: |
-          abs(malariascope:input_intensity_mean:15m
-              - scalar(malariascope_pipeline_train_intensity_mean{stage="preprocess"}))
-            > scalar(malariascope_pipeline_train_intensity_std{stage="preprocess"})
+          abs(malariascope:input_intensity_mean:15m - 119.5) > 11.9
           and malariascope:input_count:15m >= 20
         for: 1m
         labels:
@@ -103,15 +101,6 @@ groups:
           severity: warning
         annotations:
           summary: "Only {{ $value | humanizePercentage }} of last hour's feedback agreed with the model"
-
-  - name: pipeline
-    rules:
-      - alert: PipelineRunFailed
-        expr: malariascope_dag_run_success == 0
-        labels:
-          severity: warning
-        annotations:
-          summary: "Latest run of Airflow DAG {{ $labels.dag_id }} failed"
 
   - name: host
     rules:

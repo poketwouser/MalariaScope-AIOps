@@ -9,13 +9,10 @@ import json
 from pathlib import Path
 
 import keras
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import mlflow  # noqa: E402
-import numpy as np  # noqa: E402
-from sklearn.metrics import (  # noqa: E402
+import matplotlib.pyplot as plt
+import mlflow
+import numpy as np
+from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
@@ -26,9 +23,9 @@ from sklearn.metrics import (  # noqa: E402
     roc_curve,
 )
 
-from malariascope.common import get_logger, load_params, write_json  # noqa: E402
-from malariascope.labels import CLASS_NAMES, POSITIVE  # noqa: E402
-from malariascope.tracking import tracking_uri  # noqa: E402
+from malariascope.common import get_logger, load_params, write_json
+from malariascope.labels import CLASS_NAMES, POSITIVE
+from malariascope.tracking import tracking_uri
 
 log = get_logger("evaluate")
 
@@ -76,33 +73,23 @@ def plot_confusion(y_true, y_pred, threshold, out):
     ax.set_yticks(range(len(CLASS_NAMES)), CLASS_NAMES)
     ax.set_xlabel("Predicted class")
     ax.set_ylabel("True class")
-    ax.set_title(
-        f"Confusion matrix (test split, counts, threshold {threshold:.3f})\n"
-        "Top-right cell = infections the model missed.",
-        fontsize=10,
-        loc="left",
-    )
+    ax.set_title(f"Confusion matrix (test, threshold {threshold:.3f})")
     fig.tight_layout()
-    fig.savefig(out, dpi=150)
+    fig.savefig(out)
     plt.close(fig)
 
 
 def plot_roc(y_true, p_pos, auc, out):
     fpr, tpr, _ = roc_curve(y_true == POSITIVE, p_pos)
     fig, ax = plt.subplots(figsize=(5, 4.5))
-    ax.plot(fpr, tpr, color="#D55E00", label=f"model (AUC {auc:.3f})")
-    ax.plot([0, 1], [0, 1], linestyle="--", color="#999999", label="chance")
-    ax.set_xlabel("False positive rate (linear, 0-1)")
-    ax.set_ylabel("True positive rate (linear, 0-1)")
-    ax.legend(loc="lower right")
-    ax.set_title(
-        "ROC curve, parasitized as positive\n"
-        "Closer to the top-left corner is better.",
-        fontsize=10,
-        loc="left",
-    )
+    ax.plot(fpr, tpr, label=f"model (AUC {auc:.3f})")
+    ax.plot([0, 1], [0, 1], "--", label="chance")
+    ax.set_xlabel("False positive rate")
+    ax.set_ylabel("True positive rate")
+    ax.set_title("ROC curve (parasitized = positive)")
+    ax.legend()
     fig.tight_layout()
-    fig.savefig(out, dpi=150)
+    fig.savefig(out)
     plt.close(fig)
 
 

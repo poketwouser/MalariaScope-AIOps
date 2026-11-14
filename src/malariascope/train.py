@@ -6,17 +6,14 @@ import platform
 from pathlib import Path
 
 import keras
-import matplotlib
+import matplotlib.pyplot as plt
+import mlflow
+import numpy as np
+from mlflow.models import infer_signature
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import mlflow  # noqa: E402
-import numpy as np  # noqa: E402
-from mlflow.models import infer_signature  # noqa: E402
-
-from malariascope.common import Timer, get_logger, load_params, write_json  # noqa: E402
-from malariascope.model import build_model  # noqa: E402
-from malariascope.tracking import run_tags, tracking_uri  # noqa: E402
+from malariascope.common import Timer, get_logger, load_params, write_json
+from malariascope.model import build_model
+from malariascope.tracking import run_tags, tracking_uri
 
 log = get_logger("train")
 
@@ -35,22 +32,15 @@ class MlflowEpochLogger(keras.callbacks.Callback):
 def plot_history(history, out):
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
     epochs = np.arange(1, len(history["loss"]) + 1)
-    for ax, key, label in (
-        (axes[0], "loss", "Loss"),
-        (axes[1], "accuracy", "Accuracy"),
-    ):
-        ax.plot(epochs, history[key], marker="o", color="#0072B2", label="train")
-        ax.plot(epochs, history[f"val_{key}"], marker="s", color="#D55E00", label="val")
+    for ax, key in zip(axes, ["loss", "accuracy"]):
+        ax.plot(epochs, history[key], label="train")
+        ax.plot(epochs, history[f"val_{key}"], label="val")
         ax.set_xlabel("Epoch")
-        ax.set_ylabel(f"{label} (linear scale)")
+        ax.set_ylabel(key)
+        ax.set_title(key)
         ax.legend()
-        ax.set_title(
-            f"{label} per epoch\nA widening train/val gap would mean overfitting.",
-            fontsize=10,
-            loc="left",
-        )
     fig.tight_layout()
-    fig.savefig(out, dpi=150)
+    fig.savefig(out)
     plt.close(fig)
 
 

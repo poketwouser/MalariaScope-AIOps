@@ -1,14 +1,12 @@
 """Streamlit AppTest tests (UI-xx in docs/test_plan.md), with `api` stubbed out."""
 
-import sys
 from pathlib import Path
 
+import api
 import pytest
 from streamlit.testing.v1 import AppTest
 
 FRONTEND = Path(__file__).resolve().parents[2] / "frontend"
-sys.path.insert(0, str(FRONTEND))
-import api  # noqa: E402  (frontend module, found through the path above)
 
 SAMPLE = "parasitized_1.png"
 INFO = {"version": "1", "test_accuracy": 0.963, "test_recall_parasitized": 0.967}

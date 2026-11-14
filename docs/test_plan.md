@@ -10,8 +10,7 @@ Results of the latest run are in [test_report.md](test_report.md).
 - Registry promotion gate.
 - Backend REST API ([LLD](LLD.pdf) section 3): every endpoint, validation, error shapes, metrics.
 - Streamlit UI: every path on the Predict page and the Pipeline page, including every error path.
-- The running Docker Compose stack: health of all services, champion serving, Prometheus scraping, alert rules, Grafana dashboards, Airflow DAG loading, latency.
-- Alert rules (promtool).
+- The running Docker Compose stack: health of all services, champion serving, Prometheus scraping, alert rules, Grafana dashboard, Airflow DAG loading, latency.
 
 **Out of scope**
 - Model quality beyond the acceptance criteria below (covered by the experiments in [HLD](HLD.pdf) section 5.4).
@@ -23,11 +22,10 @@ Results of the latest run are in [test_report.md](test_report.md).
 
 | Level | Tool | Where | What it isolates |
 |---|---|---|---|
-| Unit | pytest | `tests/unit/` | Pure functions of the pipeline, metrics, promotion gate and Pushgateway client. No services. |
+| Unit | pytest | `tests/unit/` | Pure functions of the pipeline, metrics and promotion gate. No services. |
 | Integration | pytest + FastAPI `TestClient` | `tests/integration/test_backend_api.py` | The backend app with a fake model client, so each failure (model down, bad upload) can be forced. |
 | Integration (UI) | pytest + Streamlit `AppTest` | `tests/integration/test_frontend.py` | Each UI page with the `api` module stubbed, so every error path can be forced without services. |
 | End to end | pytest + requests | `tests/e2e/test_stack.py` | The real containers, images, env vars and network. Skipped automatically when the stack is down. |
-| Rules | promtool | `monitoring/prometheus/rules_test.yml` | Alert rules fire (and stay silent) on synthetic series. |
 | System (manual) | DVC, Airflow, scripts | `screenshots/` | Long-running flows: full pipeline, retrain loop, drift alert. Run once each with the log kept as evidence. |
 | Static | black, flake8 | whole repo | Formatting and lint. |
 
@@ -44,7 +42,7 @@ End-to-end tests never store feedback, so running them doesn't change the retrai
 | pytest / pytest-cov | 9.1.1 / 7.1.0 |
 | Streamlit (AppTest) | 1.65 |
 | Docker / Compose | 29.1.3 / 2.40.3 |
-| Stack under test | `docker compose up -d`: 12 services, all images pinned in `docker-compose.yml` |
+| Stack under test | `docker compose up -d`: 11 services, all images pinned in `docker-compose.yml` |
 | Model under test | registry `malariascope@champion` (version 1) |
 
 ## 4. How to run
@@ -54,7 +52,6 @@ mamba activate malariascope
 docker compose up -d                       # needed only for tests/e2e
 pytest --cov=src/malariascope --cov=backend/app
 pytest -m "not e2e"                        # without the stack
-docker compose exec -T -w /etc/prometheus prometheus promtool test rules rules_test.yml
 black --check . && flake8
 ```
 
@@ -67,7 +64,7 @@ These were fixed in `PLAN.md` before testing began. The software is accepted whe
 | AC-1 | Test accuracy ≥ 95% on the fixed test split (2,756 images) | champion's registry tag `test_accuracy` (promote stage) |
 | AC-2 | Parasitized recall ≥ 97% on the same split | champion's registry tag `test_recall_parasitized` |
 | AC-3 | p95 `/predict` latency < 500 ms, end to end through the backend and model server | E2E-10 (50 calls); same limit as the `PredictLatencyHigh` alert |
-| AC-4 | Every automated test passes | pytest, promtool |
+| AC-4 | Every automated test passes | pytest |
 | AC-5 | The UI handles every error case with a message and no crash | UI-02, UI-06, UI-08, UI-09, UT-18, E2E-05, ST-09 |
 | AC-6 | Code is lint clean | black, flake8 |
 | AC-7 | Training is reproducible: same commit and data give the same metrics | ST-01 |
@@ -95,7 +92,6 @@ Steps for the automated cases are the test functions themselves; the expected re
 | UT-13 | `test_lower_threshold_flags_more_cells_as_parasitized` / `test_pick_threshold_reaches_target_recall` | Threshold tuning on val reaches the target recall |
 | UT-14 | `test_model_input_output_contract` | Model takes uint8 (n,64,64,3), returns (n,2) probabilities |
 | UT-15 | `test_promote::*` (4 tests) | First model promoted; low recall never promoted; promotion needs `min_gain`; worse challenger rejected |
-| UT-16 | `test_pushmetrics::*` (5 tests) | Stage JSON becomes gauges; push is a no-op without a gateway and never fails a task |
 | UT-17 | `test_tracking::*` (3 tests) | `git_dirty` is false for DVC's own outputs, true for changed source |
 | UT-18 | `test_uploads::*` (5 tests) | Good image accepted; empty, fake and truncated files and oversize files get a message |
 
@@ -138,27 +134,21 @@ Steps for the automated cases are the test functions themselves; the expected re
 | E2E-05 | POST a text file, empty file, 5 MB + 1 byte, no file | 400, 400, 413, 422 with the right error codes |
 | E2E-06 | POST feedback with label "sick" | 400 `invalid_label`; feedback total unchanged |
 | E2E-07 | Predict once, poll Prometheus | Backend target up; `malariascope_predictions_total` rises within 20 s |
-| E2E-08 | Query Prometheus rules and Grafana search | Alert rules loaded; both dashboards provisioned |
+| E2E-08 | Query Prometheus rules and Grafana search | Alert rules loaded; service dashboard provisioned |
 | E2E-09 | Query Airflow REST API | No import errors; both DAGs present |
 | E2E-10 | 50 sequential `/predict` calls | p95 < 500 ms (AC-3) |
 
-### 6.5 Alert rules (`monitoring/prometheus/rules_test.yml`)
-
-| ID | Expected result |
-|---|---|
-| RT-01 … RT-06 | The 6 promtool cases pass (alerts fire on bad series, stay silent on good ones) |
-
-### 6.6 System tests (manual, run once)
+### 6.5 System tests (manual, run once)
 
 | ID | Steps | Expected result | Evidence |
 |---|---|---|---|
 | ST-01 | `dvc repro` on a clean commit in a fresh clone | Same metrics as the same data trained in Airflow; `git_dirty=False` | `04_mlflow/04_run_params_metrics_tags.png` |
 | ST-02 | Re-run validate and preprocess with 32 Ray blocks | Byte-identical `.npz`; DVC skips train | `02_pipeline/06_airflow_preprocess_log_throughput.png` |
 | ST-03 | Move the `@champion` alias | Model server restarts on the new version by itself | Registry page, `04_mlflow/07_registry_versions_aliases.png` |
-| ST-04 | Send test-set images as feedback, run `feedback_retrain` | Leakage guard drops them | `05_monitoring/04_grafana_pipeline_dashboard.png` |
+| ST-04 | Send test-set images as feedback, run `feedback_retrain` | Leakage guard drops them | `results/split.json` (`feedback.leaked_dropped`) |
 | ST-05 | Train-split feedback; `feedback_retrain` starts training | Gate rejects a worse model; v1 keeps serving | `08_feedback_loop/` |
 | ST-06 | `simulate_traffic.py --brightness 1.3` | `InputDrift` fires and resolves | `05_monitoring/05_prometheus_alerts_firing.png`, `07_grafana_drift_panel.png` |
-| ST-07 | Fault injection: make one metrics file unreadable, run `training_pipeline`, restore it, run again | Task fails, downstream tasks are `upstream_failed`, `PipelineRunFailed` fires, then resolves after the good run | `02_pipeline/04_airflow_grid_success_and_failed.png`, `05_airflow_failed_task_log.png` |
-| ST-08 | Fresh clone, `dvc pull`, restore the MLflow store, `docker compose up -d --build`, `pytest` | 12 healthy services; all tests pass | `06_packaging/01_docker_compose_ps.png` |
+| ST-07 | Fault injection: make one metrics file unreadable, run `training_pipeline`, restore it, run again | Task fails, downstream tasks are `upstream_failed`, the run shows as failed in Airflow and on the Pipeline page, the next run succeeds | `02_pipeline/04_airflow_grid_success_and_failed.png`, `05_airflow_failed_task_log.png` |
+| ST-08 | Fresh clone, `dvc pull`, restore the MLflow store, `docker compose up -d --build`, `pytest` | 11 healthy services; all tests pass | `06_packaging/01_docker_compose_ps.png` |
 | ST-09 | In the browser: upload a fake PNG, an oversize file; stop the backend and press Analyse | A plain message each time, never a traceback | `01_ui/06…08` |
-| ST-10 | Fresh clone with an empty DVC remote: start `mlflow`, `dvc repro` from TFDS, `docker compose up -d`, `pytest` | Same v1 metrics as the original run; v1 registered as `@champion`; 12 healthy services; all tests pass | `docs/test_report.md` |
+| ST-10 | Fresh clone with an empty DVC remote: start `mlflow`, `dvc repro` from TFDS, `docker compose up -d`, `pytest` | Same v1 metrics as the original run; v1 registered as `@champion`; all services healthy; all tests pass | `docs/test_report.md` |

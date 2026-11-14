@@ -43,7 +43,7 @@ docker compose up -d --build
 ```
 
 The first `docker compose up --build` takes about 35 minutes (the Airflow image installs TensorFlow and Ray).
-Wait until `docker compose ps` shows every service `(healthy)` (12 services, plus `airflow-init`, which exits).
+Wait until `docker compose ps` shows every service `(healthy)` (11 services, plus `airflow-init`, which exits).
 
 | URL | What you should see |
 |---|---|
@@ -52,14 +52,14 @@ Wait until `docker compose ps` shows every service `(healthy)` (12 services, plu
 | http://localhost:5000 | MLflow: experiment `malariascope`, model `malariascope` with `@champion` |
 | http://localhost:5001/ping | MLflow model server for `malariascope@champion` |
 | http://localhost:8080 | Airflow (admin / admin): `training_pipeline` and `feedback_retrain` |
-| http://localhost:9090/targets | Prometheus: `backend`, `pushgateway`, `node`, `alertmanager`, `prometheus`, all UP |
+| http://localhost:9090/targets | Prometheus: `backend`, `node`, `alertmanager`, `prometheus`, all UP |
 | http://localhost:9093 | Alertmanager |
-| http://localhost:3000 | Grafana, dashboards "MalariaScope - Service" and "MalariaScope - Pipeline" (no login) |
+| http://localhost:3000 | Grafana, dashboard "MalariaScope - Service" (no login) |
 
 To stop: `docker compose down` (images and volumes are kept, so the next `up -d` takes about a minute).
 
-**Quickest check (no stack needed):** `pytest -m "not e2e"` gives **65 passed** (40 unit, 25 integration).
-With the stack up, `pytest` gives **89 passed** (adds 24 end-to-end tests against the containers).
+**Quickest check (no stack needed):** `pytest -m "not e2e"` gives **60 passed** (35 unit, 25 integration).
+With the stack up, `pytest` gives **83 passed** (adds 23 end-to-end tests against the containers).
 
 ## 2. Checklist
 
@@ -86,7 +86,7 @@ Screenshots: [`screenshots/02_pipeline`](screenshots/02_pipeline).
 | Separate pipeline screen | app → **Pipeline** page | champion model, Airflow runs per DAG with **Run now**, per-stage state and time, Ray throughput, model versions, recent MLflow runs, feedback counts, links to every tool UI (01, 11–14) |
 | Management console | Airflow UI | DAG graph, grid with success and failed runs, task logs (02–05, 15–17) |
 | Throughput | Pipeline page "Stages" table, or `dvc metrics show` | validate about 5,400 images/s, preprocess about 5,100 images/s with Ray (06, 12) |
-| Errors and failures | Grafana "MalariaScope - Pipeline" | failed runs, run duration, stage last success ([05_monitoring/04](screenshots/05_monitoring)) |
+| Errors and failures | Airflow grid and task logs, Pipeline page | failed runs in red with the failing task's log; the Pipeline page shows the last failed run (04, 05, 11) |
 
 ### Design documents
 
@@ -108,9 +108,8 @@ Screenshots: [`screenshots/07_testing`](screenshots/07_testing).
 |---|---|---|
 | Style | `black --check .` and `flake8` | clean (03, 04) |
 | Logging and errors | `docker compose logs backend` | one line per request with request id and latency; one JSON error shape ([LLD](docs/LLD.pdf) §3) |
-| Tests | `pytest` | 89 passed (01); coverage 51% (02, explained in the report) |
-| Alert rules | `promtool test rules monitoring/prometheus/rules_test.yml` (inside the Prometheus container) | 6/6 (05) |
-| Test plan, cases, acceptance criteria | [`docs/test_plan.md`](docs/test_plan.md) | AC-1…AC-7, cases UT/IT/UI/E2E/RT/ST |
+| Tests | `pytest` | 83 passed (01); coverage 50% (02, explained in the report) |
+| Test plan, cases, acceptance criteria | [`docs/test_plan.md`](docs/test_plan.md) | AC-1…AC-7, cases UT/IT/UI/E2E/ST |
 | Test report | [`docs/test_report.md`](docs/test_report.md) | counts, results per case, 6 of 7 criteria met (see §4) |
 
 ### Data engineering
@@ -149,9 +148,9 @@ Screenshots: [`screenshots/05_monitoring`](screenshots/05_monitoring).
 | Check | Where | Expected |
 |---|---|---|
 | Custom metrics | http://localhost:8000/metrics | `malariascope_predictions_total{label}`, `malariascope_prediction_confidence`, `malariascope_inference_seconds`, `malariascope_input_mean_intensity` (drift), `malariascope_feedback_total{agreed}`, `malariascope_model_version` (02; full list in [LLD](docs/LLD.pdf) §7.1) |
-| Components monitored | Prometheus targets | backend, model server (`malariascope_model_server_up`), host (node-exporter), pipeline tasks and DAG runs (Pushgateway), Alertmanager (01) |
-| Dashboards | Grafana | Service (15 panels) and Pipeline (23 panels), provisioned as JSON in `monitoring/grafana/dashboards/` (03, 04, 07, 12–17) |
-| Alerts | http://localhost:9090/alerts | 10 rules; alerts go Alertmanager → `alert-receiver` → `results/alerts.log` (05, 06, 08) |
+| Components monitored | Prometheus targets | backend, model server (`malariascope_model_server_up`), host (node-exporter), Alertmanager (01). Pipeline runs are monitored in Airflow (see ML pipeline visualisation) |
+| Dashboards | Grafana | Service dashboard (15 panels), provisioned as JSON in `monitoring/grafana/dashboards/` (03, 07, 12–17) |
+| Alerts | http://localhost:9090/alerts | 9 rules; alerts go Alertmanager → `alert-receiver` → `results/alerts.log` (05, 06, 08) |
 | Drift demo | `python scripts/simulate_traffic.py -n 80 --brightness 1.3` | `InputDrift` fires after about 5 minutes, resolves when traffic stops (05, 07) |
 
 ### Software packaging

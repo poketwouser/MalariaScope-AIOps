@@ -165,25 +165,25 @@ stages:
       size: 1096
     - path: src/malariascope/eda.py
       hash: md5
-      md5: 3bdbd8630710101fe689c9498049d757
-      size: 3902
+      md5: 5c9f44a4793def38c0825969f1f9e11b
+      size: 2883
     outs:
     - path: docs/figures/class_balance.png
       hash: md5
-      md5: 08b29f583953a6c0a9b87119c17317bc
-      size: 41408
+      md5: 1068f5c7391e0873677a9955b7c1ab15
+      size: 17795
     - path: docs/figures/image_sizes.png
       hash: md5
-      md5: 3154e2fc4bc0aeaa0490bf7dae4c2fb2
-      size: 54828
+      md5: ed6f359f2f4d79f4689d76b39a7c8873
+      size: 23464
     - path: docs/figures/intensity.png
       hash: md5
-      md5: 00b46495010991bb3ee5eb7e30739a06
-      size: 48797
+      md5: a37932fbf7ed3d391b2e247b8671f75c
+      size: 21771
     - path: docs/figures/samples.png
       hash: md5
-      md5: 211d0c7dd0fdcd4fc8d907402618e656
-      size: 348654
+      md5: ae9257d9c1779f9e0b0528c24267d134
+      size: 197199
   train:
     cmd: PYTHONPATH=src python -m malariascope.train
     deps:
@@ -210,8 +210,8 @@ stages:
       size: 1815
     - path: src/malariascope/train.py
       hash: md5
-      md5: 95e0d148f1160011c17705b8ffd1f114
-      size: 5168
+      md5: ee3b62d8ad282ba823d7ca6e84fed8d4
+      size: 4740
     params:
       params.yaml:
         preprocess.image_size: 64
@@ -232,15 +232,15 @@ stages:
     outs:
     - path: models/model.keras
       hash: md5
-      md5: bda086cdb1862355fb4296a4b580373b
+      md5: 22abd919fdca3e95de1f95748d5cb87c
       size: 1404439
     - path: results/plots/training_curves.png
       hash: md5
-      md5: f658bf13f706adc1c346293f61d2445c
-      size: 77178
+      md5: ff6e2211ee95094c7537a63088dc276f
+      size: 34426
     - path: results/train.json
       hash: md5
-      md5: c35cdbd0b8ea4828dd1e0ebf4bee0d27
+      md5: 4e0d69b7208ad662b9a32c77d3cbdbc4
       size: 187
   evaluate:
     cmd: PYTHONPATH=src python -m malariascope.evaluate
@@ -252,11 +252,11 @@ stages:
       nfiles: 3
     - path: models/model.keras
       hash: md5
-      md5: bda086cdb1862355fb4296a4b580373b
+      md5: 22abd919fdca3e95de1f95748d5cb87c
       size: 1404439
     - path: results/train.json
       hash: md5
-      md5: c35cdbd0b8ea4828dd1e0ebf4bee0d27
+      md5: 4e0d69b7208ad662b9a32c77d3cbdbc4
       size: 187
     - path: src/malariascope/common.py
       hash: md5
@@ -264,8 +264,8 @@ stages:
       size: 1096
     - path: src/malariascope/evaluate.py
       hash: md5
-      md5: adff01813288e4892ba5235dff871f33
-      size: 6023
+      md5: 5b935ff787d198aae2d19d339811bc95
+      size: 5540
     - path: src/malariascope/labels.py
       hash: md5
       md5: 103e9b8b0f0c9f0df33381fa802900eb
@@ -285,16 +285,16 @@ stages:
     outs:
     - path: results/evaluate.json
       hash: md5
-      md5: adb9a62e1e445e19c716c5c808aa0a55
+      md5: e82839e0434ca8f6ad7519369fda17dc
       size: 753
     - path: results/plots/confusion_matrix.png
       hash: md5
-      md5: b550330eac964a527d560d3b2b412316
-      size: 39270
+      md5: ddadf987a967da4745f01abdb2dd4cb5
+      size: 20431
     - path: results/plots/roc_curve.png
       hash: md5
-      md5: 7d30b7dbe0dc5dc5a7b99463de2b31c3
-      size: 53836
+      md5: 003b01bc7d31b58a7e8ff4670b6a9035
+      size: 27404
   promote:
     cmd: PYTHONPATH=src python -m malariascope.promote
     deps:
@@ -305,7 +305,7 @@ stages:
       nfiles: 3
     - path: results/evaluate.json
       hash: md5
-      md5: adb9a62e1e445e19c716c5c808aa0a55
+      md5: e82839e0434ca8f6ad7519369fda17dc
       size: 753
     - path: src/malariascope/common.py
       hash: md5
@@ -313,8 +313,8 @@ stages:
       size: 1096
     - path: src/malariascope/evaluate.py
       hash: md5
-      md5: adff01813288e4892ba5235dff871f33
-      size: 6023
+      md5: 5b935ff787d198aae2d19d339811bc95
+      size: 5540
     - path: src/malariascope/labels.py
       hash: md5
       md5: 103e9b8b0f0c9f0df33381fa802900eb
@@ -335,5 +335,5 @@ stages:
     outs:
     - path: results/promote.json
       hash: md5
-      md5: 42df1437f5a350c58fc19bc3fbfea1c6
+      md5: a900974dd050e14a6cd18f20828522ff
       size: 881

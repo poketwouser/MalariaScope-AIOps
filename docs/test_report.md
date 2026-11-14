@@ -27,8 +27,8 @@ Line coverage of `src/malariascope` and `backend/app` from the pytest process: *
 
 | Area | Coverage | Why |
 |---|---|---|
-| Backend `main.py`, `schemas.py`, `config.py`, `metrics.py` | 95–100% | Covered by the integration tests |
-| Backend `model_client.py` | 26% | Replaced by a fake in integration tests. The real one runs inside the backend container, where E2E-02, E2E-04 and E2E-07 exercise it, but in-process coverage can't see that |
+| Backend `main.py`, `schemas.py`, `config.py`, `metrics.py` | 94–100% | Covered by the integration tests |
+| Backend `model_client.py` | 38% | Replaced by a fake in integration tests. The real one runs inside the backend container, where E2E-02, E2E-04 and E2E-07 exercise it, but in-process coverage can't see that |
 | `image.py`, `model.py`, `labels.py` | 95–100% | Unit tests |
 | `train.py`, `ingest.py`, `eda.py`, `rollback.py` | 0% | Long-running stage scripts. They are run by `dvc repro` and the Airflow DAG (ST-01, ST-05), not by pytest |
 
@@ -47,7 +47,7 @@ System tests (section 6.5):
 
 | Case | Result |
 |---|---|
-| ST-01 | Clean-commit training in a fresh clone and in Airflow gave identical test results to v2: accuracy 0.9560957910014514, 42 missed, 79 false alarms, `git_dirty=False` |
+| ST-01 | Clean-commit training in a fresh clone and in Airflow gave identical test results to v2: accuracy 0.9560957910014514, 42 missed, 79 false alarms, `git_dirty=False`. The 14 Nov clean-commit retrain (v5, run `75d190bd…`) matched again |
 | ST-02 | Ray validate 15.4 s → 5.1 s, preprocess 14.1 s → 5.4 s, output byte-identical |
 | ST-03 | Alias move noticed within 3 s; serving the new version about 5 s later |
 | ST-04 | Feedback received 62, leakage guard dropped 2 |

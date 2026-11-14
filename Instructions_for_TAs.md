@@ -29,7 +29,7 @@ dvc remote modify --local loc_remote url ~/tmp/dvc_storage
 ```bash
 cp -r /path/to/dvc_storage/. ~/tmp/dvc_storage/
 dvc pull                                 # data, model and the MLflow store snapshot
-python scripts/mlflow_store.py restore   # registry: 4 versions, malariascope@champion = v1
+python scripts/mlflow_store.py restore   # registry: 5 versions, malariascope@champion = v1
 docker compose up -d --build
 ```
 
@@ -159,7 +159,7 @@ Screenshots: [`screenshots/06_packaging`](screenshots/06_packaging).
 
 | Check | How | Expected |
 |---|---|---|
-| MLflow for APIfication | `python scripts/smoke_test_serving.py` | 4/4 sample cells right via `/invocations` (02) |
+| MLflow for APIfication | `PYTHONPATH=src python scripts/smoke_test_serving.py` | 4/4 sample cells right via `/invocations` (02) |
 | MLproject | `export MLFLOW_TRACKING_URI=http://localhost:5000`, then `mlflow run . -e train --experiment-name malariascope --env-manager local` | one entry point per DVC stage, plus `main` and `rollback` (04) |
 | FastAPI | http://localhost:8000/docs | (03, 05) |
 | Docker | `docker compose ps` | frontend and backend as separate services, pinned images, healthchecks, `depends_on: service_healthy` (01, 06) |
